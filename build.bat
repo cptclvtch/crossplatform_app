@@ -1,0 +1,1 @@
+tcc main.c -L.\backend\SDL2\lib\x86 -lSDL2 -I.\backend\OpenGL -L.\backend\OpenGL\3.2\x86 -lOpenGL32 -w -Wl,-subsystem,windows -o build/windows/main.exe

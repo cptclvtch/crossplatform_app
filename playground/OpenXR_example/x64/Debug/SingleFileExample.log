@@ -1,0 +1,3 @@
+﻿  main.cpp
+C:\Users\CptClutch\Desktop\SingleFileExample\main.cpp(250,63): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
+  SingleFileExample.vcxproj -> C:\Users\CptClutch\Desktop\SingleFileExample\x64\Debug\SingleFileExample.exe

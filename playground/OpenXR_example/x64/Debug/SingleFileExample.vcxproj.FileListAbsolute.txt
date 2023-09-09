@@ -1,0 +1,2 @@
+C:\Users\CptClutch\Desktop\SingleFileExample\x64\Debug\openxr_loader.dll
+C:\Users\CptClutch\Desktop\SingleFileExample\x64\Debug\SingleFileExample.exe
