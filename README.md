@@ -9,6 +9,3 @@
 - Build and run your app using the provided scripts.
 
 NOTE: DO NOT ATTEMPT TO CIRCUMVENT THE CLONING PROCESS
-
-## How to update this template
-- Use ```git submodule update --recursive```
