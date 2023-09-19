@@ -1,11 +1,8 @@
 #include <stdlib.c>
 
+#ifdef WIN32
 #define EXECUTABLE "main.exe"
 #define PATH "windows"
-
-#ifndef WIN32
-#undef EXECUTABLE
-#undef PATH
 #endif
 
 #ifdef __APPLE__
