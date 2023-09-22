@@ -1,11 +1,12 @@
 #include <stdlib.h>
 
+#define WINDOWS_FLAGS ""
+
+#ifdef WIN32
 #define EXECUTABLE "main.exe"
 #define PATH "windows"
-
-#ifndef WIN32
-#undef EXECUTABLE
-#undef PATH
+#undef WINDOWS_FLAGS
+#define WINDOWS_FLAGS "-subsystem,windows"
 #endif
 
 #if defined __APPLE__ || __linux__
@@ -15,5 +16,5 @@
 
 int main()
 {
-    system("tcc main.c -L.\crossplatform_app\backend\SDL2\lib\x86 -lSDL2 -w -Wl,-subsystem,windows -o build/windows/"EXECUTABLE);
+    system("tcc main.c -L./crossplatform_app/backend/SDL2/lib/x86 -lSDL2 -w -Wl,"WINDOWS_FLAGS" -o build/"PATH"/"EXECUTABLE);
 }

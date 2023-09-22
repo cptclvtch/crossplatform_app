@@ -1,4 +1,4 @@
-#include <stdlib.c>
+#include <stdlib.h>
 
 #ifdef WIN32
 #define EXECUTABLE "main.exe"
