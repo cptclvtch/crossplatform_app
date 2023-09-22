@@ -28,7 +28,7 @@ int main()
 
     //Recursively copy the setup folder
     #ifdef WIN32
-    system("xcopy ./setup ../ /E/H");
+    system("xcopy /e /h /i .\\setup\\ ..\\");
     #endif
 
     #if defined __APPLE__ || __linux__

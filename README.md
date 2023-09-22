@@ -3,6 +3,9 @@
 
 ## How to setup a project
 - Clone this repository into your project folder using ```git clone --recurse-submodules https://github.com/cptclvtch/crossplatform_app```.
+
+NOTE: DO NOT ATTEMPT TO CIRCUMVENT THE CLONING PROCESS
+
 - Add the 'tcc' executable folder to your PATH environment variable. You can find the executable in ```tools/tcc/win32``` for Windows and ```tools/tcc/linux``` for OSX/Linux.
 - Restart your command line.
 
@@ -30,5 +33,3 @@ This completes the setup process!
     }
     ```
 - Build and run your app using the provided scripts: ```build_script.c``` and ```run_script.c```.
-
-NOTE: DO NOT ATTEMPT TO CIRCUMVENT THE CLONING PROCESS
