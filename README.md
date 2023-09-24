@@ -1,5 +1,6 @@
 # What is this?
  This is a template meant to be used as a starting point for creating crossplatform projects.
+ It comes bundled with SDL2 and Nuklear GUI, so feel free to use any of the functions they provide!
 
 ## How to setup a project
 - Clone this repository into your project folder.
