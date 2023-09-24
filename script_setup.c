@@ -24,7 +24,7 @@ int main()
     current_working_directory(cwd, sizeof(cwd));    
     sprintf(formatted_command, "git config --global --add safe.directory %s", cwd);
     system(formatted_command);
-    // system("git submodule --init");
+    system("git submodule init");
 
     //Recursively copy the setup folder
     #ifdef WIN32
@@ -34,4 +34,7 @@ int main()
     #if defined __APPLE__ || __linux__
     system("cp -R ./setup/ ../");
     #endif
+
+    //update api to finish git initialization
+    system("tcc script_update_api.c -run");
 }

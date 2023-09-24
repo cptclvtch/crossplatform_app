@@ -2,7 +2,6 @@
 
 int main()
 {
-    system("cd crossplatform_app");
     system("git pull");
-    system("cd ..");
+    system("git submodule update --remote");
 }
