@@ -36,5 +36,5 @@ int main()
     #endif
 
     //update api to finish git initialization
-    system("tcc script_update_api.c -run");
+    system("tcc ../script_update_api.c -run");
 }
