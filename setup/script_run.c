@@ -17,7 +17,8 @@
 
 int main()
 {
-    system("cd ./build/" PATH);
-    system(EXECUTABLE);
-    system("cd ../..");
+    // system("cd ./build/"PATH);
+    system("./build/windows/main.exe");
+    // system("./build/"PATH"/"EXECUTABLE);
+    // system("cd ../..");
 }
