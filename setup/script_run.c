@@ -17,8 +17,11 @@
 
 int main()
 {
-    // system("cd ./build/"PATH);
-    system("./build/windows/main.exe");
-    // system("./build/"PATH"/"EXECUTABLE);
-    // system("cd ../..");
+    #define START ""
+    #ifdef WIN32
+        #undef START
+        #define START "start "
+    #endif
+
+    system(START"./build/"PATH"/"EXECUTABLE);
 }

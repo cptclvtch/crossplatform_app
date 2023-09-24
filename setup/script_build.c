@@ -16,5 +16,7 @@
 
 int main()
 {
+    system("echo Attempting build...");
     system("tcc main.c -L./crossplatform_app/backend/SDL2/lib/x86 -lSDL2 -w -Wl,"WINDOWS_FLAGS" -o build/"PATH"/"EXECUTABLE);
+    system("echo Done.");
 }
