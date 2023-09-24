@@ -4,8 +4,6 @@
 ## How to setup a project
 - Clone this repository into your project folder.
 
-NOTE: DO NOT ATTEMPT TO CIRCUMVENT THE CLONING PROCESS
-
 - Add the 'tcc' executable folder to your PATH environment variable. You can find the executable in ```tools/tcc/win32``` for Windows and ```tools/tcc/linux``` for OSX/Linux.
 - Restart your command line.
 
