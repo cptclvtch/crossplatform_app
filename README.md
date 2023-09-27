@@ -1,11 +1,11 @@
 # What is this?
- This is a template meant to be used as a starting point for creating crossplatform projects.
+ This is a C template meant to be used as a starting point for creating crossplatform projects.
  It comes bundled with SDL2 and Nuklear GUI, so feel free to use any of the functions they provide!
 
 ## How to setup a project
 - Clone this repository into your project folder.
 
-- Add the 'tcc' executable folder to your PATH environment variable. You can find the executable in ```tools/tcc/win32``` for Windows and ```tools/tcc/linux``` for OSX/Linux.
+- Add the 'tcc' executable folder to your PATH environment variable. TCC stands for the Tiny C Compiler, and it's used for all the compilation, scripts and standard-keeping on this project. You can find the executable in ```tools/tcc/win32``` for Windows and ```tools/tcc/linux``` for OSX/Linux.
 - Restart your command line.
 
 NOTE: You can now run all the included scripts using a ```tcc script_NAME.c -run``` command.
@@ -14,9 +14,11 @@ NOTE: You can now run all the included scripts using a ```tcc script_NAME.c -run
 
 This completes the setup process!
 
+For compilation instructions, please read the following section.
+
 ## How to use the API
 
-- Start building your app by modifying the ```main.c``` file in your project folder.
+- Start by modifying the ```main.c``` file in your project folder.
 
     The example ```main.c``` code:
     ```
@@ -34,3 +36,9 @@ This completes the setup process!
 - Build and run your app using the provided scripts: ```script_build.c``` and ```script_run.c```.
 
 - If you would like to update the API to the newest version on Github, run the ```script_update_api.c``` script.
+
+## Licensing
+This template comes bundled with the following technologies and their licenses:
+- SDL2 (zlib license)
+- Nuklear GUI (Public Domain)
+- TCC (GNU Lesser General Public License)
