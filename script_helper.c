@@ -4,6 +4,17 @@
 #include <unistd.h>
 #endif
 
+void switch_slashes(char* buffer, size_t size)
+{
+    unsigned int i = 0;
+    while(i < size)
+    {
+        if(buffer[i] == '\\')
+            buffer[i] = '/';
+        i++;
+    }
+}
+
 void set_cwd(char* path)
 {
     #ifdef WIN32
@@ -17,6 +28,7 @@ void get_cwd(char* buffer, size_t size)
 {
     #ifdef WIN32
     GetCurrentDirectory(size, buffer);
+    switch_slashes(buffer, size);
     #else
     getcwd(buffer, size);
     #endif
