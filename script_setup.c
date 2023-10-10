@@ -1,3 +1,4 @@
+//#!/tools/tcc/win32
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -11,7 +12,7 @@ int main()
     #endif
 
     #if defined __APPLE__ || __linux__
-    system("cp -R ./setup/ ../");
+    system("cp -R ./setup/* ../");
     #endif
 
     //git setup

@@ -2,11 +2,14 @@
  This is a C template meant to be used as a starting point for creating crossplatform projects.
  It comes bundled with SDL2 and Nuklear GUI, so feel free to use any of the functions they provide!
 
+## Supported Platforms:
+- Windows
+
 ## How to setup a project
 - Clone this repository into your project folder.
 
-- Add the 'tcc' executable folder to your PATH environment variable. TCC stands for the Tiny C Compiler, and it's used for all the compilation, scripts and standard-keeping on this project. You can find the executable in ```tools/tcc/win32``` for Windows and ```tools/tcc/linux``` for OSX/Linux.
-- Restart your command line.
+- Add the 'tcc' executable folder to your PATH environment variable. TCC (Tiny C Compiler) is used for all the compilation, scripts and standard-keeping on this project. You can find the executable in ```tools/tcc/win32``` for Windows and ```tools/tcc/linux``` for OSX/Linux.
+- Restart your command line if you had one open.
 
 NOTE: You can now run all the included scripts using a ```tcc script_NAME.c -run``` command.
 
