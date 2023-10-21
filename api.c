@@ -91,29 +91,20 @@ uint8_t poll_event(EVENT* event)
   return SDL_PollEvent(event);
 }
 
-void standard_loop()
+void standard_loop(void (*event_handling)(EVENT* event))
 {
   bool running = true;
-  EVENT event;
   while(running)
   {
-    // Process events
+    //Its best to handle the input first
+    EVENT event;
+    nk_input_begin(ctx);
     while(poll_event(&event))
     {
-      if(event.type == SDL_QUIT)
-      {
-        running = false;
-      }
-      else
-      if(event.type == SDL_KEYDOWN)
-      {
-        const char *key = SDL_GetKeyName(event.key.keysym.sym);
-        if(strcmp(key, "Q") == 0)
-        {
-          running = false;
-        }
-      }
+      event_handling(&event);
+      nk_sdl_handle_event(&event);
     }
+    nk_input_end(ctx);
 
     // Clear screen
 
