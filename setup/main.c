@@ -4,7 +4,7 @@ int main()
 {
     setup();
 
-    loop();
+    standard_loop();
 
     close();
 }

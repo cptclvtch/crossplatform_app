@@ -85,36 +85,42 @@ void setup()
     setup_NK();
 }
 
-void loop()
+#define EVENT SDL_Event
+uint8_t poll_event(EVENT* event)
 {
-    bool running = true;
-    SDL_Event event;
-    while(running)
+  return SDL_PollEvent(event);
+}
+
+void standard_loop()
+{
+  bool running = true;
+  EVENT event;
+  while(running)
+  {
+    // Process events
+    while(poll_event(&event))
     {
-      // Process events
-      while(SDL_PollEvent(&event))
+      if(event.type == SDL_QUIT)
       {
-        if(event.type == SDL_QUIT)
+        running = false;
+      }
+      else
+      if(event.type == SDL_KEYDOWN)
+      {
+        const char *key = SDL_GetKeyName(event.key.keysym.sym);
+        if(strcmp(key, "Q") == 0)
         {
           running = false;
         }
-        else
-        if(event.type == SDL_KEYDOWN)
-        {
-          const char *key = SDL_GetKeyName(event.key.keysym.sym);
-          if(strcmp(key, "Q") == 0)
-          {
-            running = false;
-          }                    
-        }
       }
-
-          // Clear screen
-
-          // Draw
-
-          // Show what was drawn
     }
+
+    // Clear screen
+
+    // Draw
+
+    // Show what was drawn
+  }
 }
 
 void close()
