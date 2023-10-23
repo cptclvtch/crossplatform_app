@@ -6,15 +6,6 @@
 
 int main()
 {
-    //Recursively copy the setup folder
-    #ifdef WIN32
-    system("xcopy /e /h /i .\\setup\\ ..\\");
-    #endif
-
-    #if defined __APPLE__ || __linux__
-    system("cp -R ./setup/* ../");
-    #endif
-
     //git setup
     char cwd[512];
     char formatted_command[512];
@@ -24,5 +15,5 @@ int main()
     printf("Making the current directory safe for git.\n %s\n\n",formatted_command);
     
     system("git submodule init");
-    system("tcc ../script_update_api.c -run");
+    system("tcc setup/script_update_api.c -run");
 }

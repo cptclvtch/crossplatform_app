@@ -33,3 +33,14 @@ void get_cwd(char* buffer, size_t size)
     getcwd(buffer, size);
     #endif
 }
+
+void fs_delete(const char* path)
+{
+    char command[256];
+    #ifdef WIN32
+    sprintf(command,"del %s", path);
+    system(command);
+    #else
+
+    #endif
+}
