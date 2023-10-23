@@ -1,5 +1,3 @@
-#include <stdlib.h>
-
 #include "crossplatform_app/script_helper.c"
 
 int main()
@@ -10,10 +8,14 @@ int main()
 
     //Recursively copy the setup folder
     #ifdef WIN32
-    system("xcopy /e /h /i .\\setup\\ ..\\");
+    system("xcopy /y /q .\\setup\\script_build.c ..\\");
+    system("xcopy /y /q .\\setup\\script_run.c ..\\");
+    system("xcopy /y /q .\\setup\\script_update_api.c ..\\");
     #endif
 
     #if defined __APPLE__ || __linux__
-    system("cp -R ./setup/* ../");
+    system("cp ./setup/script_build.c ../");
+    system("cp ./setup/script_run.c ../");
+    system("cp ./setup/script_update_api.c ../");
     #endif
 }

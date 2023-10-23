@@ -1,8 +1,11 @@
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 #else
 #include <unistd.h>
 #endif
+
+#include <stdlib.h>
+#include <stdio.h>
 
 void switch_slashes(char* buffer, size_t size)
 {
