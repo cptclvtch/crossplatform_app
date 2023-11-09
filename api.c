@@ -4,7 +4,9 @@
 #define NUKLEAR_GUI
 #include "backend/backend_implementation.c"
 
+#ifndef APP_NAME
 #define APP_NAME "app"
+#endif
 
 //Macros
 #define CHECK_ERROR(test, message) \
