@@ -3,12 +3,15 @@
 
 int main()
 {
-    //Recursively copy the setup folder
-    #ifdef WIN32
-    system("xcopy /e /i .\\setup\\ ..\\");
+    //install tcc
+    #if defined _WIN32
+    #endif
+    #if defined __linux__
+    system("tools/tcc/linux/tcc_0.9.27-5_amd64.deb");
+    #endif
+    #if defined __APPLE__
     #endif
 
-    #if defined __APPLE__ || __linux__
-    system("cp -R ./setup/* ../");
-    #endif
+    //Recursively copy the setup folder
+    fs_copy("./setup/*", "../", RECURSIVE);
 }

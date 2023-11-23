@@ -6,14 +6,15 @@
 - Windows
 
 ## How to setup a project
-- Clone this repository into your project folder.
+- Copy this repository into your project folder.
 
-- Add the 'tcc' executable folder to your PATH environment variable. TCC (Tiny C Compiler) is used for all the compilation, scripts and standard-keeping on this project. You can find the executable in ```tools/tcc/win32``` for Windows and ```tools/tcc/linux``` for OSX/Linux.
-- Restart your command line if you had one open.
+NOTE: If you are on Windows, make sure you have the paths to ```tools/tcc/win32``` and ```tools/gdb``` in your PATH environment variable.
+NOTE: If you are on Linux, make sure you install ```tools/tcc/linux/tcc_0.9.27-5_amd64.deb```.
 
-NOTE: You can now run all the included scripts using a ```tcc script_NAME.c -run``` command.
+- Open the command line and navigate to your project folder.
 
-- Run ```script_setup.c``` located in the ```crossplatform_app``` folder.
+- Set up the project by running the following command:
+```tcc crossplatform_app/script_setup.c -run```
 
 This completes the setup process!
 
@@ -37,8 +38,6 @@ For compilation instructions, please read the following section.
     }
     ```
 - Build and run your app using the provided scripts: ```script_build.c``` and ```script_run.c```.
-
-- If you would like to update the API to the newest version on Github, run the ```script_update_api.c``` script.
 
 ## Licensing
 This template comes bundled with the following technologies and their licenses:

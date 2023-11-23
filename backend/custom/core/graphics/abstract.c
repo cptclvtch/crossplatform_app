@@ -3,7 +3,7 @@
 #endif
 
 #ifdef CUSTOM_BOILERPLATE
-#ifdef WIN32
+#ifdef _WIN32
 HWND create_window(HINSTANCE instance, int window_show)
 {
     // Register the window class.
