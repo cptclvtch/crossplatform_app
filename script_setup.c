@@ -14,4 +14,5 @@ int main()
 
     //Recursively copy the setup folder
     fs_copy("./setup/*", "../", RECURSIVE);
+    system("mkdir ../build");
 }
