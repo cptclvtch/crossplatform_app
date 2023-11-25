@@ -47,7 +47,7 @@ int main()
     #endif
 
     #if defined __APPLE__ || __linux__
-    fs_copy("crossplatform_app/backend/SDL2/lib/x86/SDL2.lib", "build/", NON_RECURSIVE);
+    fs_copy("crossplatform_app/backend/SDL2/lib/x86/libSDL2.a", "build/", NON_RECURSIVE);
     #endif
 
     printf("Done.\n");
