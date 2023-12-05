@@ -1,8 +1,6 @@
-#include "./backend/standard_includes.c"
-
-#define SDL_IMPLEMENTATION
-#define NUKLEAR_GUI
-#include "backend/backend_implementation.c"
+#define NK_IMPLEMENTATION
+#define NK_SDL_RENDERER_IMPLEMENTATION
+#include "api.h"
 
 #ifndef APP_NAME
 #define APP_NAME "app"
@@ -19,7 +17,6 @@
         } \
   } while(0)
 
-//API Variables
 #include "variables.c"
 
 //Helper functions
@@ -87,7 +84,6 @@ void setup()
     setup_NK();
 }
 
-#define EVENT SDL_Event
 uint8_t poll_event(EVENT* event)
 {
   return SDL_PollEvent(event);

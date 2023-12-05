@@ -49,12 +49,12 @@ void fs_copy(char* origin, char* destination, uint8_t recursive)
     #ifdef _WIN32
     replace_characters(origin, '/', '\\');
     replace_characters(destination, '/', '\\');
-    sprintf(command, "xcopy /i %s %s", origin, destination);
+    sprintf(command, "xcopy /q /i %s %s", origin, destination);
     if(recursive) sprintf(command, "%s /e", command);
     #endif
 
     #if defined __APPLE__ || __linux__
-    sprintf(command, "cp %s %s", origin, destination);
+    sprintf(command, "cp -q %s %s", origin, destination);
     if(recursive)sprintf(command, "%s -r", command);
     #endif
 

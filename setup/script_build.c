@@ -27,17 +27,18 @@
 #define LIBRARIES LIBRARY_PATHS LIBRARY_NAMES
 
 //-------------------------
-#define SOURCE_FOLDER(a, i) a[2*i]
-#define SOURCE_FILE(a, i) a[2*i+1]
+char* sources[256];
+#define SOURCE_FOLDER(i) sources[2*i]
+#define SOURCE_FILE(i) sources[2*i+1]
 uint8_t number_of_sources = 0;
-void add_source(char** buffer, char* folder, char* file)
+void add_source(char* folder, char* file)
 {
-    SOURCE_FOLDER(buffer, number_of_sources) = folder;
-    SOURCE_FILE(buffer, number_of_sources) = file;
+    SOURCE_FOLDER(number_of_sources) = folder;
+    SOURCE_FILE(number_of_sources) = file;
     number_of_sources++;
 }
 
-void compile_sources(char** source_files)
+void compile_sources()
 {
     char command[256];
     //folder - source file pairs
@@ -47,7 +48,7 @@ void compile_sources(char** source_files)
             get_cwd(command, 256);
             printf("Current directory is: %s", command);
             printf("Compiling %s... ", SOURCE_FOLDER(i));
-        set_cwd(source_files[2*i]);
+        set_cwd(SOURCE_FOLDER(i));
             get_cwd(command, 256);
             printf("Now moving into %s, and compiling %s", command, SOURCE_FILE(i));
         sprintf(command, COMPILER" -c %s/%s.c", SOURCE_FOLDER(i), SOURCE_FILE(i));
@@ -68,16 +69,17 @@ int main()
     fs_delete("build/", NON_RECURSIVE);
 
     //check for pre-compiled objects and update if necessary
-    char* sources[256];
-    // add_source(sources, "your_folder", "source_file");
+    add_source("crossplatform_app","api");
     
-    char source_paths[2048];
+    char source_paths[2048] = "";
     uint8_t i = 0;
     for(;i < number_of_sources; i++)
         sprintf(source_paths, "%s %s/%s.c", source_paths, SOURCE_FOLDER(i), SOURCE_FILE(i));
 
     //build actual program
-    sprintf(command, COMPILER " main.c %s" LIBRARIES FLAGS " -o build/"EXECUTABLE, source_paths);
+    char executable_name[256] = EXECUTABLE;
+    replace_characters(executable_name, ' ', '_');
+    sprintf(command, COMPILER " main.c %s" LIBRARIES FLAGS " -o build/%s", source_paths, executable_name);
     printf("%s\n", command);
     system(command);
 

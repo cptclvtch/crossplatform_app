@@ -8,6 +8,8 @@
 
 #endif
 
+#define EVENT SDL_Event
+
 #ifdef NUKLEAR_GUI
     #define NK_INCLUDE_FIXED_TYPES
     #define NK_INCLUDE_STANDARD_IO
@@ -16,10 +18,6 @@
     #define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
     #define NK_INCLUDE_FONT_BAKING
     #define NK_INCLUDE_DEFAULT_FONT
-    #define NK_IMPLEMENTATION
-    #ifdef SDL_IMPLEMENTATION
-        #define NK_SDL_RENDERER_IMPLEMENTATION
-    #endif
 
     #include "Nuklear/nuklear.h"
     
@@ -29,6 +27,4 @@
 
     struct nk_context* ctx;
     struct nk_colorf bg;
-    
-    float font_scale = 1;
 #endif
