@@ -1,0 +1,21 @@
+- check sdl, tcc and nuklear licensing ()
+   - SDL2 (zlib license)
+   - Nuklear GUI (Public Domain)
+   - TCC (GNU Lesser General Public License) (MIT license possible with https://github.com/absop/Tinycc)
+- learn multi-threading and try it in C
+   - semaphores
+   - mutex
+- learn dlls
+
+- test compilation on osx and linux
+   - copy libraries into build folders
+
+Notes:
+- consider installing TCC through a package manager (git clone git://repo.or.cz/tinycc.git ???)
+- forcing people to use TCC might be a problem since it will force them to use an old, subpar C standard, many libraries might be unusable
+
+What I expect people to do with it:
+- modify it (TODO: create abstraction layer)
+- build executables (DONE using build script)
+- programmatically generate new project (TODO: figure out commenting and uncommenting of app_configuration.c)
+- update the template (DONE by redownloading it)
