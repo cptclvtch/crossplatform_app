@@ -1,3 +1,4 @@
+#include "../app_configuration.c"
 #define NK_IMPLEMENTATION
 #define NK_SDL_RENDERER_IMPLEMENTATION
 #include "api.h"
