@@ -1,6 +1,6 @@
 #include <stdlib.h>
-#include "crossplatform_app/script_helper.c"
 #include "app_configuration.c"
+#include "crossplatform_app/script_helper.c"
 
 //-------------------------
 //Build debug by default, unless release is specified (-D RELEASE)
@@ -13,7 +13,11 @@
 #define WINDOWS_FLAGS ""
 #ifdef _WIN32
 #undef WINDOWS_FLAGS
-#define WINDOWS_FLAGS " -Wl,-subsystem,windows"
+#ifndef RELEASE
+#define WINDOWS_FLAGS " -Wl,-subsystem,console"
+#else
+#define WINDOWS_FLAGS " -Wl,-subsystem,gui"
+#endif
 #endif
 
 #if defined __APPLE__ || __linux__
@@ -65,11 +69,8 @@ int main()
     char command[256];
     printf("Attempting build...\n");
 
-    //clear build folder
-    fs_delete("build/", NON_RECURSIVE);
-
     //check for pre-compiled objects and update if necessary
-    add_source("crossplatform_app","api");
+    // add_source("crossplatform_app","api");
     
     char source_paths[2048] = "";
     uint8_t i = 0;
@@ -84,12 +85,23 @@ int main()
     system(command);
 
     //copy necessary libraries
+    printf("\nCopying libraries... \n");
+    printf("-----------------\n");
     #ifdef _WIN32
     fs_copy("crossplatform_app/backend/SDL2/lib/x86/SDL2.dll", "build/", NON_RECURSIVE);
     #endif
 
     #if defined __APPLE__ || __linux__
     fs_copy("crossplatform_app/backend/SDL2/lib/x86/libSDL2.a", "build/", NON_RECURSIVE);
+    #endif
+
+    //copy assets
+    printf("\nCopying assets... \n");
+    printf("-----------------\n");
+    #ifdef _WIN32
+    #endif
+
+    #if defined __APPLE__ || __linux__
     #endif
 
     printf("Done.\n");

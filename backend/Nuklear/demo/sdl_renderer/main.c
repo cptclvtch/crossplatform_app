@@ -219,7 +219,7 @@ main(int argc, char *argv[])
           calculator(ctx);
         #endif
         #ifdef INCLUDE_CANVAS
-        canvas(ctx);
+          canvas(ctx);
         #endif
         #ifdef INCLUDE_OVERVIEW
           overview(ctx);

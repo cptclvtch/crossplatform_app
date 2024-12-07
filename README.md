@@ -32,7 +32,7 @@ For compilation instructions, please read the following section.
     {
         setup();
 
-        loop();
+        standard_loop();
 
         close();
     }

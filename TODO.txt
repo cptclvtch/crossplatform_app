@@ -1,21 +1,15 @@
-- check sdl, tcc and nuklear licensing ()
-   - SDL2 (zlib license)
-   - Nuklear GUI (Public Domain)
-   - TCC (GNU Lesser General Public License) (MIT license possible with https://github.com/absop/Tinycc)
-- learn multi-threading and try it in C
-   - semaphores
-   - mutex
-- learn dlls
+Blender exporter:
 
-- test compilation on osx and linux
-   - copy libraries into build folders
+Asset manager:
+- TODO finish tests
+- TODO write out of bounds test
 
-Notes:
-- consider installing TCC through a package manager (git clone git://repo.or.cz/tinycc.git ???)
-- forcing people to use TCC might be a problem since it will force them to use an old, subpar C standard, many libraries might be unusable
+Level builder:
+- TODO implement boolean asset
 
-What I expect people to do with it:
-- modify it (TODO: create abstraction layer)
-- build executables (DONE using build script)
-- programmatically generate new project (TODO: figure out commenting and uncommenting of app_configuration.c)
-- update the template (DONE by redownloading it)
+Graphics pipeline:
+- TODO boolean difference
+- FIXME texture binding
+
+GOAP
+- write tests

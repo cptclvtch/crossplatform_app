@@ -1,11 +1,11 @@
 #include "app_configuration.c"
-#include "crossplatform_app/api.h"
+#include "crossplatform_app/api.c"
 
 int main()
 {
     setup();
 
-    standard_loop();
+    game_loop();
 
     close();
 }
