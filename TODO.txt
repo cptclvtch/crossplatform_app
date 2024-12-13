@@ -1,8 +1,7 @@
 Blender exporter:
 
 Asset manager:
-- TODO finish tests
-- TODO write out of bounds test
+- 
 
 Level builder:
 - TODO implement boolean asset

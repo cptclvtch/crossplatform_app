@@ -1,3 +1,7 @@
+#if !defined(DEFINITION_MODE) && !defined(IMPLEMENTATION_MODE)
+#define DEFINITION_MODE
+#endif
+
 #ifdef DEFINITION_MODE
 
 #ifndef uint8_t
@@ -30,8 +34,6 @@ typedef struct s_asset_palette
     asset_unload_function unload_asset;
 }asset_palette;
 
-asset_palette palettes[256];
-
 void    create_palette( uint8_t index,
                         uint16_t max_no_of_assets, uint8_t asset_size,
                         char* asset_directory, char* extension, void (*callback)(),
@@ -45,6 +47,8 @@ void  unload_all_palettes();
 #endif
 
 #ifdef IMPLEMENTATION_MODE
+asset_palette palettes[256];
+
 void default_callback(uint8_t error_code){}
 
 void create_palette(uint8_t index,
@@ -141,7 +145,6 @@ uint8_t load_palette(uint8_t palette_index)
                                         current_palette->asset_file_extension);
             current_palette->load_asset(&current_palette->data[current_palette->asset_size*index],
                                         path);
-            PRINT_FN("\t%s loaded\n", current_palette->asset_names[index]);
         }
         else
             success = 1;
@@ -171,7 +174,6 @@ void unload_palette(uint8_t palette_index)
 {
     asset_palette* current_palette = &palettes[palette_index];
 
-    //??
     if(current_palette->unload_asset != NULL)
         current_palette->unload_asset();
 
@@ -181,7 +183,7 @@ void unload_palette(uint8_t palette_index)
 
 void unload_all_palettes()
 {
-    uint8_t index = 0;
+    uint16_t index = 0;
     for(; index < 256; index++)
         if(palettes[index].max_no_of_assets)
             unload_palette(index);

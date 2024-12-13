@@ -61,7 +61,7 @@ def export_scene(filepath):
     log(filepath + "\n")
 
     for ob in bpy.context.visible_objects:
-        if ob.type == 'MESH':#Only export meshes
+        if ob.type == 'MESH':
             mesh = ob.to_mesh() #maybe use ob.data?
 
             if settings.apply_transforms:

@@ -128,6 +128,14 @@ int main()
     result = load_palette(0);
     VERIFY_SINGLE_VALUE(result, ==, 0)
     COLLECT_FINDINGS
+    
+    #undef SUBTITLE
+    #define SUBTITLE "Loading one palette - NULL load function"
+    // palettes[1].load_func = NULL;
+    result = load_palette(5);
+    VERIFY_SINGLE_VALUE(result, ==, 0)
+    COLLECT_FINDINGS
+    // palettes[1].load_func = &load_int;
 
     ADD_SEPARATOR
     #undef TITLE
@@ -135,8 +143,23 @@ int main()
     POST_TITLE
     #undef SUBTITLE
     #define SUBTITLE "Unloading one palette - Best Case Scenario"
+    unload_palette(0);
+    VERIFY_SINGLE_VALUE(palettes[0].data, ==, NULL)
+    COLLECT_FINDINGS
 
+    #undef SUBTITLE
+    #define SUBTITLE "Unloading one palette - NULL unload function"
+    // palettes[1].unload_func = NULL;
+    unload_palette(6);
+    VERIFY_SINGLE_VALUE(palettes[6].data, ==, NULL)
+    COLLECT_FINDINGS
+    // palettes[1].unload_func = &unload_int;
 
+    #undef SUBTITLE
+    #define SUBTITLE "Unloading all palettes - Best Case Scenario"
+    unload_all_palettes();
+    VERIFY_ARRAY_OF_VALUES(palettes[test_iterator].data, ==, NULL, 255)
+    COLLECT_FINDINGS
 
     ADD_SEPARATOR
     #undef TITLE

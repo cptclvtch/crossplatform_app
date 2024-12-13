@@ -4,10 +4,10 @@
 
 //-------------------------
 //Build debug by default, unless release is specified (-D RELEASE)
-#define DEBUG_FLAGS " -g"
 #ifdef RELEASE
-#undef DEBUG_FLAGS
 #define DEBUG_FLAGS ""
+#else
+#define DEBUG_FLAGS " -g"
 #endif
 
 #define WINDOWS_FLAGS ""
@@ -20,11 +20,17 @@
 #endif
 #endif
 
+#ifdef RELEASE
+#define RELEASE_FLAG "-D RELEASE"
+#else
+#define RELEASE_FLAG ""
+#endif
+
 #if defined __APPLE__ || __linux__
 #endif
 
 //-------------------------
-#define FLAGS DEBUG_FLAGS " -w" WINDOWS_FLAGS
+#define FLAGS DEBUG_FLAGS " -w" WINDOWS_FLAGS " " RELEASE_FLAG
 
 #define LIBRARY_PATHS " -L./crossplatform_app/backend/SDL2/lib/x86"
 #define LIBRARY_NAMES " -lSDL2"
