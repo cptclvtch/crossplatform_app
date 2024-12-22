@@ -1,4 +1,5 @@
 Blender exporter:
+- folder export
 
 Asset manager:
 - 
@@ -10,5 +11,8 @@ Graphics pipeline:
 - TODO boolean difference
 - FIXME texture binding
 
-GOAP
+GOAP:
 - write tests
+
+Misc:
+- FIXME fix nk_buffer_init segfault

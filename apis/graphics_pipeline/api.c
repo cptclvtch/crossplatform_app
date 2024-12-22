@@ -74,7 +74,7 @@ void unload_texture(uint32_t* id)
 
 mesh load_mesh_from_path(char* path)
 {
-    // printf("Loading %s... ", path);
+    printf("Loading %s... ", path);
 
     mesh loaded_mesh = (mesh){
                                 vertices: NULL,
@@ -100,8 +100,18 @@ mesh load_mesh_from_path(char* path)
         PRINT_FN("Failed. No vertices found.\n");
         return loaded_mesh;
     }
+    PRINT_FN("\n Vertex count: %u ", loaded_mesh.vertex_count);
+    
+    malloc(loaded_mesh.vertex_count);
 
-    loaded_mesh.vertices = (mesh_vertex*)malloc(loaded_mesh.vertex_count*sizeof(mesh_vertex));
+    PRINT_FN("premalloc ");
+
+    mesh_vertex* mvp = (mesh_vertex*)malloc(loaded_mesh.vertex_count*sizeof(mesh_vertex));
+    PRINT_FN("(%p),", mvp);
+
+    loaded_mesh.vertices = mvp;
+    
+    PRINT_FN("(%p) ", loaded_mesh.vertices);
     SDL_RWread(file, loaded_mesh.vertices, sizeof(mesh_vertex), loaded_mesh.vertex_count);
 
     SDL_RWclose(file);
@@ -122,7 +132,7 @@ mesh load_mesh_from_path(char* path)
     //              );
     // }
 
-    // PRINT_FN("DONE.\n");
+    PRINT_FN("DONE.\n");
 
     return loaded_mesh;
 }

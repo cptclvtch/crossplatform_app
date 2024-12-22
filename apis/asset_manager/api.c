@@ -133,6 +133,8 @@ uint8_t load_palette(uint8_t palette_index)
     for(; i < current_palette->asset_size * current_palette->no_of_assets; i++)
         (uint8_t*)(current_palette->data)[i] = 0;
 
+    
+    // PRINT_FN("\t%u\n", palette_index);
     uint16_t index = 0;
     for(; index < current_palette->no_of_assets; index++)
     {
@@ -143,6 +145,8 @@ uint8_t load_palette(uint8_t palette_index)
             sprintf(path, "%s/%s.%s",   current_palette->asset_directory,
                                         current_palette->asset_names[index],
                                         current_palette->asset_file_extension);
+            
+            // PRINT_FN("%s\n", path);
             current_palette->load_asset(&current_palette->data[current_palette->asset_size*index],
                                         path);
         }

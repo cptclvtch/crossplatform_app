@@ -4,6 +4,9 @@ import math ,struct
 import bpy_extras # type: ignore
 
 log_file = 0
+input_folder = ""
+output_folder = ""
+total = 0
 
 def log(string):
     settings = bpy.context.scene.export_settings
@@ -60,8 +63,10 @@ def export_scene(filepath):
     file = open(filepath, "wb")
     log(filepath + "\n")
 
-    for ob in bpy.context.visible_objects:
-        if ob.type == 'MESH':
+    objects = bpy.context.view_layer.objects
+
+    for ob in objects:
+        if ob.type == 'MESH' and ob.visible_get():
             mesh = ob.to_mesh() #maybe use ob.data?
 
             if settings.apply_transforms:
@@ -106,7 +111,7 @@ class Settings(bpy.types.PropertyGroup):
     logging : bpy.props.BoolProperty(name = "Export debug text", default = False) # type: ignore
 
 
-class ObjectExport(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
+class ObjectExport(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
     """Export visible objects in custom format"""      # Use this as a tooltip for menu items and buttons.
     bl_idname = "object.export_custom"        # Unique identifier for buttons and menu items to reference.
     bl_label = "Export to custom binary format"         # Display name in the interface.
@@ -118,11 +123,109 @@ class ObjectExport(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
 
         return {'FINISHED'}            # Lets Blender know the operator finished successfully.
 
+def recursive_export(folder):
+    return
+
+class FolderExport(bpy.types.Operator):
+    """"Recursively export a folder"""
+    bl_idname = "object.recursive_export"
+    bl_label = "Recursively export a folder"
+    bl_options = {'REGISTER'}
+
+    def execute(self, context):
+        global total, input_folder, output_folder
+        if input_folder and output_folder:
+            total = 0
+            #loop over every folder, except the "Deprecated" folder
+            for subdir, dirs, files in os.walk(input_folder):
+
+                if subdir.endswith('Deprecated'):
+                    continue
+
+                for file in files:
+                    #compare "last modified" dates
+                    
+                    #do only .blends
+                    if not file.endswith('.blend'):
+                        continue
+
+                    needs_update = False
+
+                    equivalent_folder = subdir.replace(input_folder, output_folder)
+
+                    if not os.path.exists(equivalent_folder):
+                        os.makedirs(equivalent_folder)
+                        needs_update = True
+
+                    equivalent_path = os.path.join(equivalent_folder, file.replace('.blend','.mesh'))
+                    original_path = os.path.join(subdir, file)
+
+                    if not os.access(equivalent_path, os.F_OK):
+                        needs_update = True
+                    else:
+                        original_mtime = os.path.getmtime(original_path)
+                        equivalent_mtime = os.path.getmtime(equivalent_path)
+                        if original_mtime > equivalent_mtime:
+                            needs_update = True
+
+                    if needs_update:
+                        #open file in blender
+                        bpy.ops.wm.open_mainfile(filepath=original_path)
+
+                        export_scene(equivalent_path)
+
+                        # if not model_within_bounds:
+                        #     os.remove(equivalent_path)
+                        #     print("Model ",file," is out of bounds (coordinate value should be less than ", COMPRESSED_NORMAL_POSITION,"). Model removed. Please correct and re-run script.")
+
+                        total += 1
+
+            print("Total models updated: ", total)
+        else:
+            print("Input and output folders need to be set first")
+
+        return {'FINISHED'}
+
+class SetInputFolder(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
+    """"Set Input Folder"""
+    bl_idname = "object.input_folder"
+    bl_label = "Set input folder"
+    bl_options = {'REGISTER'}
+
+    directory: bpy.props.StringProperty()
+
+    filter_glob: bpy.props.StringProperty(default="", options={'HIDDEN'}, maxlen=255)
+
+    def execute(self, context):
+        global input_folder
+        input_folder = self.directory
+        print("Selected input folder: " + input_folder)
+        return {'FINISHED'}
+
+        
+class SetOutputFolder(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
+    """"Set Output Folder"""
+    bl_idname = "object.output_folder"
+    bl_label = "Set output folder"
+    filename_ext = "."
+    bl_options = {'REGISTER'}
+
+    directory: bpy.props.StringProperty()
+
+    filter_glob: bpy.props.StringProperty(default="", options={'HIDDEN'}, maxlen=255)
+
+    def execute(self, context):
+        global output_folder
+        output_folder = self.directory
+        print("Selected output folder:" + output_folder)
+        return {'FINISHED'}
+
 class ExportPanel(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_label = "Custom export settings"
-    bl_category = "Custom export"
+    bl_label = "Export"
+    bl_category = "Custom Export"
+    bl_idname = "OBJECT_PT_export"
 
     def draw(self, context):
         settings = bpy.context.scene.export_settings
@@ -134,9 +237,25 @@ class ExportPanel(bpy.types.Panel):
         self.layout.prop(settings, "export_uvs")
         self.layout.prop(settings, "uv_type")
         self.layout.prop(settings, "logging")
-        self.layout.row().operator(ObjectExport.bl_idname,text = "Export visible objects")
+        self.layout.row().operator(ObjectExport.bl_idname, text = "Export visible objects", icon = 'EXPORT')
+        
+        
+class FolderExportPanel(bpy.types.Panel):
+    bl_parent_id = "OBJECT_PT_export"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_label = "Recursive folder export"
+    bl_category = "Custom export"
+    bl_idname = "OBJECT_PT_folderexport"
 
-classes = [Settings, ObjectExport, ExportPanel]
+    def draw(self, context):
+        global total
+        self.layout.row().operator(SetInputFolder.bl_idname, text = "Set input folder", icon = 'FILEBROWSER')
+        self.layout.row().operator(SetOutputFolder.bl_idname, text = "Set output folder", icon = 'FILEBROWSER')
+        self.layout.row().operator(FolderExport.bl_idname, text = "Recursive folder export", icon = 'EXPORT')
+        self.layout.row().label(text = "Assets exported: " + str(total))
+        
+classes = [Settings, ObjectExport, ExportPanel, FolderExportPanel, SetInputFolder, SetOutputFolder, FolderExport]
 
 def register():
     for cls in classes:
@@ -146,7 +265,7 @@ def register():
 def unregister():
     for cls in classes:
         bpy.utils.unregister_class(cls)
-    del bpy.types.scene.export_settings
+    del bpy.types.Scene.export_settings
 
 if __name__ == "__main__":
     unregister()
