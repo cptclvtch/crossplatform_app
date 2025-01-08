@@ -44,9 +44,6 @@ planning_helper* get_new_planning_helper(goap_agent* agent)
 
     to_return->agent = agent;
 
-    to_return->current_index = 0;
-    to_return->count = 0;
-
     return to_return;
 }
 

@@ -62,7 +62,7 @@ enum
 int main()
 {
     //create characters
-    goap_agent* agents = (goap_agent*)malloc(AGENT_COUNT*sizeof(goap_agent));
+    goap_agent* agents = (goap_agent*)calloc(AGENT_COUNT, sizeof(goap_agent));
     uint8_t index = 0;
     for(; index < AGENT_COUNT; index++)
     {

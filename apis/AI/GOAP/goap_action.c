@@ -32,19 +32,16 @@ uint16_t add_action(char* name)
     uint8_t cluster_index = goap_action_count/ACTION_CLUSTER_SIZE;
     if(goap_all_actions[cluster_index] == NULL)
     {
-        goap_action* new_cluster = (goap_action*)malloc(ACTION_CLUSTER_SIZE * sizeof(goap_action));
-        if(new_cluster != NULL)
+        goap_action* new_cluster = (goap_action*)calloc(ACTION_CLUSTER_SIZE, sizeof(goap_action));
+        if(new_cluster == NULL) return;
+
+        goap_all_actions[cluster_index] = new_cluster;
+        uint8_t index = 0;
+        for(;index < ACTION_CLUSTER_SIZE; index++)
         {
-            goap_all_actions[cluster_index] = new_cluster;
-            uint8_t index = 0;
-            for(;index < ACTION_CLUSTER_SIZE; index++)
-            {
-                new_cluster[index].requirement_max_index = 0;
-                new_cluster[index].effect_max_index = 0;
-            }
+            new_cluster[index].requirement_max_index = 0;
+            new_cluster[index].effect_max_index = 0;
         }
-        else
-            return;
     }
 
     goap_active_action = &goap_all_actions[cluster_index][goap_action_count%ACTION_CLUSTER_SIZE];

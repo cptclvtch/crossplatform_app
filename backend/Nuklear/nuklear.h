@@ -8151,7 +8151,7 @@ nk_buffer_init(struct nk_buffer *b, const struct nk_allocator *a,
     NK_ASSERT(a);
     NK_ASSERT(initial_size);
     if (!b || !a || !initial_size) return;
-
+    
     nk_zero(b, sizeof(*b));
     b->type = NK_BUFFER_DYNAMIC;
     b->memory.ptr = a->alloc(a->userdata,0, initial_size);

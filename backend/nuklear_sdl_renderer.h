@@ -237,6 +237,7 @@ nk_sdl_init(SDL_Window *win, SDL_Renderer *renderer)
 #endif
     sdl.win = win;
     sdl.renderer = renderer;
+    
     nk_init_default(&sdl.ctx, 0);
     sdl.ctx.clip.copy = nk_sdl_clipboard_copy;
     sdl.ctx.clip.paste = nk_sdl_clipboard_paste;

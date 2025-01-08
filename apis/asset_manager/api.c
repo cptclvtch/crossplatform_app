@@ -78,7 +78,7 @@ void create_palette(uint8_t index,
     else
         palettes[index].asset_file_extension = "";
 
-    palettes[index].asset_names = (char**)malloc(palettes[index].max_no_of_assets * sizeof(char*));
+    palettes[index].asset_names = (char**)calloc(palettes[index].max_no_of_assets, sizeof(char*));
 
     if(callback)
         palettes[index].addition_callback = callback;
@@ -128,11 +128,10 @@ uint8_t load_palette(uint8_t palette_index)
     if(current_palette->data != NULL) return 0;
 
     //alocate data and set to 0
-    current_palette->data = malloc(current_palette->no_of_assets * current_palette->asset_size);
-    uint32_t i = 0;
-    for(; i < current_palette->asset_size * current_palette->no_of_assets; i++)
-        (uint8_t*)(current_palette->data)[i] = 0;
-
+    current_palette->data = calloc(current_palette->no_of_assets, current_palette->asset_size);
+    // uint32_t i = 0;
+    // for(; i < current_palette->asset_size * current_palette->no_of_assets; i++)
+    //     ((uint8_t*)current_palette->data)[i] = 0;
     
     // PRINT_FN("\t%u\n", palette_index);
     uint16_t index = 0;

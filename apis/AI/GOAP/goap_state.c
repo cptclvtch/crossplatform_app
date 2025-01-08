@@ -11,7 +11,7 @@ typedef goap_var_value* goap_state;
 
 goap_var_value* initialize_state_memory()
 {
-    return (goap_var_value*)calloc(WORLD_VAR_COUNT+1,sizeof(goap_var_value));
+    return (goap_var_value*)calloc(WORLD_VAR_COUNT+1, sizeof(goap_var_value));
 }
 
 //
@@ -56,10 +56,9 @@ typedef struct s_requirement_list
 
 requirement_list* start_requirement_list()
 {
-    requirement_list* new = (requirement_list*)malloc(sizeof(requirement_list));
+    requirement_list* new = (requirement_list*)calloc(1, sizeof(requirement_list));
 
-    new->chunks[0] = (goap_state_requirement*)malloc(sizeof(goap_state_requirement)*GOAP_CHUNK_SIZE);
-    new->size = 0;
+    new->chunks[0] = (goap_state_requirement*)calloc(GOAP_CHUNK_SIZE, sizeof(goap_state_requirement));
 
     return new;
 }
@@ -71,9 +70,9 @@ void add_requirement_to_list(requirement_list* current_requirements, goap_state_
     current_requirements->size++;
     
     if(current_requirements->size%GOAP_CHUNK_SIZE == 0)
-        current_requirements[current_requirements->size/GOAP_CHUNK_SIZE] = (goap_state_requirement*)malloc(sizeof(goap_state_requirement)*GOAP_CHUNK_SIZE);
+        current_requirements->chunks[current_requirements->size/GOAP_CHUNK_SIZE] = (goap_state_requirement*)calloc(GOAP_CHUNK_SIZE, sizeof(goap_state_requirement));
 
-    current_requirements[current_requirements->size/GOAP_CHUNK_SIZE][current_requirements->size%GOAP_CHUNK_SIZE] = *new_requirement;
+    current_requirements->chunks[current_requirements->size/GOAP_CHUNK_SIZE][current_requirements->size%GOAP_CHUNK_SIZE] = *new_requirement;
 }
 
 void iterate_over_requirements(requirement_list* list, void(*iterator_function)(goap_state_requirement*))
@@ -82,7 +81,7 @@ void iterate_over_requirements(requirement_list* list, void(*iterator_function)(
 
     while(list->chunks[index/GOAP_CHUNK_SIZE] != NULL && index < list->size)
     {
-        iterator_function(&root->chunks[index/GOAP_CHUNK_SIZE][index%GOAP_CHUNK_SIZE]);
+        iterator_function(&list->chunks[index/GOAP_CHUNK_SIZE][index%GOAP_CHUNK_SIZE]);
         index++;
     }
 }
@@ -122,9 +121,9 @@ typedef struct s_effect_list
 
 effect_list* start_effect_list()
 {
-    effect_list* new = (effect_list*)malloc(sizeof(effect_list));
+    effect_list* new = (effect_list*)calloc(1, sizeof(effect_list));
 
-    new->chunks[0] = (goap_state_effect*)malloc(sizeof(goap_state_effect)*GOAP_CHUNK_SIZE);
+    new->chunks[0] = (goap_state_effect*)calloc(GOAP_CHUNK_SIZE, sizeof(goap_state_effect));
     new->size = 0;
 
     return new;
@@ -137,9 +136,9 @@ void add_effect_to_list(effect_list* current_effects, goap_state_effect* new_eff
     current_effects->size++;
     
     if(current_effects->size%GOAP_CHUNK_SIZE == 0)
-        current_effects[current_effects->size/GOAP_CHUNK_SIZE] = (goap_state_effect*)malloc(sizeof(goap_state_effect)*GOAP_CHUNK_SIZE);
+        current_effects->chunks[current_effects->size/GOAP_CHUNK_SIZE] = (goap_state_effect*)calloc(GOAP_CHUNK_SIZE, sizeof(goap_state_effect));
 
-    current_effects[current_effects->size/GOAP_CHUNK_SIZE][current_effects->size%GOAP_CHUNK_SIZE] = *new_effect;
+    current_effects->chunks[current_effects->size/GOAP_CHUNK_SIZE][current_effects->size%GOAP_CHUNK_SIZE] = *new_effect;
 }
 
 void iterate_over_effects(effect_list* list, void(*iterator_function)(goap_state_effect*))

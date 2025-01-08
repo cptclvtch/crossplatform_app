@@ -36,7 +36,7 @@ mesh mesh_copy(mesh m)
     
     to_return.vertex_count = m.vertex_count;
     size_t memory_amount = sizeof(mesh_vertex) * to_return.vertex_count;
-    to_return.vertices = (mesh_vertex*)malloc(memory_amount);
+    to_return.vertices = (mesh_vertex*)calloc(1, memory_amount);
     if(to_return.vertices == NULL) return;
 
     memcpy((void*)to_return.vertices, (void*)m.vertices, memory_amount);

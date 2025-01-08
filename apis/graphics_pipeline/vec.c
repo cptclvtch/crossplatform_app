@@ -1,4 +1,8 @@
 #ifdef DEFINITION_MODE
+#ifndef cos
+#include <math.h>
+#endif
+
 typedef struct s_vec3
 {
     float x,y,z;

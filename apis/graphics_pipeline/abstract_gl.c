@@ -34,6 +34,9 @@ void start_graphics()
 
     context = SDL_GL_CreateContext(window);
 
+    //V-Sync
+    SDL_GL_SetSwapInterval(1);
+
     //Load functions
     if(open_gl())
     {
@@ -71,7 +74,7 @@ void print_shader_log(shader* s)
     
     //Get info log
     int log_length = 0;
-    char* info_log = malloc(max_length);
+    char* info_log = calloc(1, max_length);
     glGetProgramInfoLog(s->id, max_length, &log_length, info_log);
     if(log_length) PRINT_FN("%s\n", info_log);
     
@@ -94,7 +97,7 @@ void print_stage_log(uint32_t stage)
     
     //Get info log
     int log_length = 0;
-    char* info_log = malloc(max_length);
+    char* info_log = calloc(1, max_length);
     glGetShaderInfoLog(stage, max_length, &log_length, info_log);
     if(log_length) PRINT_FN("%s\n", info_log);
 
@@ -137,7 +140,7 @@ char* read_shader_source(char* path)
     }
     
     uint32_t file_size = SDL_RWsize(file);
-    to_return = malloc(file_size+1);
+    to_return = calloc(1, file_size+1);
     to_return[file_size] = '\0';
 
     SDL_RWread(file, to_return, file_size, 1);

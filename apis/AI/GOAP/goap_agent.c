@@ -9,7 +9,7 @@ typedef struct s_goap_agent
 void initialize_agent_memory(goap_agent* agent)
 {
     agent->current_state = initialize_state_memory();
-    agent->goal_state = (goap_state_requirement*)malloc(sizeof(goap_state_requirement));
+    agent->goal_state = (goap_state_requirement*)calloc(1, sizeof(goap_state_requirement));
 
     agent->action_plan = NULL;
 }

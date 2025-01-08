@@ -36,4 +36,4 @@ if(test_flag){TEST_PRINT("\n------------" TITLE " (" SUBTITLE ") has failed the 
 else PRINT_FN("+");\
 total_tests++; test_flag = 0;
 
-#define DEBRIEF debrief: PRINT_FN("\n\n%u failed tests   ---   out of %u tests.\n", tests_failed, total_tests);
+#define DEBRIEF debrief: PRINT_FN("\n\n%u failed tests   ---   out of %u tests.\n", tests_failed, total_tests); total_tests = 0;
