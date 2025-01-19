@@ -62,6 +62,8 @@ uint32_t load_texture_from_path(char* path)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+    glBindTexture(GL_TEXTURE_2D, NULL);
+
     // PRINT_FN("DONE.\n");
 
     return texture + 1; //returns id + 1

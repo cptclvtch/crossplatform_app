@@ -111,7 +111,7 @@ class Settings(bpy.types.PropertyGroup):
     logging : bpy.props.BoolProperty(name = "Export debug text", default = False) # type: ignore
 
 
-class ObjectExport(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
+class ObjectExport(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
     """Export visible objects in custom format"""      # Use this as a tooltip for menu items and buttons.
     bl_idname = "object.export_custom"        # Unique identifier for buttons and menu items to reference.
     bl_label = "Export to custom binary format"         # Display name in the interface.
@@ -203,7 +203,7 @@ class SetInputFolder(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
         return {'FINISHED'}
 
         
-class SetOutputFolder(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
+class SetOutputFolder(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
     """"Set Output Folder"""
     bl_idname = "object.output_folder"
     bl_label = "Set output folder"

@@ -20,7 +20,13 @@ void gui_setup(SDL_Window* w, SDL_Renderer* r, struct nk_context** c)
         font_scale = scale_y;
     }
 
+    #ifdef NK_SDL_GL3_IMPLEMENTATION
+    *c = nk_sdl_init(w);
+    #endif
+    #ifdef NK_SDL_RENDERER_IMPLEMENTATION
     *c = nk_sdl_init(w, r);
+    #endif
+    
     CHECK_ERROR(*c == NULL, "Can't setup Nuklear GUI.\n");
 
     /* Load Fonts: if none of these are loaded a default font will be used  */

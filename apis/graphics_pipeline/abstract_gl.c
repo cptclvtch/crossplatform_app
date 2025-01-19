@@ -15,7 +15,7 @@ void unload_shader(shader* s);
 #define COLOR_BIT GL_COLOR_BUFFER_BIT
 #define DEPTH_BIT GL_DEPTH_BUFFER_BIT
 #define clear_mask_type GLbitfield
-void clear_screen(clear_mask_type mask);
+#define clear_screen(bitfield) glClear(bitfield)
 #endif
 
 #ifdef IMPLEMENTATION_MODE
@@ -203,10 +203,5 @@ void use_shader(shader* s)
 void unload_shader(shader* s)
 {
     glDeleteProgram(s->id);
-}
-
-void clear_screen(clear_mask_type mask)
-{
-    glClear(mask);
 }
 #endif

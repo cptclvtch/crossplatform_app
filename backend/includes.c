@@ -37,14 +37,24 @@ else PRINT_FN("[%p...%p...%p]", array_start, target, array_start + no_of_items);
 
 #endif
 
-#define NK_INCLUDE_FIXED_TYPES
-#define NK_INCLUDE_STANDARD_IO
-#define NK_INCLUDE_STANDARD_VARARGS
-#define NK_INCLUDE_DEFAULT_ALLOCATOR
-#define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
-#define NK_INCLUDE_FONT_BAKING
-#define NK_INCLUDE_DEFAULT_FONT
-#define NK_IMPLEMENTATION
-#define NK_SDL_RENDERER_IMPLEMENTATION
-#include "Nuklear/nuklear.h"
-#include "nuklear_sdl_renderer.h"
+#if defined(NK_IMPLEMENTATION) && defined(SDL_IMPLEMENTATION)
+    #define NK_ASSERT SDL_assert
+    #define NK_INCLUDE_FIXED_TYPES
+    #define NK_INCLUDE_STANDARD_IO
+    #define NK_INCLUDE_STANDARD_VARARGS
+    #define NK_INCLUDE_DEFAULT_ALLOCATOR
+    #define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
+    #define NK_INCLUDE_FONT_BAKING
+    #define NK_INCLUDE_DEFAULT_FONT
+    #include "Nuklear/nuklear.h"
+    #ifdef SDL_IMPLEMENTATION
+        #ifdef NK_SDL_GL3_IMPLEMENTATION
+            #define NK_MAX_VERTEX_MEMORY 512 * 1024
+            #define NK_MAX_ELEMENT_MEMORY 128 * 1024
+            #include "nuklear_sdl_gl3.h"
+        #endif
+        #ifdef NK_SDL_RENDERER_IMPLEMENTATION
+            #include "nuklear_sdl_renderer.h"
+        #endif
+    #endif
+#endif

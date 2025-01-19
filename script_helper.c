@@ -11,6 +11,11 @@
 #define COMPILER "tcc"
 #define DEBUGGER "gdb"
 
+#ifdef _WIN32
+#define EXECUTABLE APP_NAME".exe"
+#else
+#define EXECUTABLE APP_NAME
+#endif
 
 void replace_characters(char* buffer, char from, char to)
 {
