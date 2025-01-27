@@ -3,8 +3,8 @@ typedef uint8_t goap_var_id;
 typedef uint16_t goap_var_value;
 
 typedef goap_var_value* goap_state;
-#define get_var_array(state) state
-#define get_var_value(state, id) get_var_array(state)[id]
+#define var_array(state) state
+#define var_value(state, id) var_array(state)[id]
 
 #define GOAP_CHUNK_SIZE 5
 #define MAX_CHUNKS 20
@@ -30,7 +30,7 @@ enum STATE_REQUIREMENT
 
 const char* STATE_REQUIREMENT_text[REQUIREMENT_TYPE_COUNT] =
 {
-    "-!-",
+    "-/-",
     "near",
     "< ",
     "<=",
@@ -59,6 +59,7 @@ requirement_list* start_requirement_list()
     requirement_list* new = (requirement_list*)calloc(1, sizeof(requirement_list));
 
     new->chunks[0] = (goap_state_requirement*)calloc(GOAP_CHUNK_SIZE, sizeof(goap_state_requirement));
+    new->size = 0;
 
     return new;
 }
@@ -152,4 +153,4 @@ void iterate_over_effects(effect_list* list, void(*iterator_function)(goap_state
     }
 }
 
-#error implement iterators for lists and iterators between lists?
+// TODO implement iterators for lists and iterators between lists?

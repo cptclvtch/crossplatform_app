@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "api.c"
 
+
 //user specified action
 enum
 {
@@ -76,12 +77,12 @@ int main()
     //initialize world state
     printf("Initializing world state\n");
     goap_state world_truth;
-    get_var_array(world_truth) = initialize_state_memory();
-    get_var_value(world_truth, JONS_HUNGER_LEVEL) = 5;
-    get_var_value(world_truth, JONS_LOCATION) = JONS_APARTMENT;
-    get_var_value(world_truth, CASHIERS_LOCATION) = GROCERY_STORE;
-    get_var_value(world_truth, BREAD_SLICES_IN_JONS_FRIDGE) = 0;
-    get_var_value(world_truth, HAM_SLICES_IN_JONS_FRIDGE) = 1;
+    var_array(world_truth) = initialize_state_memory();
+    var_value(world_truth, JONS_HUNGER_LEVEL) = 5;
+    var_value(world_truth, JONS_LOCATION) = JONS_APARTMENT;
+    var_value(world_truth, CASHIERS_LOCATION) = GROCERY_STORE;
+    var_value(world_truth, BREAD_SLICES_IN_JONS_FRIDGE) = 0;
+    var_value(world_truth, HAM_SLICES_IN_JONS_FRIDGE) = 1;
 
     //create actions
     printf("Initializing action list\n");

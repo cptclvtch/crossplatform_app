@@ -7,19 +7,18 @@ log_file = 0
 input_folder = ""
 output_folder = ""
 total = 0
+settings = 0
 
 def log(string):
-    settings = bpy.context.scene.export_settings
-
     global log_file
+    settings = bpy.context.screen.export_settings
     if settings.logging:
         log_file.write(string)
 
 COMPRESSED_NORMAL_POSITION = 10.0
 
 def export_mesh(mesh, file):
-    settings = bpy.context.scene.export_settings
-
+    settings = bpy.context.screen.export_settings
     #write vertex count
     total_triangles = len(mesh.loop_triangles)
     file.write(struct.pack('<i', total_triangles*3))
@@ -40,6 +39,12 @@ def export_mesh(mesh, file):
             file.write(struct.pack('<fff', vert.x, vert.y, vert.z))
             log(str(index) + "\tPosition: %.5f, %.5f, %.5f \n" % (vert.x, vert.y, vert.z))
 
+            if settings.export_normals:
+                # consider using split_corners
+                normal = mesh.vertices[index].normal
+                file.write(struct.pack('<fff', normal.x, normal.y, normal.z))
+                log(str(index) + "\t\tNormal: %.5f, %.5f, %.5f \n" % (normal.x, normal.y, normal.z))
+
             if settings.export_colors:
                 color = mesh.vertex_colors.active.data[loop_index].color
                 file.write(struct.pack('<fff', color[0], color[1], color[2]))
@@ -54,9 +59,9 @@ def export_mesh(mesh, file):
         log("----------------------------------------------------------------\n")
 
 def export_scene(filepath):
-    settings = bpy.context.scene.export_settings
-    
     global log_file
+
+    settings = bpy.context.screen.export_settings
     if settings.logging:
         log_file = open(bpy.data.filepath.replace(".blend", "_log.txt"),"w")
 
@@ -99,7 +104,7 @@ bl_info = {
 class Settings(bpy.types.PropertyGroup):
     apply_modifiers : bpy.props.BoolProperty(name = "Apply Modifiers", default = False) # type: ignore
     apply_transforms : bpy.props.BoolProperty(name = "Apply Transforms", default = True) # type: ignore
-    export_normals : bpy.props.BoolProperty(name = "Export Normals", default = False) # type: ignore
+    export_normals : bpy.props.BoolProperty(name = "Export Normals", default = True) # type: ignore
     normal_type : bpy.props.EnumProperty(name = "Type",
                                             items = [('uncompressed', "Uncompressed normals", ""),
                                                     ('compressed', "Compressed normals", "")]) # type: ignore
@@ -108,6 +113,7 @@ class Settings(bpy.types.PropertyGroup):
     uv_type : bpy.props.EnumProperty(name = "Type",
                                         items = [('flipped', "Flipped Y coordinate", ""),
                                                 ('unflipped', "Normal coordinates", "")]) # type: ignore
+    force_export: bpy.props.BoolProperty(name = "Force export", default = False) #type: ignore
     logging : bpy.props.BoolProperty(name = "Export debug text", default = False) # type: ignore
 
 
@@ -123,9 +129,6 @@ class ObjectExport(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
 
         return {'FINISHED'}            # Lets Blender know the operator finished successfully.
 
-def recursive_export(folder):
-    return
-
 class FolderExport(bpy.types.Operator):
     """"Recursively export a folder"""
     bl_idname = "object.recursive_export"
@@ -133,8 +136,10 @@ class FolderExport(bpy.types.Operator):
     bl_options = {'REGISTER'}
 
     def execute(self, context):
-        global total, input_folder, output_folder
-        if input_folder and output_folder:
+        global total, input_folder, output_folder, settings
+        if os.path.exists(input_folder) and os.path.exists(output_folder):
+            settings = bpy.context.screen.export_settings
+            print("Force export: ", settings.force_export)
             total = 0
             #loop over every folder, except the "Deprecated" folder
             for subdir, dirs, files in os.walk(input_folder):
@@ -168,7 +173,7 @@ class FolderExport(bpy.types.Operator):
                         if original_mtime > equivalent_mtime:
                             needs_update = True
 
-                    if needs_update:
+                    if needs_update or settings.force_export:
                         #open file in blender
                         bpy.ops.wm.open_mainfile(filepath=original_path)
 
@@ -228,15 +233,15 @@ class ExportPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_export"
 
     def draw(self, context):
-        settings = bpy.context.scene.export_settings
-#        self.layout.prop(settings, "apply_modifiers")
-        self.layout.prop(settings, "apply_transforms")
-#        self.layout.prop(settings, "export_normals")
-#        self.layout.prop(settings, "normal_type")
-        self.layout.prop(settings, "export_colors")
-        self.layout.prop(settings, "export_uvs")
-        self.layout.prop(settings, "uv_type")
-        self.layout.prop(settings, "logging")
+        local_settings = bpy.context.screen.export_settings
+#        self.layout.prop(local_settings, "apply_modifiers")
+        self.layout.prop(local_settings, "apply_transforms")
+        self.layout.prop(local_settings, "export_normals")
+#        self.layout.prop(local_settings, "normal_type")
+        self.layout.prop(local_settings, "export_colors")
+        self.layout.prop(local_settings, "export_uvs")
+        self.layout.prop(local_settings, "uv_type")
+        self.layout.prop(local_settings, "logging")
         self.layout.row().operator(ObjectExport.bl_idname, text = "Export visible objects", icon = 'EXPORT')
         
         
@@ -249,10 +254,21 @@ class FolderExportPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_folderexport"
 
     def draw(self, context):
-        global total
-        self.layout.row().operator(SetInputFolder.bl_idname, text = "Set input folder", icon = 'FILEBROWSER')
-        self.layout.row().operator(SetOutputFolder.bl_idname, text = "Set output folder", icon = 'FILEBROWSER')
+        global total, input_folder, output_folder
+        local_settings = bpy.context.screen.export_settings
+        
+        input_icon = 'FILEBROWSER'
+        if os.path.exists(input_folder):
+            input_icon = 'CHECKMARK'
+        
+        output_icon = 'FILEBROWSER'
+        if os.path.exists(output_folder):
+            output_icon = 'CHECKMARK'
+
+        self.layout.row().operator(SetInputFolder.bl_idname, text = "Set input folder", icon = input_icon)
+        self.layout.row().operator(SetOutputFolder.bl_idname, text = "Set output folder", icon = output_icon)
         self.layout.row().operator(FolderExport.bl_idname, text = "Recursive folder export", icon = 'EXPORT')
+        self.layout.row().prop(local_settings, "force_export")
         self.layout.row().label(text = "Assets exported: " + str(total))
         
 classes = [Settings, ObjectExport, ExportPanel, FolderExportPanel, SetInputFolder, SetOutputFolder, FolderExport]
@@ -260,12 +276,11 @@ classes = [Settings, ObjectExport, ExportPanel, FolderExportPanel, SetInputFolde
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
-    bpy.types.Scene.export_settings = bpy.props.PointerProperty(type = Settings)
+    bpy.types.Screen.export_settings = bpy.props.PointerProperty(type = Settings)
 
 def unregister():
     for cls in classes:
         bpy.utils.unregister_class(cls)
-    del bpy.types.Scene.export_settings
 
 if __name__ == "__main__":
     unregister()

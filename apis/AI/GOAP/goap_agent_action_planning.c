@@ -54,7 +54,7 @@ void add_state_to_planning_helper(planning_helper* helper, goap_var_id state)
 
     planning_helper_node* current_node = helper->root;
     uint8_t cluster_index = 1;
-    // #error here
+    // FIXME here
     while(current_node->next)
     {
         current_node = current_node->next;
@@ -75,7 +75,7 @@ void add_state_to_planning_helper(planning_helper* helper, goap_var_id state)
 
 goap_var_id* get_next_planning_helper_item(planning_helper* helper)
 {
-    // #error somewhere here
+    //FIXME some sort of bug here
     if(helper->root == NULL) return NULL;
 
     planning_helper_node* current_node = helper->root;
@@ -105,14 +105,14 @@ void calculate_goal_vectors(planning_helper* helper)
     goap_var_id* item = NULL;
     while(item = get_next_planning_helper_item(helper))
     {
-        if( helper->agent->goal_state->requirement_type >= EQUAL
+        if( helper->agent->goal_state.requirement_type >= EQUAL
             &&
-            helper->agent->goal_state->required_value > get_var_value(helper->agent->current_state, item[STATE_ID]))
+            helper->agent->goal_state.required_value > var_value(helper->agent->current_state, item[STATE_ID]))
                 item[DIRECTION] = STATE_INC;
 
-        if( helper->agent->goal_state->requirement_type <= EQUAL
+        if( helper->agent->goal_state.requirement_type <= EQUAL
             &&
-            helper->agent->goal_state->required_value < get_var_value(helper->agent->current_state, item[STATE_ID]))
+            helper->agent->goal_state.required_value < var_value(helper->agent->current_state, item[STATE_ID]))
                 item[DIRECTION] = STATE_DEC;
     }
 }
@@ -187,54 +187,54 @@ void make_plan(goap_agent* agent)
     calculate_goal_vectors(helper);
 
     //pick best action
-    while(helper->count)
+    uint8_t count = helper->count;
+    while(count)
     {
         printf("\tPicking action\n");
         action_stack_node* result = add_action_stack_node(agent->action_plan, pick_best_action(helper));
         if(result) agent->action_plan = result;
-        
+
         //remove previously completed requirements
         uint8_t index = 0;
         planning_helper_node* current_node = helper->root;
         while(current_node->next)
         {
+            goap_action* action = result->action;
             for(index = 0; index < GOAP_CHUNK_SIZE; index++)
             {
                 uint8_t effect_index = 0;
-                for(; effect_index < result->effect_max_index; effect_index++)
-                    if(current_node->vectors[index%4][STATE_ID] == result->effects[effect_index].affected_state)
+                for(; effect_index < action->effect_max_index; effect_index++)
+                    if(current_node->vectors[index%4][STATE_ID] == action->effects[effect_index].affected_state)
                     {
                         //apply effect
-                        switch(result->effects[effect_index].effect_type)
+                        switch(action->effects[effect_index].effect_type)
                         {
                             case STATE_DEC:
-                            current_node->vectors[index%4][CURR_VALUE] -= result->effects[effect_index].effect_amount;
+                            current_node->vectors[index%4][CURR_VALUE] -= action->effects[effect_index].effect_amount;
                             break;
 
                             case STATE_SET:
-                            current_node->vectors[index%4][CURR_VALUE] = result->effects[effect_index].effect_amount;
+                            current_node->vectors[index%4][CURR_VALUE] = action->effects[effect_index].effect_amount;
                             break;
 
                             case STATE_INC:
-                            current_node->vectors[index%4][CURR_VALUE] += result->effects[effect_index].effect_amount;
+                            current_node->vectors[index%4][CURR_VALUE] += action->effects[effect_index].effect_amount;
                             break;
                         }
 
                         //check for completion
-                        switch(current_node->vectors[index%4][])
-                        {
-                            #error needs more work here
-                            if(current_node->vectors[index%4][CURR_VALUE])
-                        }
+                        //
                     }
             }
             current_node = current_node->next;
         }
 
         //propagate requirements
+
+        count--;
     }
 
-    printf("\tAgent plan:\n");
+    printf("\n---Agent plan:\n");
     print_action_stack(agent->action_plan);
 
     //cleanup

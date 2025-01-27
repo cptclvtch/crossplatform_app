@@ -103,10 +103,8 @@ mesh load_mesh_from_path(char* path)
         return loaded_mesh;
     }
 
-    mesh_vertex* mvp = (mesh_vertex*)malloc(loaded_mesh.vertex_count*sizeof(mesh_vertex));
+    loaded_mesh.vertices = (mesh_vertex*)malloc(loaded_mesh.vertex_count*sizeof(mesh_vertex));
 
-    loaded_mesh.vertices = mvp;
-    
     SDL_RWread(file, loaded_mesh.vertices, sizeof(mesh_vertex), loaded_mesh.vertex_count);
 
     SDL_RWclose(file);
@@ -149,6 +147,8 @@ void load_mesh_to_gpu(mesh* m)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(mesh_vertex), 0);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(mesh_vertex), sizeof(vec3));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(mesh_vertex), sizeof(vec3)*2);
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);

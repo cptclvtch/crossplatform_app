@@ -77,7 +77,7 @@ uint8_t execute_action(goap_state truth, goap_action action)
     {
         switch(action.requirements[index].requirement_type)
         {
-            goap_var_value a = get_var_value(truth, action.requirements[index].required_state);
+            goap_var_value a = var_value(truth, action.requirements[index].required_state);
             goap_var_value b = action.requirements[index].required_value;
 
             case NEAR:
@@ -115,22 +115,22 @@ uint8_t execute_action(goap_state truth, goap_action action)
         {
             goap_var_value result;
             case STATE_SET:
-            get_var_value(truth, a) = b;
-            // get_var_value(agent_list[action.subject].current_state, a) = b;
+            var_value(truth, a) = b;
+            // var_value(agent_list[action.subject].current_state, a) = b;
             break;
 
             case STATE_DEC:
             result = a + b;
             if(result < a) return 0;
-            get_var_value(truth, a) = result;
-            // get_var_value(agent_list[action.subject].current_state, a) = result;
+            var_value(truth, a) = result;
+            // var_value(agent_list[action.subject].current_state, a) = result;
             break;
 
             case STATE_INC:
             result = a - b;
             if(result > a) return 0;
-            get_var_value(truth, a) = result;
-            // get_var_value(agent_list[action.subject].current_state, a) = result;
+            var_value(truth, a) = result;
+            // var_value(agent_list[action.subject].current_state, a) = result;
             break;
         }
     }
@@ -186,7 +186,6 @@ void print_all_actions(char** state_names)
             }
             printf("\n");
     }
-    ENTER_TO_CONTINUE
 }
 
 //Action stack

@@ -4,7 +4,7 @@ typedef uint32_t mesh_index_t;
 typedef struct mesh_vertex
 {
     vec3 pos;
-    //vec3 normal;
+    vec3 normal;
     vec3 col;
     // float t_u, t_v;
 }mesh_vertex;
