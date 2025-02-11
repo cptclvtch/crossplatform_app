@@ -543,7 +543,7 @@ enum nk_symbol_type {
 /// hereby ranges from standard library to just specifying a fixed sized block of memory
 /// which nuklear has to manage itself from.
 ///
-/// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~c
+/// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /// struct nk_context ctx;
 /// nk_init_xxx(&ctx, ...);
 /// while (1) {
@@ -1217,7 +1217,7 @@ NK_API const struct nk_command* nk__next(struct nk_context*, const struct nk_com
 /// Iterates over each draw command inside the context draw command list
 ///
 /// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~c
-/// #define nk_foreach(c, ctx)
+/// #define nk_foreach(cmd, ctx)
 /// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ///
 /// Parameter   | Description

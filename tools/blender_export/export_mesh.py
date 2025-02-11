@@ -19,6 +19,7 @@ COMPRESSED_NORMAL_POSITION = 10.0
 
 def export_mesh(mesh, file):
     settings = bpy.context.screen.export_settings
+    
     #write vertex count
     total_triangles = len(mesh.loop_triangles)
     file.write(struct.pack('<i', total_triangles*3))
@@ -40,8 +41,7 @@ def export_mesh(mesh, file):
             log(str(index) + "\tPosition: %.5f, %.5f, %.5f \n" % (vert.x, vert.y, vert.z))
 
             if settings.export_normals:
-                # consider using split_corners
-                normal = mesh.vertices[index].normal
+                normal = mesh.loops[loop_index].normal
                 file.write(struct.pack('<fff', normal.x, normal.y, normal.z))
                 log(str(index) + "\t\tNormal: %.5f, %.5f, %.5f \n" % (normal.x, normal.y, normal.z))
 
@@ -113,7 +113,7 @@ class Settings(bpy.types.PropertyGroup):
     uv_type : bpy.props.EnumProperty(name = "Type",
                                         items = [('flipped', "Flipped Y coordinate", ""),
                                                 ('unflipped', "Normal coordinates", "")]) # type: ignore
-    force_export: bpy.props.BoolProperty(name = "Force export", default = False) #type: ignore
+    # force_export: bpy.props.BoolProperty(name = "Force export", default = False) #type: ignore
     logging : bpy.props.BoolProperty(name = "Export debug text", default = False) # type: ignore
 
 
@@ -268,7 +268,7 @@ class FolderExportPanel(bpy.types.Panel):
         self.layout.row().operator(SetInputFolder.bl_idname, text = "Set input folder", icon = input_icon)
         self.layout.row().operator(SetOutputFolder.bl_idname, text = "Set output folder", icon = output_icon)
         self.layout.row().operator(FolderExport.bl_idname, text = "Recursive folder export", icon = 'EXPORT')
-        self.layout.row().prop(local_settings, "force_export")
+        # self.layout.row().prop(local_settings, "force_export")
         self.layout.row().label(text = "Assets exported: " + str(total))
         
 classes = [Settings, ObjectExport, ExportPanel, FolderExportPanel, SetInputFolder, SetOutputFolder, FolderExport]

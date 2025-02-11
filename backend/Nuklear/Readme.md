@@ -36,7 +36,7 @@ and does not contain the actual implementation.
 
 The implementation mode requires defining the preprocessor macro
 `NK_IMPLEMENTATION` in *one* .c/.cpp file before `#include`ing this file, e.g.:
-```c
+```
 #define NK_IMPLEMENTATION
 #include "nuklear.h"
 ```
