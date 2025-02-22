@@ -1,4 +1,4 @@
-#ifdef DEFINITION_MODE
+#ifndef API_IMPLEMENTATION_ONLY
 #ifndef cos
 #include <math.h>
 #endif
@@ -24,7 +24,7 @@ vec3 vec_divide(vec3 a, vec3 b);
 vec3 vec_rotate(vec3 a, vec3 amount);
 #endif
 
-#ifdef IMPLEMENTATION_MODE
+#ifdef API_IMPLEMENTATION_ONLY
 float vec_length_squared(vec3 a)
 {
     return a.x*a.x + a.y*a.y + a.z*a.z;

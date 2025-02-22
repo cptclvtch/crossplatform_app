@@ -1,4 +1,4 @@
-#ifdef DEFINITION_MODE
+#ifndef API_IMPLEMENTATION_ONLY
 typedef uint32_t mesh_index_t;
 
 typedef struct mesh_vertex
@@ -29,7 +29,7 @@ void rotate_mesh(mesh m, vec3 amount);
 void scale_mesh(mesh m, vec3 amount);
 #endif
 
-#ifdef IMPLEMENTATION_MODE
+#ifdef API_IMPLEMENTATION_ONLY
 mesh mesh_copy(mesh m)
 {
     mesh to_return = {};

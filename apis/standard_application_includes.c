@@ -1,3 +1,4 @@
+#ifndef API_IMPLEMENTATION_ONLY
 #define CHECK_ERROR(test, message) \
 do \
 { \
@@ -8,13 +9,8 @@ do \
     } \
 } while(0)
 
-#ifdef DEFINITION_MODE
 //Variables
 uint8_t running = 1;
-
-uint32_t dt = 0;
-uint32_t past_reading;
-uint8_t min_fps = 10, target_fps = 60, max_fps = 120;
 
 #define RESOLUTION_SCALE 80
 uint16_t width = 16*RESOLUTION_SCALE;
@@ -31,7 +27,7 @@ void render_output();
 void close();
 #endif
 
-#ifdef IMPLEMENTATION_MODE
+#ifdef API_IMPLEMENTATION_ONLY
 void setup()
 {
     PRINT_FN("-----------SETUP----------\n");
@@ -40,10 +36,15 @@ void setup()
     window = SDL_CreateWindow(APP_NAME, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL);
     CHECK_ERROR(window == NULL, SDL_GetError());
     
-    start_graphics();
+    float framerate = 60.0;
+    SDL_DisplayMode current_display_mode;
+    if(SDL_GetCurrentDisplayMode(SDL_GetWindowDisplayIndex(window), &current_display_mode) == 0)
+    {
+        framerate = (float)current_display_mode.refresh_rate;
+    }
+    frame_timing_setup(framerate);
 
-    past_reading = SDL_GetTicks();
-    dt = 0;
+    start_graphics();
 
     PRINT_FN("--------------------------------\n");
 }

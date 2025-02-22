@@ -2,8 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define DEFINITION_MODE
-#define IMPLEMENTATION_MODE
+#define API_IMPLEMENTATION_ONLY
 #include "api.c"
 
 typedef struct s_test

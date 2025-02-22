@@ -1,9 +1,8 @@
-#ifdef DEFINITION_MODE
+#ifndef API_IMPLEMENTATION_ONLY
 float get_inverse_mass(float mass);
 #endif
 
-
-#ifdef IMPLEMENTATION_MODE
+#ifdef API_IMPLEMENTATION_ONLY
 float get_inverse_mass(float mass)
 {
     if(fabs(mass) < 0.00001)

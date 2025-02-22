@@ -1,10 +1,18 @@
-#ifdef DEFINITION_MODE
+#ifndef API_IMPLEMENTATION_ONLY
+#ifndef MAX_VSYNC_MULTIPLES
+#error Please include frame_timing/api.c
+#endif
+#ifndef GRAPHICS_PIPELINE_INCLUDED
+#error Please include graphics_pipeline/api.c
+#endif
+//Variables
+mesh gizmo;
 //Functions
 void game_setup();
 void update_game();
 #endif
 
-#ifdef IMPLEMENTATION_MODE
+#ifdef API_IMPLEMENTATION_ONLY
 void gui_setup(SDL_Window* w, SDL_Renderer* r, struct nk_context** c)
 {
     /* scale the renderer output for High-DPI displays */
@@ -49,17 +57,67 @@ void gui_setup(SDL_Window* w, SDL_Renderer* r, struct nk_context** c)
         /*nk_style_load_all_cursors(ctx, atlas->cursors);*/
         nk_style_set_font(*c, &font->handle);
     }
+
+    //initialize gizmo
+    gizmo = (mesh){0};
+    mesh_vertex v[6] =
+    {
+        {
+            {0.0,0.0,0.0},
+            {0.0,0.0,0.0},
+            {1.0, 0.0, 0.0}
+        },
+        {
+            {1.0,0.0,0.0},
+            {0.0,0.0,0.0},
+            {1.0,0.0,0.0}
+        },
+        {
+            {0.0,0.0,0.0},
+            {0.0,0.0,0.0},
+            {0.0, 1.0, 0.0}
+        },
+        {
+            {0.0,1.0,0.0},
+            {0.0,0.0,0.0},
+            {0.0, 1.0, 0.0}
+        },
+        {
+            {0.0,0.0,0.0},
+            {1.0,0.0,0.0},
+            {0.0, 0.0, 1.0}
+        },
+        {
+            {0.0,0.0,1.0},
+            {1.0,0.0,0.0},
+            {0.0, 0.0, 1.0}
+        }
+    };
+    gizmo.vertices = &v;
+    gizmo.vertex_count = 6;
+
+    load_mesh_to_gpu(&gizmo);
 }
 
 void game_loop()
 {
     while(running)
     {
-        process_input();
+        // New, fixed timing method
+        update_accumulator(SDL_GetTicks());
 
-        update_game();
+        //TODO research loop sleep() and the usefullness of loop_dt
+        uint32_t loop_dt = SDL_GetTicks();
+        {
+            process_input();
 
-        render_output();
+            fixed_update(update_game);
+
+            render_output();
+        }
+        loop_dt = SDL_GetTicks() - loop_dt;
+
+        SDL_Delay((desired_ft - loop_dt)*(loop_dt < desired_ft));
     }
 }
 #endif

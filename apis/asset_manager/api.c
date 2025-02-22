@@ -1,9 +1,4 @@
-#if !defined(DEFINITION_MODE) && !defined(IMPLEMENTATION_MODE)
-#define DEFINITION_MODE
-#endif
-
-#ifdef DEFINITION_MODE
-
+#ifndef API_IMPLEMENTATION_ONLY
 #ifndef uint8_t
 #include <stdint.h>
 #endif
@@ -46,7 +41,7 @@ void  unload_palette(uint8_t palette_index);
 void  unload_all_palettes();
 #endif
 
-#ifdef IMPLEMENTATION_MODE
+#ifdef API_IMPLEMENTATION_ONLY
 asset_palette palettes[256];
 
 void default_callback(uint8_t error_code){}

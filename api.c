@@ -3,10 +3,6 @@
 #endif
 #include "backend/includes.c"
 
-#define DEFINITION_MODE
 #include "apis/includes.c"
-#undef DEFINITION_MODE
-
-#define IMPLEMENTATION_MODE
+#define API_IMPLEMENTATION_ONLY
 #include "apis/includes.c"
-#undef IMPLEMENTATION_MODE

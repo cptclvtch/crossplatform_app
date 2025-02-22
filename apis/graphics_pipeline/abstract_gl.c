@@ -1,4 +1,4 @@
-#ifdef DEFINITION_MODE
+#ifndef API_IMPLEMENTATION_ONLY
 typedef struct shader_t
 {
     uint32_t id;
@@ -18,7 +18,7 @@ void unload_shader(shader* s);
 #define clear_screen(bitfield) glClear(bitfield)
 #endif
 
-#ifdef IMPLEMENTATION_MODE
+#ifdef API_IMPLEMENTATION_ONLY
 void start_graphics()
 {
     //Context

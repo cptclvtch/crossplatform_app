@@ -3,7 +3,6 @@
 #include "abstract_gl.c"
 #define GRAPHICS_PIPELINE_INCLUDED
 
-#ifdef DEFINITION_MODE
 SDL_GLContext* context;
 uint32_t triangles_drawn;
 
@@ -14,9 +13,8 @@ void load_mesh_to_gpu(mesh* m);
 void unload_mesh_from_gpu(mesh m);
 
 void deallocate_mesh(mesh m);
-#endif
 
-#ifdef IMPLEMENTATION_MODE
+#ifdef API_IMPLEMENTATION_ONLY
 uint32_t load_texture_from_path(char* path)
 {
     // PRINT_FN("Loading %s... ", path);
