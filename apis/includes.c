@@ -6,6 +6,10 @@
 
 // #include "AI/GOAP/api.c"
 
+#ifdef INCLUDE_PHYSICS_API
+#include "physics/api.c"
+#endif
+
 #ifdef INCLUDE_GAME_ENGINE_API
 #include "game_engine/api.c"
 #endif

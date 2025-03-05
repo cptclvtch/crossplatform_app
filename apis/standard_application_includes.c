@@ -19,16 +19,18 @@ uint16_t height = 9*RESOLUTION_SCALE;
 float font_scale = 1.0;
 
 //Functions
-void setup();
+void setup_app();
 
 void process_input();
 void render_output();
 
-void close();
-#endif
+void close_app();
 
-#ifdef API_IMPLEMENTATION_ONLY
-void setup()
+//----------------------------------
+#else
+//----------------------------------
+
+void setup_app()
 {
     PRINT_FN("-----------SETUP----------\n");
     CHECK_ERROR(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0, SDL_GetError());
@@ -49,7 +51,7 @@ void setup()
     PRINT_FN("--------------------------------\n");
 }
 
-void close()
+void close_app()
 {
     #ifndef RELEASE
         #ifdef NUKLEAR_GUI

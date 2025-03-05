@@ -1,11 +1,11 @@
 #ifndef GOAP_SYSTEM
 #define GOAP_SYSTEM
 
-#ifndef uint16_t
+#ifndef UINT8_MAX
 #include <stdint.h>
 #endif
 
-#ifndef calloc
+#ifndef RAND_MAX
 #include <stdlib.h>
 #endif
 

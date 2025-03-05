@@ -1,28 +1,37 @@
 #ifndef API_IMPLEMENTATION_ONLY
-#ifndef uint8_t
+#ifndef UINT8_MAX
 #include <stdint.h>
 #endif
 
-//TODO consider switching to nano-seconds
+#define FRAME_TIMING
 uint8_t min_fps = 15, target_fps = 60, max_fps = 255;
-uint32_t oldtime, desired_ft, dt = 0; //milliseconds
+
+typedef uint32_t nano_s;
+typedef uint32_t milli_s;
+
+//TODO consider switching to nano-seconds
+milli_s oldtime, desired_ft, dt = 0;
+#define FT ((float)desired_ft/1000)
+#define DT ((float)dt/1000)
 
 uint8_t timing_reset_request; //bool
-int32_t frame_accumulator; //TODO research type for this variable
+milli_s frame_accumulator; //TODO research type for this variable
 
-uint32_t vsync_maxerror = 1;
+nano_s vsync_maxerror = 200;
 #define MAX_VSYNC_MULTIPLES 5
-uint32_t vsync_frametime_snaps[MAX_VSYNC_MULTIPLES] = {}; // milliseconds
-uint32_t ticks_per_second;
+nano_s vsync_frametime_snaps[MAX_VSYNC_MULTIPLES] = {};
+// uint32_t ticks_per_second;
 
 uint8_t update_multiplicity = 1;
 
-void measure_dt(uint32_t newtime);
+void measure_dt(milli_s newtime);
 void massage_dt();
 void frame_timing_setup(float display_refresh_rate);
-#endif
 
-#ifdef API_IMPLEMENTATION_ONLY
+//----------------------------------
+#else
+//----------------------------------
+
 void frame_timing_setup(float display_refresh_rate)
 {
     desired_ft = 1000 / target_fps; //milliseconds per frame
@@ -36,7 +45,7 @@ void frame_timing_setup(float display_refresh_rate)
     uint8_t i = 0;
     while(i < MAX_VSYNC_MULTIPLES)
     {
-        vsync_frametime_snaps[i] = (uint32_t)(1000 / hz);
+        vsync_frametime_snaps[i] = (milli_s)(1000000 / hz);
         
         hz *= 2;
         i++;
@@ -51,8 +60,8 @@ void vsync_snap()
     uint8_t i = 0;
     while(i < MAX_VSYNC_MULTIPLES)
     {
-        uint32_t snap_ft = vsync_frametime_snaps[i];
-        uint32_t snap_diff = dt - snap_ft;
+        nano_s snap_ft = vsync_frametime_snaps[i];
+        nano_s snap_diff = dt*1000 - snap_ft;
         if(snap_diff >= -vsync_maxerror || snap_diff <= vsync_maxerror)
         {
             dt = snap_ft;
@@ -63,7 +72,7 @@ void vsync_snap()
     }
 }
 
-void measure_dt(uint32_t newtime)
+void measure_dt(milli_s newtime)
 {
     if(newtime > oldtime)
         dt = newtime - oldtime;
@@ -83,7 +92,7 @@ void massage_dt()
     //dt averaging would go here
 }
 
-void update_accumulator(uint32_t newtime)
+void update_accumulator(milli_s newtime)
 {
     measure_dt(newtime);
     massage_dt();
@@ -117,7 +126,7 @@ void fixed_update(void (*update_func)())
     }
 }
 
-void game_loop_function(uint32_t newtime)
+void game_loop_function(milli_s newtime)
 {
     update_accumulator(newtime);
 
@@ -128,6 +137,9 @@ void game_loop_function(uint32_t newtime)
     
     //game.render(1.0);
 }
+
+//old delay code:
+//SDL_Delay((1000/target_fps - dt)*(dt < 1000/target_fps));
 
 //TODO research SDL_timer.h implementation
 #endif

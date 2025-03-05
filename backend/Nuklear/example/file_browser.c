@@ -8,7 +8,7 @@
 #include <assert.h>
 #include <time.h>
 #include <limits.h>
-#include <unistd.h>
+#include <sys/unistd.h>
 #include <dirent.h>
 
 #include <GL/glew.h>

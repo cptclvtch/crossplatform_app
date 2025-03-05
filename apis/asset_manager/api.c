@@ -1,8 +1,8 @@
 #ifndef API_IMPLEMENTATION_ONLY
-#ifndef uint8_t
+#ifndef UINT8_MAX
 #include <stdint.h>
 #endif
-#ifndef malloc
+#ifndef RAND_MAX
 #include <stdlib.h>
 #endif
 
@@ -39,9 +39,11 @@ uint8_t load_all_palettes();
 
 void  unload_palette(uint8_t palette_index);
 void  unload_all_palettes();
-#endif
 
-#ifdef API_IMPLEMENTATION_ONLY
+//----------------------------------
+#else
+//----------------------------------
+
 asset_palette palettes[256];
 
 void default_callback(uint8_t error_code){}

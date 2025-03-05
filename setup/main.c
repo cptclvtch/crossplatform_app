@@ -3,9 +3,9 @@
 
 int main()
 {
-    setup();
+    setup_app();
 
     game_loop();
 
-    close();
+    close_app();
 }

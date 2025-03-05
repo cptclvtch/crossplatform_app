@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #define INTERPRETER "tcc"
 #define COMPILER "tcc"
@@ -89,4 +90,28 @@ void fs_delete(char* path, uint8_t recursive)
     #endif
 
     system(command);
+}
+
+void add_value_to_environment_variable(char* val, char* var)
+{
+    //check if variable exists
+        //if not, create it
+
+    //check if value exists in variable
+        //if not, add it
+        //if it does, return
+    
+    char* str = getenv(var);
+
+    if(str == NULL)
+    {
+        // printf();
+    }
+
+    char* token = strtok(str, ";");
+    while (token != NULL)
+    {
+        printf(" % s\n", token);
+        token = strtok(NULL, ";");
+    }
 }

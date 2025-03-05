@@ -6,13 +6,14 @@
 #error Please include graphics_pipeline/api.c
 #endif
 //Variables
-mesh gizmo;
 //Functions
 void game_setup();
 void update_game();
-#endif
 
-#ifdef API_IMPLEMENTATION_ONLY
+//----------------------------------
+#else
+//----------------------------------
+
 void gui_setup(SDL_Window* w, SDL_Renderer* r, struct nk_context** c)
 {
     /* scale the renderer output for High-DPI displays */
@@ -58,45 +59,9 @@ void gui_setup(SDL_Window* w, SDL_Renderer* r, struct nk_context** c)
         nk_style_set_font(*c, &font->handle);
     }
 
-    //initialize gizmo
-    gizmo = (mesh){0};
-    mesh_vertex v[6] =
-    {
-        {
-            {0.0,0.0,0.0},
-            {0.0,0.0,0.0},
-            {1.0, 0.0, 0.0}
-        },
-        {
-            {1.0,0.0,0.0},
-            {0.0,0.0,0.0},
-            {1.0,0.0,0.0}
-        },
-        {
-            {0.0,0.0,0.0},
-            {0.0,0.0,0.0},
-            {0.0, 1.0, 0.0}
-        },
-        {
-            {0.0,1.0,0.0},
-            {0.0,0.0,0.0},
-            {0.0, 1.0, 0.0}
-        },
-        {
-            {0.0,0.0,0.0},
-            {1.0,0.0,0.0},
-            {0.0, 0.0, 1.0}
-        },
-        {
-            {0.0,0.0,1.0},
-            {1.0,0.0,0.0},
-            {0.0, 0.0, 1.0}
-        }
-    };
-    gizmo.vertices = &v;
-    gizmo.vertex_count = 6;
-
-    load_mesh_to_gpu(&gizmo);
+    #ifndef RELEASE
+    load_gizmo();
+    #endif
 }
 
 void game_loop()

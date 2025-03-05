@@ -16,9 +16,11 @@ void unload_shader(shader* s);
 #define DEPTH_BIT GL_DEPTH_BUFFER_BIT
 #define clear_mask_type GLbitfield
 #define clear_screen(bitfield) glClear(bitfield)
-#endif
 
-#ifdef API_IMPLEMENTATION_ONLY
+//----------------------------------
+#else
+//----------------------------------
+
 void start_graphics()
 {
     //Context

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "api.c"
 #define API_IMPLEMENTATION_ONLY
 #include "api.c"
 

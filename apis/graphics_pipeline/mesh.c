@@ -1,7 +1,7 @@
 #ifndef API_IMPLEMENTATION_ONLY
 typedef uint32_t mesh_index_t;
 
-typedef struct mesh_vertex
+typedef struct
 {
     vec3 pos;
     vec3 normal;
@@ -9,7 +9,7 @@ typedef struct mesh_vertex
     // float t_u, t_v;
 }mesh_vertex;
 
-typedef struct s_mesh
+typedef struct
 {
     //CPU side
     mesh_vertex* vertices;
@@ -22,52 +22,109 @@ typedef struct s_mesh
 }mesh;
 
 //Helper functions
-mesh mesh_copy(mesh m);
+mesh load_mesh_from_path(char* path);
+void load_mesh_to_gpu(mesh* m);
 
-void move_mesh(mesh m, vec3 amount);
-void rotate_mesh(mesh m, vec3 amount);
-void scale_mesh(mesh m, vec3 amount);
-#endif
+//----------------------------------
+#else
+//----------------------------------
 
-#ifdef API_IMPLEMENTATION_ONLY
-mesh mesh_copy(mesh m)
+mesh load_mesh_from_path(char* path)
 {
-    mesh to_return = {};
+    // printf("Loading %s... ", path);
+
+    mesh loaded_mesh = (mesh){
+                                vertices: NULL,
+                                vertex_count: 0,
+                                loaded_on_gpu: 0,
+                                vertex_array: 0,
+                                vertex_buffer: 0
+                            };
+
+    SDL_RWops* file = SDL_RWFromFile(path, "rb");
+    if(file == NULL)
+    {
+        PRINT_FN("File error: %s\n", SDL_GetError());
+        return loaded_mesh;
+    }
+
+    //load mesh into buffer
+    uint32_t i = 0;
+    SDL_RWread(file, &(loaded_mesh.vertex_count), 4, 1);
     
-    to_return.vertex_count = m.vertex_count;
-    size_t memory_amount = sizeof(mesh_vertex) * to_return.vertex_count;
-    to_return.vertices = (mesh_vertex*)calloc(1, memory_amount);
-    if(to_return.vertices == NULL) return;
+    if(loaded_mesh.vertex_count == 0)
+    {
+        PRINT_FN("Failed. No vertices found.\n");
+        return loaded_mesh;
+    }
 
-    memcpy((void*)to_return.vertices, (void*)m.vertices, memory_amount);
+    loaded_mesh.vertices = (mesh_vertex*)malloc(loaded_mesh.vertex_count*sizeof(mesh_vertex));
 
-    return to_return;
+    SDL_RWread(file, loaded_mesh.vertices, sizeof(mesh_vertex), loaded_mesh.vertex_count);
+
+    SDL_RWclose(file);
+
+    // PRINT_FN("\nVertex count: %u\n", loaded_mesh.vertex_count);
+    // uint32_t index = 0;
+    // for(; index < loaded_mesh.vertex_count; index++)
+    // {
+    //     PRINT_FN("%f, %f, %f \t: %f, %f, %f\n",
+    //             loaded_mesh.vertices[index].pos.x,
+    //             loaded_mesh.vertices[index].pos.y,
+    //             loaded_mesh.vertices[index].pos.z,
+    //             // loaded_mesh.vertices[index].t_u,
+    //             // loaded_mesh.vertices[index].t_v
+    //             loaded_mesh.vertices[index].col.x,
+    //             loaded_mesh.vertices[index].col.y,
+    //             loaded_mesh.vertices[index].col.z
+    //              );
+    // }
+
+    // PRINT_FN("DONE.\n");
+
+    return loaded_mesh;
 }
 
-void move_mesh(mesh m, vec3 amount)
+void load_mesh_to_gpu(mesh* m)
 {
-    if(m.vertices == NULL) return;
+    if(m->vertex_count == 0) return;
 
-    mesh_index_t iterator = 0;
-    for(; iterator < m.vertex_count; iterator++)
-        m.vertices[iterator].pos = vec_add(m.vertices[iterator].pos, amount);
+    //buffers
+    glGenVertexArrays(1, &m->vertex_array);
+    glGenBuffers(1, &m->vertex_buffer);
+    glBindVertexArray(m->vertex_array);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m->vertex_buffer);
+    glBufferData(GL_ARRAY_BUFFER, m->vertex_count * sizeof(mesh_vertex), (float*)m->vertices, GL_STATIC_DRAW);
+
+    //attributes
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(mesh_vertex), 0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(mesh_vertex), sizeof(vec3));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(mesh_vertex), sizeof(vec3)*2);
+    
+    //
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    m->loaded_on_gpu = 1;
 }
 
-void rotate_mesh(mesh m, vec3 amount)
+void unload_mesh_from_gpu(mesh m)
 {
-    if(m.vertices == NULL) return;
+    glDeleteBuffers(1, &m.vertex_buffer);
+    glDeleteVertexArrays(1, &m.vertex_array);
 
-    mesh_index_t iterator = 0;
-    for(; iterator < m.vertex_count; iterator++)
-        m.vertices[iterator].pos = vec_rotate(m.vertices[iterator].pos, amount);
+    m.loaded_on_gpu = 0;
 }
 
-void scale_mesh(mesh m, vec3 amount)
+void deallocate_mesh(mesh m)
 {
-    if(m.vertices == NULL) return;
+    if(m.loaded_on_gpu) unload_mesh_from_gpu(m);
 
-    mesh_index_t iterator = 0;
-    for(; iterator < m.vertex_count; iterator++)
-        m.vertices[iterator].pos = vec_multiply(m.vertices[iterator].pos, amount);
+    free(m.vertices);
+    m.vertices = NULL;
 }
 #endif

@@ -26,13 +26,14 @@ For compilation instructions, please read the following section.
 
     The example ```main.c``` code:
     ```
+    #include "app_configuration.c"
     #include "crossplatform_app/api.c"
 
     int main()
     {
         setup();
 
-        standard_loop();
+        game_loop();
 
         close();
     }

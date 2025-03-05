@@ -1,9 +1,11 @@
 #ifndef API_IMPLEMENTATION_ONLY
-#ifndef cos
+#ifndef M_PI
 #include <math.h>
 #endif
 
-typedef struct s_vec3
+#define VEC3
+
+typedef struct
 {
     float x,y,z;
 }vec3;
@@ -22,9 +24,11 @@ vec3 vec_subtract(vec3 a, vec3 b);
 vec3 vec_multiply(vec3 a, vec3 b);
 vec3 vec_divide(vec3 a, vec3 b);
 vec3 vec_rotate(vec3 a, vec3 amount);
-#endif
 
-#ifdef API_IMPLEMENTATION_ONLY
+//----------------------------------
+#else
+//----------------------------------
+
 float vec_length_squared(vec3 a)
 {
     return a.x*a.x + a.y*a.y + a.z*a.z;
@@ -76,7 +80,6 @@ vec3 vec_divide(vec3 a, vec3 b)
 
     return a;
 }
-
 #define DEG_TO_RAD(x) x*3.1415/180.0
 vec3 vec_rotate(vec3 a, vec3 amount)
 {

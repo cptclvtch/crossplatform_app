@@ -3,14 +3,13 @@
 
 int main()
 {
-    //install tcc
-    #if defined _WIN32
-    #endif
-    #if defined __linux__
-    // system("tools/tcc/linux/tcc_0.9.27-5_amd64.deb");
-    #endif
-    #if defined __APPLE__
-    #endif
+    //setup environment variables
+    //cmdline tools
+    add_value_to_environment_variable("tools/android/clit", "PATH")
+    //gradle //add bin to PATH
+    add_value_to_environment_variable("tools/android/gradle-8.13/bin", "PATH");
+    //android sdk
+    //android ndk
 
     //Recursively copy the setup folder
     fs_copy("./setup/*", "../", RECURSIVE);
