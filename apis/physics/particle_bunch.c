@@ -1,31 +1,23 @@
 #ifndef API_IMPLEMENTATION_ONLY
 typedef struct
 {
-    vec3 p;
-    vec3 v;
-    vec3 a;
-    float inverse_mass;
-}cpu_particle;
-
-float particle_damping;
-
-typedef struct
-{
     // vec3* position_cache;
-    cpu_particle* array;
+    phys_point* array;
     uint16_t max_particle_index;
+
+    float lifetime;
 }cpu_particles;
 
-cpu_particles* get_new_particle_bunch(uint16_t max_index);
+//gpu particles 256x256 textures (64x256 particles, 4 vec3's per particle)?
 
+cpu_particles* get_new_particle_bunch(vec3 offset, uint16_t max_index);
+
+//presets
 void apply_particle_explosion_preset(cpu_particles* bunch, float force);
 
 void delete_particle_bunch(cpu_particles* bunch);
 
 void integrate_cpu_particles(cpu_particles* bunch, float dT /*seconds*/);
-
-//ballistics helpers
-
 
 //----------------------------------
 #else
@@ -37,19 +29,22 @@ float frand()
     return (float)iseed/UINT32_MAX;
 }
 
-cpu_particles* get_new_particle_bunch(uint16_t max_index)
+cpu_particles* get_new_particle_bunch(vec3 offset, uint16_t max_index)
 {
     cpu_particles* particles = (cpu_particles*)calloc(1,sizeof(cpu_particles));
-    particles->array = (cpu_particle*)calloc(max_index + 1, sizeof(cpu_particle));
+    particles->array = (phys_point*)calloc(max_index + 1, sizeof(phys_point));
     particles->max_particle_index = max_index;
 
     uint16_t index = 0;
     for(; index <= particles->max_particle_index; index++)
+    {
+        particles->array[index].p = offset;
         particles->array[index].inverse_mass = get_inverse_mass(0.0);
-
+    }
     return particles;
 }
 
+//presets
 void apply_particle_explosion_preset(cpu_particles* bunch, float force)
 {
     uint16_t index;   
@@ -62,35 +57,16 @@ void apply_particle_explosion_preset(cpu_particles* bunch, float force)
 
 void delete_particle_bunch(cpu_particles* bunch)
 {
+    if(!bunch) return;
+
     free(bunch->array);
-    bunch->array = NULL;
+    free(bunch);
 }
 
-void integrate_cpu_particle(cpu_particle* p, float dT /*seconds*/)
+void integrate_cpu_particles(cpu_particles* bunch, float dT)
 {
-    if(p->inverse_mass <= 0.0) return;
-
-    //update position
-    p->p.x += p->v.x*dT;// + p->a.x*dT*dT; //acceleration component not needed
-    p->p.y += p->v.y*dT;// + p->a.y*dT*dT;
-    p->p.z += p->v.z*dT;// + p->a.z*dT*dT;
-
-    //determine acceleration
-
-    //update velocity
-    p->v.x = p->v.x*particle_damping + p->a.x*dT;
-    p->v.y = p->v.y*particle_damping + p->a.y*dT;
-    p->v.z = p->v.z*particle_damping + p->a.z*dT;
-
-    //clear accumulator
-}
-
-void integrate_cpu_particles(cpu_particles* bunch, float dT /*seconds*/)
-{
-    particle_damping = .99;
-    //iterate over particles
     uint16_t index = 0;
     for(; index <= bunch->max_particle_index; index++)
-        integrate_cpu_particle(&bunch->array[index], dT);
+        integrate_phys_point(&bunch->array[index], dT);
 }
 #endif

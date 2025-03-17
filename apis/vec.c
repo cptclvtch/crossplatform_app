@@ -3,12 +3,13 @@
 #include <math.h>
 #endif
 
+#ifndef VEC3
 #define VEC3
-
 typedef struct
 {
     float x,y,z;
 }vec3;
+#endif
 
 #define ITERATE_OVER_VECTOR_MEMBERS(a, op, b)\
     a.x op b.x;\

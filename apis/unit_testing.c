@@ -3,6 +3,7 @@ unsigned int test_loop = 0;
 unsigned int result = 0;
 const char* test_string;
 const char* type_string;
+//TODO figure out a way to support auto variables
 unsigned long actual_input;
 unsigned long target_value;
 
@@ -18,6 +19,7 @@ unsigned long target_value;
 #endif
 #define TEST_PRINT(...) PRINT_FN("\n" INDENT __VA_ARGS__);
 #define POST_TITLE TEST_PRINT("Testing %-32s ", TITLE)
+#define CLEAR_SCREEN PRINT_FN("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 #define ADD_SEPARATOR TEST_PRINT("----------------------------------------------\n")
 unsigned int test_flag = 0;
 unsigned char critical_flag = 0;

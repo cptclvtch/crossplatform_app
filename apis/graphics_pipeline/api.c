@@ -1,5 +1,7 @@
 #include "abstract_gl.c"
-#include "vec.c"
+#ifndef VEC3
+#error Please include "vec.c" first
+#endif
 #include "mesh.c"
 #include "particle.c"
 #ifndef API_IMPLEMENTATION_ONLY

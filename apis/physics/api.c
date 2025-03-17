@@ -8,5 +8,19 @@
 #include <stdlib.h>
 #endif
 
+#ifndef LINKED_LISTS
+#error Please include "linked_list/api.c" first
+#endif
+
+#ifndef VEC3
+#error Please include "vec.c" first
+#endif
+
 #include "common.c"
-#include "particles.c"
+#include "phys_point.c"
+#include "particle_bunch.c"
+
+// #include "force_generator.c"
+#include "phys_virtual_spring.c"
+
+#include "phys_world.c"

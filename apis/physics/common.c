@@ -1,12 +1,5 @@
 #ifndef API_IMPLEMENTATION_ONLY
 
-#ifndef VEC3
-typedef struct
-{
-    float x,y,z;
-}vec3;
-#endif
-
 // f = G*m1*m2/(r*r);
 #define GRAVITY 10.0
 
@@ -30,18 +23,18 @@ float get_inverse_mass(float mass)
 }
 
 //energy conservation
-float energy_conserved_mass_scaling(float e, float ds)
+float energy_conserved_mass_scaling(float energy, float dspeed)
 {
-    return e/(ds*ds);
+    return energy/(dspeed*dspeed);
 }
 
-float energy_conserved_speed_scaling(float e, float dm)
+float energy_conserved_speed_scaling(float energy, float dmass)
 {
-    return sqrt(e/dm);
+    return sqrt(energy/dmass);
 }
 
-float gravity_scaling(float ds)
+float gravity_scaling(float dspeed)
 {
-    return GRAVITY/ds;
+    return GRAVITY/dspeed;
 }
 #endif
