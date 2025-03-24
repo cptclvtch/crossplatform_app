@@ -51,7 +51,7 @@ void apply_particle_explosion_preset(cpu_particles* bunch, float force)
     for(index = 0; index <= bunch->max_particle_index; index++)
     {
         float acc = force * bunch->array[index].inverse_mass;
-        bunch->array[index].a = (vec3){acc*frand(), acc*frand(), acc*frand()};
+        bunch->array[index].a = (vec3){acc*frand(), acc*frand(), fabs(acc*frand())};
     }
 }
 

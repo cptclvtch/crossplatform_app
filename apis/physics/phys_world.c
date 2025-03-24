@@ -37,7 +37,9 @@ return new_item;\
 phys_point* add_point(phys_world* world, vec3 offset)
 {
     if(!world) return NULL;
-    ADD_PHYS_ITEM(phys_point, points, (phys_point*)calloc(1, sizeof(phys_point)))
+    phys_point* a = (phys_point*)calloc(1, sizeof(phys_point));
+    a->p = offset;
+    ADD_PHYS_ITEM(phys_point, points, a)
 }
 
 cpu_particles* add_particle_bunch(phys_world* world, vec3 offset, uint16_t quantity)

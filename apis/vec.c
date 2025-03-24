@@ -20,10 +20,14 @@ float vec_length_squared(vec3 a);
 float vec_length(vec3 a);
 vec3 vec_scalar_multiply(vec3 a, float amount);
 vec3 vec_normalize(vec3 a);
+
 vec3 vec_add(vec3 a, vec3 b);
 vec3 vec_subtract(vec3 a, vec3 b);
 vec3 vec_multiply(vec3 a, vec3 b);
 vec3 vec_divide(vec3 a, vec3 b);
+float vec_dot_product(vec3 a, vec3 b);
+vec3 vec_cross_product(vec3 a, vec3 b);
+
 vec3 vec_rotate(vec3 a, vec3 amount);
 
 //----------------------------------
@@ -51,7 +55,10 @@ vec3 vec_scalar_multiply(vec3 a, float amount)
 
 vec3 vec_normalize(vec3 a)
 {
-    return vec_scalar_multiply(a, 1.0/vec_length(a));
+    float length = vec_length(a);
+    if(length < 0.0000001) return (vec3){0};
+
+    return vec_scalar_multiply(a, 1.0/length);
 }
 
 vec3 vec_add(vec3 a, vec3 b)
@@ -81,6 +88,19 @@ vec3 vec_divide(vec3 a, vec3 b)
 
     return a;
 }
+
+float vec_dot_product(vec3 a, vec3 b)
+{
+    return a.x*b.x + a.y*b.y + a.z*b.z;
+}
+
+vec3 vec_cross_product(vec3 a, vec3 b)
+{
+    return (vec3){  a.y*b.z - a.z*b.y,
+                    a.z*b.x - a.x*b.z,
+                    a.x*b.y - a.y*b.x};
+}
+
 #define DEG_TO_RAD(x) x*3.1415/180.0
 vec3 vec_rotate(vec3 a, vec3 amount)
 {

@@ -48,13 +48,9 @@ void apply_spring_force(phys_virtual_spring* s)
 {
     vec3 delta = vec_subtract(s->a->p, s->b->p);
 
-    //-k*(delta - r*direction)
-    delta = vec_subtract(delta, vec_scalar_multiply(vec_normalize(delta), s->rest_length));
-    vec3 force = vec_scalar_multiply(delta, -s->k);
+    vec3 force = vec_scalar_multiply(vec_normalize(delta), -(vec_length(delta) - s->rest_length)*s->k);
 
     s->a->force_accumulator = vec_add(s->a->force_accumulator, force);
     s->b->force_accumulator = vec_add(s->b->force_accumulator, vec_scalar_multiply(force, -1));
-
-    // printf("b->force_accumulator: %f,%f,%f\n", s->b->force_accumulator.x, s->b->force_accumulator.y, s->b->force_accumulator.z);
 }
 #endif
