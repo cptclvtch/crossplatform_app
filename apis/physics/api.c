@@ -13,7 +13,7 @@
 #endif
 
 #ifndef VEC3
-#error Please include "vec.c" first
+#error Please include "geometric_algebra/api.c" first
 #endif
 
 #include "common.c"

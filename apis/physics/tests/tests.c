@@ -1,10 +1,10 @@
 #include "../../unit_testing.c"
 
-#include "../../vec.c"
+#include "../../geometric_algebra/api.c"
 #include "../../linked_list/api.c"
 #include "../api.c"
 #define API_IMPLEMENTATION_ONLY
-#include "../../vec.c"
+#include "../../geometric_algebra/api.c"
 #include "../../linked_list/api.c"
 #include "../api.c"
 

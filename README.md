@@ -42,6 +42,8 @@ For compilation instructions, please read the following section.
 
 ## Licensing
 This template comes bundled with the following technologies and their licenses:
+- template code (MIT license)
 - SDL2 (zlib license)
 - Nuklear GUI (Public Domain)
 - TCC (GNU Lesser General Public License)
+- fptc (BSD license)

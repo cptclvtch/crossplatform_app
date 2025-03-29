@@ -4,7 +4,7 @@
 #include "frame_timing/api.c"
 #include "standard_application_includes.c"
 
-#include "vec.c"
+#include "geometric_algebra/api.c"
 
 #include "graphics_pipeline/api.c"
 #include "asset_manager/api.c"
