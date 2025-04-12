@@ -117,5 +117,4 @@ void delete_list(linked_list* list)
 
     list->nodes = NULL;
 }
-#undef ASSERT_FUNC
 #endif

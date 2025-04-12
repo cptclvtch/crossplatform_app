@@ -12,7 +12,7 @@
 #error Please include "linked_list/api.c" first
 #endif
 
-#ifndef VEC3
+#ifndef GEOMETRIC_ALGEBRA
 #error Please include "geometric_algebra/api.c" first
 #endif
 

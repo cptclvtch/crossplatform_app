@@ -1,9 +1,13 @@
 #include "abstract_gl.c"
-#ifndef VEC3
+#ifndef GEOMETRIC_ALGEBRA
 #error Please include "geometric_algebra/api.c" first
 #endif
 #include "mesh.c"
 #include "particle.c"
+#ifndef RELEASE
+    #include "gizmo.c"
+#endif
+
 #ifndef API_IMPLEMENTATION_ONLY
 #define GRAPHICS_PIPELINE_INCLUDED
 
@@ -17,11 +21,6 @@ void load_mesh_to_gpu(mesh* m);
 void unload_mesh_from_gpu(mesh m);
 
 void deallocate_mesh(mesh m);
-
-#ifndef RELEASE
-mesh gizmo;
-void load_gizmo();
-#endif
 
 //----------------------------------
 #else
@@ -83,48 +82,4 @@ void unload_texture(uint32_t* id)
 {
     glDeleteTextures(1, id);
 }
-
-#ifndef RELEASE
-void load_gizmo()
-{
-    gizmo = (mesh){0};
-    mesh_vertex v[6] =
-    {
-        {
-            {0.0,0.0,0.0},
-            {0.0,0.0,0.0},
-            {1.0, 0.0, 0.0}
-        },
-        {
-            {1.0,0.0,0.0},
-            {0.0,0.0,0.0},
-            {1.0,0.0,0.0}
-        },
-        {
-            {0.0,0.0,0.0},
-            {0.0,0.0,0.0},
-            {0.0, 1.0, 0.0}
-        },
-        {
-            {0.0,1.0,0.0},
-            {0.0,0.0,0.0},
-            {0.0, 1.0, 0.0}
-        },
-        {
-            {0.0,0.0,0.0},
-            {1.0,0.0,0.0},
-            {0.0, 0.0, 1.0}
-        },
-        {
-            {0.0,0.0,1.0},
-            {1.0,0.0,0.0},
-            {0.0, 0.0, 1.0}
-        }
-    };
-    gizmo.vertices = &v;
-    gizmo.vertex_count = 6;
-
-    load_mesh_to_gpu(&gizmo);
-}
-#endif
 #endif

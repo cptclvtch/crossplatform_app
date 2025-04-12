@@ -60,7 +60,7 @@ void gui_setup(SDL_Window* w, SDL_Renderer* r, struct nk_context** c)
     }
 
     #ifndef RELEASE
-    load_gizmo();
+    initialize_gizmos();
     #endif
 }
 

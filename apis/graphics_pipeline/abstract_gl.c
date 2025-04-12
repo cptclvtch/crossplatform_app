@@ -9,7 +9,8 @@ typedef struct shader_t
 SDL_GLContext* context;
 void start_graphics();
 void close_graphics();
-void load_shader(shader* s, char* vertex_source, char* fragment_source);
+void load_shader_from_strings(shader* s, char** vertex_strings, uint16_t no_of_vert_segments, char** fragment_strings, uint16_t no_of_frag_segments);
+void load_shader_from_file(shader* s, char* vertex_source, char* fragment_source);
 void use_shader(shader* s);
 void unload_shader(shader* s);
 #define COLOR_BIT GL_COLOR_BUFFER_BIT
@@ -107,7 +108,7 @@ void print_stage_log(uint32_t stage)
     return;
 }
 
-uint8_t compile_shader_stage(uint32_t stage, char* code)
+uint8_t compile_shader_stage(uint32_t stage, char** code, uint16_t segment_count)
 {
     if(!glIsShader(stage))
 	{
@@ -115,7 +116,7 @@ uint8_t compile_shader_stage(uint32_t stage, char* code)
         return;
     }
 
-	glShaderSource(stage, 1, &code, NULL);
+	glShaderSource(stage, segment_count, code, NULL);
 	glCompileShader(stage);
 
 	//Check shader for errors
@@ -152,24 +153,17 @@ char* read_shader_source(char* path)
     return to_return;
 }
 
-void load_shader(shader* s, char* vertex_source, char* fragment_source)
+void load_shader_from_strings(shader* s,char** vertex_strings,   uint16_t no_of_vert_segments,
+                                        char** fragment_strings, uint16_t no_of_frag_segments)
 {
     uint8_t result;
     
-    char* vertex_code = read_shader_source(vertex_source);
-    if(vertex_code == NULL) return;
-    
     uint32_t vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    result = compile_shader_stage(vertex_shader, vertex_code);
-    free(vertex_code);
+    result = compile_shader_stage(vertex_shader, vertex_strings, no_of_vert_segments);
     if(result != GL_TRUE) return;
-
-    char* fragment_code = read_shader_source(fragment_source);
-    if(fragment_code == NULL) return;
     
     uint32_t fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    result = compile_shader_stage(fragment_shader, fragment_code);
-    free(fragment_code);
+    result = compile_shader_stage(fragment_shader, fragment_strings, no_of_frag_segments);
     if(result != GL_TRUE) return;
 
 	//Generate program
@@ -195,6 +189,22 @@ void load_shader(shader* s, char* vertex_source, char* fragment_source)
     glDeleteShader(fragment_shader);
 
     PRINT_FN("Shader %u loaded!\n", s->id);
+}
+
+void load_shader_from_file(shader* s, char* vertex_source, char* fragment_source)
+{
+    uint8_t result;
+    
+    char* vertex_code = read_shader_source(vertex_source);
+    if(vertex_code == NULL) return;
+
+    char* fragment_code = read_shader_source(fragment_source);
+    if(fragment_code == NULL) return;
+
+    load_shader_from_strings(s, &vertex_code, 1, &fragment_code, 1);
+    
+    free(vertex_code);
+    free(fragment_code);
 }
 
 void use_shader(shader* s)

@@ -25,7 +25,6 @@ particle_mesh p_mesh = {0};
 
 void sync_particle_mesh(); //user implemented
 
-//Helper functions
 void delete_particle_mesh();
 
 //----------------------------------

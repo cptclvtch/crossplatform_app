@@ -12,5 +12,4 @@ int main()
     ITERATE_LIST_START(list, i)
         if(i->data == NULL) /*Oh no! We forgot to add data to this one!*/;
     ITERATE_LIST_END(NEXT, i)
-
 }

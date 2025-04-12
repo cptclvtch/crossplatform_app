@@ -7,6 +7,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "apis/linked_list/api.c"
+#define API_IMPLEMENTATION_ONLY
+#include "apis/linked_list/api.c"
 
 #define INTERPRETER "tcc"
 #define COMPILER "tcc"
@@ -111,7 +114,74 @@ void add_value_to_environment_variable(char* val, char* var)
     char* token = strtok(str, ";");
     while (token != NULL)
     {
-        printf(" % s\n", token);
+        printf("%s\n", token);
         token = strtok(NULL, ";");
     }
+}
+
+linked_list_node* get_list_of_files(char* path, char* extension);
+linked_list_node* get_list_of_files(char* path, char* extension)
+{
+    linked_list_node* list = NULL;
+
+    //search for files
+    #ifdef _WIN32
+        // https://learn.microsoft.com/en-us/windows/win32/fileio/listing-the-files-in-a-directory
+        WIN32_FIND_DATA ffd;
+        HANDLE hFind;
+        char query[MAX_PATH];
+
+        //do recursive search
+        sprintf(query, "%s/*", path);
+        hFind = INVALID_HANDLE_VALUE;
+        hFind = FindFirstFile(query, &ffd);
+        if (hFind != INVALID_HANDLE_VALUE)
+            do
+            {
+                if((ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && ffd.cFileName[0] != '.')
+                {
+                    sprintf(query, "%s/%s", path, ffd.cFileName);
+                    linked_list_node* recursive_return = get_list_of_files(query, extension);
+                    if(recursive_return)
+                    {
+                        //prepend to current list
+                        while(recursive_return->NEXT) recursive_return = recursive_return->NEXT;
+                        list->PREV = recursive_return;
+                        recursive_return->NEXT = list;
+                        while(list->PREV) list = list->PREV;
+                    }
+                }
+            }
+            while(FindNextFile(hFind, &ffd) != 0);
+        FindClose(hFind);
+
+        // search current folder
+        sprintf(query, "%s/*%s", path, extension);
+
+        hFind = INVALID_HANDLE_VALUE;
+        hFind = FindFirstFile(query, &ffd);
+        if (hFind != INVALID_HANDLE_VALUE)
+            do
+            {
+                if(!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+                {
+                    //TODO fix first item not being added to list
+                    // printf("%s\n", ffd.cFileName);
+                    char** tuple = (char**)malloc(2*sizeof(char*));
+                    tuple[0] = (char*)malloc(MAX_PATH);
+                    strcpy(tuple[0], path);
+                    tuple[1] = (char*)malloc(64);
+                    strcpy(tuple[1], ffd.cFileName);
+                    list = add_link_before(list, tuple);
+                }
+            }
+            while(FindNextFile(hFind, &ffd) != 0);
+        FindClose(hFind);
+    #endif
+    #if defined __APPLE__ || __linux__
+        #error Please implement me
+        //ls
+    #endif
+
+    return list;
 }
