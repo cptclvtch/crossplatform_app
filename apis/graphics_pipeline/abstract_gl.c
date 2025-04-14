@@ -1,16 +1,56 @@
 #ifndef API_IMPLEMENTATION_ONLY
-typedef struct shader_t
+typedef enum
+{
+    G_NONE,
+    G_FLOAT,
+    G_VEC2,
+    G_VEC3,
+    G_VEC4,
+    G_SAMPLER_2D,
+
+    NO_OF_GPU_DATA_TYPES
+}gpu_data_type;
+
+char* gpu_data_type_text[] = 
+{
+    "",
+    "float",
+    "vec2",
+    "vec3",
+    "vec4",
+    "sampler2D"
+};
+
+typedef struct
+{
+    uint8_t id;
+    gpu_data_type type;
+    char* name;
+}uniform;
+
+#define MAX_SHADER_UNIFORMS 16
+typedef struct
 {
     uint32_t id;
 
-    uint8_t uniforms[16];
+    char** vert_strings;
+    uint16_t no_of_vert_strings;
+    uniform vert_uniforms[MAX_SHADER_UNIFORMS];
+
+    char** frag_strings;
+    uint16_t no_of_frag_strings;
+    uniform frag_uniforms[MAX_SHADER_UNIFORMS];
 }shader;
 
 SDL_GLContext* context;
 void start_graphics();
 void close_graphics();
-void load_shader_from_strings(shader* s, char** vertex_strings, uint16_t no_of_vert_segments, char** fragment_strings, uint16_t no_of_frag_segments);
+char* read_shader_source(char* path);
+void add_vert_uniform(shader* s, uint8_t id, gpu_data_type t, char* name);
+void add_frag_uniform(shader* s, uint8_t id, gpu_data_type t, char* name);
+void load_shader(shader* s);
 void load_shader_from_file(shader* s, char* vertex_source, char* fragment_source);
+void print_out_shader(shader* s);
 void use_shader(shader* s);
 void unload_shader(shader* s);
 #define COLOR_BIT GL_COLOR_BUFFER_BIT
@@ -62,8 +102,11 @@ void close_graphics()
 }
 
 //Shaders
+#ifndef RELEASE
 void print_shader_log(shader* s)
 {
+    if(s == NULL) return;
+
 	if(!glIsProgram(s->id))
     {
         PRINT_FN("%d is not a shader\n", s->id);
@@ -107,8 +150,12 @@ void print_stage_log(uint32_t stage)
     free(info_log);
     return;
 }
+#else
+#define print_shader_log(a)
+#define print_stage_log(a)
+#endif
 
-uint8_t compile_shader_stage(uint32_t stage, char** code, uint16_t segment_count)
+uint8_t compile_shader_stage(uint32_t stage, char** segments, uint16_t segment_count)
 {
     if(!glIsShader(stage))
 	{
@@ -116,7 +163,7 @@ uint8_t compile_shader_stage(uint32_t stage, char** code, uint16_t segment_count
         return;
     }
 
-	glShaderSource(stage, segment_count, code, NULL);
+	glShaderSource(stage, segment_count, segments, NULL);
 	glCompileShader(stage);
 
 	//Check shader for errors
@@ -153,17 +200,31 @@ char* read_shader_source(char* path)
     return to_return;
 }
 
-void load_shader_from_strings(shader* s,char** vertex_strings,   uint16_t no_of_vert_segments,
-                                        char** fragment_strings, uint16_t no_of_frag_segments)
+#define ADD_UNIFORM_FUNC_DEF(t)\
+void add_ ## t ## _uniform(shader* s, uint8_t index, gpu_data_type type, char* name)\
+{\
+    if(index >= MAX_SHADER_UNIFORMS) return;\
+    if(type >= NO_OF_GPU_DATA_TYPES) return;\
+    \
+    s-> ## t ## _uniforms[index].type = type;\
+    s-> ## t ## _uniforms[index].name = name;\
+}
+
+ADD_UNIFORM_FUNC_DEF(vert)
+ADD_UNIFORM_FUNC_DEF(frag)
+
+void load_shader(shader* s)
 {
+    if(s == NULL) return;
+
     uint8_t result;
     
     uint32_t vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    result = compile_shader_stage(vertex_shader, vertex_strings, no_of_vert_segments);
+    result = compile_shader_stage(vertex_shader, s->vert_strings, s->no_of_vert_strings);
     if(result != GL_TRUE) return;
     
     uint32_t fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    result = compile_shader_stage(fragment_shader, fragment_strings, no_of_frag_segments);
+    result = compile_shader_stage(fragment_shader, s->frag_strings, s->no_of_frag_strings);
     if(result != GL_TRUE) return;
 
 	//Generate program
@@ -180,7 +241,7 @@ void load_shader_from_strings(shader* s,char** vertex_strings,   uint16_t no_of_
     glGetProgramiv(s->id, GL_LINK_STATUS, &shader_success);
     if(shader_success != GL_TRUE)
     {
-        printf("Error linking shader stages %d!\n", s->id);
+        PRINT_FN("Error linking shader stages %d!\n", s->id);
         print_shader_log(s);
         return;
     }
@@ -188,32 +249,75 @@ void load_shader_from_strings(shader* s,char** vertex_strings,   uint16_t no_of_
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
 
+    //cache uniforms
+    uint8_t i = 0;
+    for(; i < MAX_SHADER_UNIFORMS; i++)
+    {
+        if(s->vert_uniforms[i].type)
+            s->vert_uniforms[i].id = glGetUniformLocation(s->id, s->vert_uniforms[i].name);
+        if(s->frag_uniforms[i].type)
+            s->frag_uniforms[i].id = glGetUniformLocation(s->id, s->frag_uniforms[i].name);
+    }
+
     PRINT_FN("Shader %u loaded!\n", s->id);
 }
 
 void load_shader_from_file(shader* s, char* vertex_source, char* fragment_source)
 {
-    uint8_t result;
-    
-    char* vertex_code = read_shader_source(vertex_source);
-    if(vertex_code == NULL) return;
+    if(s == NULL) return;
 
-    char* fragment_code = read_shader_source(fragment_source);
-    if(fragment_code == NULL) return;
+    s->vert_strings = (char**)calloc(1, sizeof(char*));
+    s->vert_strings[0] = read_shader_source(vertex_source);
+    if(s->vert_strings[0] == NULL) return;
+    s->no_of_vert_strings = 1;
 
-    load_shader_from_strings(s, &vertex_code, 1, &fragment_code, 1);
+    s->frag_strings = (char**)calloc(1, sizeof(char*));
+    s->frag_strings[0] = read_shader_source(fragment_source);
+    if(s->frag_strings[0] == NULL) return;
+    s->no_of_frag_strings = 1;
+
+    load_shader(s);
     
-    free(vertex_code);
-    free(fragment_code);
+    free(s->vert_strings);
+    s->vert_strings = NULL;
+    s->no_of_vert_strings = 0;
+
+    free(s->frag_strings);
+    s->frag_strings = NULL;
+    s->no_of_frag_strings = 0;
+}
+
+void print_out_shader(shader* s)
+{
+    if(s == NULL) return;
+
+    uint16_t i = 0;
+    PRINT_FN("Vertex shader:\n");
+    for(;i < s->no_of_vert_strings; i++)
+        if(s->vert_strings[i])
+            PRINT_FN("%s", s->vert_strings[i]);
+        else
+            PRINT_FN("Shader source no longer in memory.");
+
+    PRINT_FN("Fragment shader:\n");
+    for(i = 0; i < s->no_of_frag_strings; i++)
+        if(s->frag_strings[i])
+            PRINT_FN("%s", s->frag_strings[i]);
+        else
+            PRINT_FN("Shader source no longer in memory.");
 }
 
 void use_shader(shader* s)
 {
+    if(s == NULL) return;
+
     glUseProgram(s->id);
 }
 
 void unload_shader(shader* s)
 {
+    if(s == NULL) return;
+
     glDeleteProgram(s->id);
 }
 #endif
