@@ -5894,7 +5894,7 @@ NK_LIB int nk_string_float_limit(char *string, int prec);
 #ifndef NK_DTOA
 NK_LIB char *nk_dtoa(char *s, double n);
 #endif
-NK_LIB int nk_text_clamp(const struct nk_user_font *font, const char *text, int text_len, float space, int *glyphs, float *text_width, nk_rune *sep_list, int sep_count);
+NK_API int nk_text_clamp(const struct nk_user_font *font, const char *text, int text_len, float space, int *glyphs, float *text_width, nk_rune *sep_list, int sep_count);
 NK_LIB struct nk_vec2 nk_text_calculate_text_bounds(const struct nk_user_font *font, const char *begin, int byte_len, float row_height, const char **remaining, struct nk_vec2 *out_offset, int *glyphs, int op);
 #ifdef NK_INCLUDE_STANDARD_VARARGS
 NK_LIB int nk_strfmt(char *buf, int buf_size, const char *fmt, va_list args);
@@ -7440,7 +7440,7 @@ nk_file_load(const char* path, nk_size* siz, struct nk_allocator *alloc)
     return buf;
 }
 #endif
-NK_LIB int
+NK_API int
 nk_text_clamp(const struct nk_user_font *font, const char *text,
     int text_len, float space, int *glyphs, float *text_width,
     nk_rune *sep_list, int sep_count)
@@ -7462,6 +7462,12 @@ nk_text_clamp(const struct nk_user_font *font, const char *text,
     glyph_len = nk_utf_decode(text, &unicode, text_len);
     while (glyph_len && (width < space) && (len < text_len)) {
         len += glyph_len;
+        if (unicode == '\n' || unicode == '\r') {
+            sep_width = last_width = width;
+            sep_g = g+1;
+            sep_len = len;
+            break;
+        }
         s = font->width(font->userdata, font->height, text, len);
         for (i = 0; i < sep_count; ++i) {
             if (unicode != sep_list[i]) continue;
@@ -10554,22 +10560,25 @@ nk_draw_list_add_text(struct nk_draw_list *list, const struct nk_user_font *font
         float char_width = 0;
         if (unicode == NK_UTF_INVALID) break;
 
-        /* query currently drawn glyph information */
-        next_glyph_len = nk_utf_decode(text + text_len + glyph_len, &next, (int)len - text_len);
-        font->query(font->userdata, font_height, &g, unicode,
-                    (next == NK_UTF_INVALID) ? '\0' : next);
+        if (unicode != '\n' && unicode != '\r') {
+            /* query currently drawn glyph information */
+            next_glyph_len = nk_utf_decode(text + text_len + glyph_len, &next, (int)len - text_len);
+            font->query(font->userdata, font_height, &g, unicode,
+                        (next == NK_UTF_INVALID) ? '\0' : next);
 
-        /* calculate and draw glyph drawing rectangle and image */
-        gx = x + g.offset.x;
-        gy = rect.y + g.offset.y;
-        gw = g.width; gh = g.height;
-        char_width = g.xadvance;
-        nk_draw_list_push_rect_uv(list, nk_vec2(gx,gy), nk_vec2(gx + gw, gy+ gh),
-            g.uv[0], g.uv[1], fg);
+            /* calculate and draw glyph drawing rectangle and image */
+            gx = x + g.offset.x;
+            gy = rect.y + g.offset.y;
+            gw = g.width; gh = g.height;
+            char_width = g.xadvance;
+            nk_draw_list_push_rect_uv(list, nk_vec2(gx,gy), nk_vec2(gx + gw, gy+ gh),
+                g.uv[0], g.uv[1], fg);
+
+            x += char_width;
+        }
 
         /* offset next glyph */
         text_len += glyph_len;
-        x += char_width;
         glyph_len = next_glyph_len;
         unicode = next;
     }
@@ -16905,9 +16914,11 @@ nk_font_text_width(nk_handle handle, float height, const char *text, int len)
         const struct nk_font_glyph *g;
         if (unicode == NK_UTF_INVALID) break;
 
-        /* query currently drawn glyph information */
-        g = nk_font_find_glyph(font, unicode);
-        text_width += g->xadvance * scale;
+        if (unicode != '\n' && unicode != '\r') {
+            /* query currently drawn glyph information */
+            g = nk_font_find_glyph(font, unicode);
+            text_width += g->xadvance * scale;
+        }
 
         /* offset next glyph */
         glyph_len = nk_utf_decode(text + text_len, &unicode, (int)len - text_len);

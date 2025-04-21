@@ -17,7 +17,7 @@
 
 #ifdef RELEASE
 #undef PRINT_FN
-#define PRINT_FN(...) ;
+#define PRINT_FN(...) 
 #endif
 
 #define ASSERT_AGAINST_MEMORY_RANGE(target, array_start, no_of_items)\

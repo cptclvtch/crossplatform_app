@@ -1,8 +1,7 @@
 #ifndef API_IMPLEMENTATION_ONLY
 typedef enum
 {
-    G_NONE,
-    G_FLOAT,
+    G_FLOAT = 1,
     G_VEC2,
     G_VEC3,
     G_VEC4,
@@ -12,7 +11,8 @@ typedef enum
     G_IVEC3,
     G_IVEC4,
 
-    NO_OF_GPU_DATA_TYPES
+    NO_OF_GPU_DATA_TYPES,
+    EFFECTIVE_NO_OF_GPU_DATA_TYPES = NO_OF_GPU_DATA_TYPES - 1
 }gpu_data_type;
 
 char* gpu_data_type_text[] = 
@@ -29,18 +29,9 @@ char* gpu_data_type_text[] =
     "ivec4"
 };
 
-typedef enum
-{
-    VERT,
-    FRAG,
-
-    NO_OF_SHADER_STAGES
-}gpu_stage;
-
 typedef struct
 {
-    uint8_t id;
-    gpu_stage stage;
+    uint32_t id;
     char* name;
     
     gpu_data_type type;
@@ -48,27 +39,43 @@ typedef struct
     int32_t *r,*g,*b,*a;
 }uniform;
 
+typedef enum
+{
+    VERT,
+    FRAG,
+
+    MAX_SHADER_STAGES
+};
+
 #define MAX_SHADER_UNIFORMS 16
 typedef struct
 {
     uint32_t id;
 
-    char** vert_strings;
-    uint16_t no_of_vert_strings;
-
-    char** frag_strings;
-    uint16_t no_of_frag_strings;
+    char** strings;
+    uint16_t no_of_strings;
 
     uniform uniforms[MAX_SHADER_UNIFORMS];
+    char* cached_uniform_string;
+}shader_stage;
+
+typedef struct
+{
+    uint32_t id;
+
+    shader_stage stages[MAX_SHADER_STAGES];
 }shader;
 
 SDL_GLContext* context;
 void start_graphics();
 void close_graphics();
 char* read_shader_source(char* path);
-uniform* add_uniform(shader* s, uint8_t id, gpu_stage stage, char* name, gpu_data_type t);
+uniform* declare_uniform(shader_stage* s, uint8_t id, char* name, gpu_data_type t);
+uint32_t retrieve_uniform_id(shader* s, char* name);
+//MACRO: void set_uniform(id, type, ...)
+char* cache_uniform_string(shader_stage* stage);
 void load_shader(shader* s);
-void load_shader_from_file(shader* s, char* vertex_source, char* fragment_source);
+shader* load_shader_from_file(shader* s, char* vertex_source, char* fragment_source);
 void print_out_shader(shader* s);
 void use_shader(shader* s);
 void use_shader_and_sync(shader* s);
@@ -175,24 +182,24 @@ void print_stage_log(uint32_t stage)
 #define print_stage_log(a)
 #endif
 
-uint8_t compile_shader_stage(uint32_t stage, char** segments, uint16_t segment_count)
+uint8_t compile_shader_stage(shader_stage* stage)
 {
-    if(!glIsShader(stage))
+    if(!glIsShader(stage->id))
 	{
-        PRINT_FN("%d is not a shader stage\n", stage);
+        PRINT_FN("%u is not a shader stage\n", stage->id);
         return;
     }
 
-	glShaderSource(stage, segment_count, segments, NULL);
-	glCompileShader(stage);
+	glShaderSource(stage->id, stage->no_of_strings, stage->strings, NULL);
+	glCompileShader(stage->id);
 
 	//Check shader for errors
 	GLint shader_stage_compiled = GL_FALSE;
-	glGetShaderiv(stage, GL_COMPILE_STATUS, &shader_stage_compiled);
+	glGetShaderiv(stage->id, GL_COMPILE_STATUS, &shader_stage_compiled);
 	if(shader_stage_compiled != GL_TRUE)
 	{
-		PRINT_FN("Unable to compile shader stage %u!\n", stage);
-		print_stage_log(stage);
+		PRINT_FN("Unable to compile shader stage %u!\n", stage->id);
+		print_stage_log(stage->id);
 	}
 
     return (uint8_t)shader_stage_compiled;
@@ -210,7 +217,7 @@ char* read_shader_source(char* path)
     }
     
     uint32_t file_size = SDL_RWsize(file);
-    to_return = calloc(1, file_size+1);
+    to_return = calloc(file_size + 1, 1);
     to_return[file_size] = '\0';
 
     SDL_RWread(file, to_return, file_size, 1);
@@ -223,17 +230,15 @@ char* read_shader_source(char* path)
 const float empty_f = 0.0;
 const int32_t empty_i = 0.0;
 
-uniform* add_uniform(shader* s, uint8_t index, gpu_stage stage, char* name, gpu_data_type type)
+uniform* declare_uniform(shader_stage* s, uint8_t index, char* name, gpu_data_type type)
 {
     if(index >= MAX_SHADER_UNIFORMS) return;
-    if(type >= NO_OF_GPU_DATA_TYPES) return;
-    if(stage >= NO_OF_SHADER_STAGES) stage = NO_OF_SHADER_STAGES - 1;
+    if(type > EFFECTIVE_NO_OF_GPU_DATA_TYPES) return;
     
     uniform* u = &s->uniforms[index];
-    u->stage = stage;
     u->name = name;
-    u->type = type;
     
+    u->type = type;
     u->x = &empty_f;
     u->y = &empty_f;
     u->z = &empty_f;
@@ -247,50 +252,48 @@ uniform* add_uniform(shader* s, uint8_t index, gpu_stage stage, char* name, gpu_
     return u;
 }
 
+uint32_t retrieve_uniform_id(shader* s, char* name)
+{
+    return glGetUniformLocation(s->id, name);
+}
+
+#define set_uniform(id, type, ...) glUniform ## type(id, __VA_ARGS__)
+
 void sync_uniform(uniform u)
 {
-    PRINT_FN("Uniform type: %u\n", u.type);
     switch(u.type)
     {
         case G_FLOAT:
-        PRINT_FN("%f\n",*u.x);
-        glUniform1f(u.id, *u.x);
+        set_uniform(u.id, 1f, *u.x);
         break;
 
         case G_VEC2:
-        PRINT_FN("%f, %f\n",*u.x, *u.y);
-        glUniform2f(u.id, *u.x, *u.y);
+        set_uniform(u.id, 2f, *u.x, *u.y);
         break;
 
         case G_VEC3:
-        PRINT_FN("%f, %f, %f\n",*u.x, *u.y, *u.z);
-        glUniform3f(u.id, *u.x, *u.y, *u.z);
+        set_uniform(u.id, 3f, *u.x, *u.y, *u.z);
         break;
 
         case G_VEC4:
-        PRINT_FN("%f, %f, %f, %f\n",*u.x, *u.y, *u.z, *u.w);
-        glUniform4f(u.id, *u.x, *u.y, *u.z, *u.w);
+        set_uniform(u.id, 4f, *u.x, *u.y, *u.z, *u.w);
         break;
 
         case G_SAMPLER_2D:
         case G_INT:
-        PRINT_FN("%u\n",*u.r);
-        glUniform1i(u.id, *u.r);
+        set_uniform(u.id, 1i, *u.r);
         break;
 
         case G_IVEC2:
-        PRINT_FN("%u, %u\n",*u.r, *u.g);
-        glUniform2i(u.id, *u.r, *u.g);
+        set_uniform(u.id, 2i, *u.r, *u.g);
         break;
 
         case G_IVEC3:
-        PRINT_FN("%u, %u, %u\n",*u.r, *u.g, *u.b);
-        glUniform3i(u.id, *u.r, *u.g, *u.b);
+        set_uniform(u.id, 3i, *u.r, *u.g, *u.b);
         break;
         
         case G_IVEC4:
-        PRINT_FN("%u, %u, %u, %u\n",*u.r, *u.g, *u.b, *u.a);
-        glUniform4i(u.id, *u.r, *u.g, *u.b, *u.a);
+        set_uniform(u.id, 4i, *u.r, *u.g, *u.b, *u.a);
         break;
     }
 }
@@ -300,35 +303,67 @@ void sync_all_uniforms(shader* s)
     if(s == NULL) return;
     GLint current_program;
     glGetIntegerv(GL_CURRENT_PROGRAM, &current_program);
-    // PRINT_FN("Syncing uniforms for program:%u, current program:%u\n",s->id, current_program);
     if(s->id != current_program) return;
 
-    uint8_t i = 0;
-    for(; i < MAX_SHADER_UNIFORMS; i++)
-        sync_uniform(s->uniforms[i]);
+    uint8_t i = 0, stage = 0;
+
+    for(stage = 0; stage < MAX_SHADER_STAGES; stage++)
+        for(; i < MAX_SHADER_UNIFORMS; i++)
+            sync_uniform(s->stages[stage].uniforms[i]);
+}
+
+char* cache_uniform_string(shader_stage* stage)
+{
+    uint16_t i = 0;
+
+    uint16_t uniform_count = 0;
+    for(i = 0; i < MAX_SHADER_UNIFORMS; i++)
+        if(stage->uniforms[i].type) uniform_count++;
+
+    if(stage->cached_uniform_string != NULL)
+        free(stage->cached_uniform_string);
+    stage->cached_uniform_string = (char*)calloc(uniform_count*128, sizeof(char));
+
+    char* current_uniform = stage->cached_uniform_string;
+    for(i = 0; i < MAX_SHADER_UNIFORMS; i++)
+    {
+        uniform* u = &stage->uniforms[i];
+        if(u->type)
+        {
+            sprintf(current_uniform, "uniform %s %s;\n", gpu_data_type_text[u->type], u->name);
+            current_uniform += strlen(current_uniform);
+        }
+    }
+
+    return stage->cached_uniform_string;
 }
 
 void load_shader(shader* s)
 {
     if(s == NULL) return;
 
-    uint8_t result;
-    
-    uint32_t vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    result = compile_shader_stage(vertex_shader, s->vert_strings, s->no_of_vert_strings);
-    if(result != GL_TRUE) return;
-    
-    uint32_t fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    result = compile_shader_stage(fragment_shader, s->frag_strings, s->no_of_frag_strings);
-    if(result != GL_TRUE) return;
+    uint16_t i = 0, stage = 0;
+
+    for(stage = 0; stage < MAX_SHADER_STAGES; stage++)
+    {
+        shader_stage* current_stage = &s->stages[stage];
+        if(current_stage->strings)
+        {
+            uint8_t result;
+            uint32_t stage_ids[] = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
+            current_stage->id = glCreateShader(stage_ids[stage]);
+            result = compile_shader_stage(current_stage);
+
+            if(result != GL_TRUE)return;
+        }
+    }
 
 	//Generate program
 	s->id = glCreateProgram();
 
-    glAttachShader(s->id, vertex_shader);
-    glAttachShader(s->id, fragment_shader);
+    for(stage = 0; stage < MAX_SHADER_STAGES; stage++)
+        glAttachShader(s->id, s->stages[stage].id);
 
-    //Link program
     glLinkProgram(s->id);
 
     //Check for errors
@@ -341,55 +376,65 @@ void load_shader(shader* s)
         return;
     }
 
-    glDeleteShader(vertex_shader);
-    glDeleteShader(fragment_shader);
-
-    //cache uniforms
-    uint8_t i = 0;
-    for(; i < MAX_SHADER_UNIFORMS; i++)
+    //uniform id caching and stage cleanup
+    for(stage = 0; stage < MAX_SHADER_STAGES; stage++)
     {
-        if(s->uniforms[i].type)
-            s->uniforms[i].id = glGetUniformLocation(s->id, s->uniforms[i].name);
+        shader_stage* current_stage = &s->stages[stage];
+
+        glDeleteShader(current_stage->id);
+
+        //cache uniform ids
+        for(i = 0; i < MAX_SHADER_UNIFORMS; i++)
+        {
+            if(current_stage->uniforms[i].type)
+                current_stage->uniforms[i].id = retrieve_uniform_id(s, current_stage->uniforms[i].name);
+        }
     }
 
     PRINT_FN("Shader %u loaded!\n", s->id);
 }
 
-void load_shader_from_file(shader* s, char* vertex_source, char* fragment_source)
+//TODO switch this to source array
+shader* load_shader_from_file(shader* s, char* vertex_source, char* fragment_source)
 {
-    if(s == NULL) return;
+    if(s == NULL)
+        s = (shader*)calloc(1,sizeof(shader));
 
-    s->vert_strings = (char**)calloc(1, sizeof(char*));
-    s->vert_strings[0] = read_shader_source(vertex_source);
-    if(s->vert_strings[0] == NULL) return;
-    s->no_of_vert_strings = 1;
+    shader_stage* current_stage = &s->stages[0];
 
-    s->frag_strings = (char**)calloc(1, sizeof(char*));
-    s->frag_strings[0] = read_shader_source(fragment_source);
-    if(s->frag_strings[0] == NULL) return;
-    s->no_of_frag_strings = 1;
+    current_stage->strings = (char**)calloc(1, sizeof(char*));
+    current_stage->strings[0] = read_shader_source(vertex_source);
+    if(current_stage->strings[0] == NULL) return;
+    current_stage->no_of_strings = 1;
+
+    current_stage = &s->stages[1];
+
+    current_stage->strings = (char**)calloc(1, sizeof(char*));
+    current_stage->strings[0] = read_shader_source(fragment_source);
+    if(current_stage->strings[0] == NULL) return;
+    current_stage->no_of_strings = 1;
 
     load_shader(s);
+    
+    return s;
 }
 
 void print_out_shader(shader* s)
 {
     if(s == NULL) return;
 
-    uint16_t i = 0;
-    PRINT_FN("Vertex shader:\n");
-    for(;i < s->no_of_vert_strings; i++)
-        if(s->vert_strings[i])
-            PRINT_FN("%s", s->vert_strings[i]);
-        else
-            PRINT_FN("Shader source no longer in memory.");
-
-    PRINT_FN("Fragment shader:\n");
-    for(i = 0; i < s->no_of_frag_strings; i++)
-        if(s->frag_strings[i])
-            PRINT_FN("%s", s->frag_strings[i]);
-        else
-            PRINT_FN("Shader source no longer in memory.");
+    uint16_t stage = 0;
+    for(stage = 0; stage < MAX_SHADER_STAGES; stage++)
+    {
+        shader_stage* current_stage = &s->stages[stage];
+        uint16_t i;
+        PRINT_FN("Stage %u:\n", stage);
+        for(i = 0; i < current_stage->no_of_strings; i++)
+            if(current_stage->strings[i])
+                PRINT_FN("%s", current_stage->strings[i]);
+            else
+                PRINT_FN("Shader source no longer in memory.");
+    }
 }
 
 void use_shader(shader* s)
