@@ -68,7 +68,6 @@ void game_loop()
 {
     while(running)
     {
-        // New, fixed timing method
         update_accumulator(SDL_GetTicks());
 
         //TODO research loop sleep() and the usefullness of loop_dt

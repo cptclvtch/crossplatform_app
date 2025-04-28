@@ -58,4 +58,11 @@
     #define m_log(a,b)  (log(a)/log(b))
     #define m_pow(a,e)  pow(a,e)
 #endif
+
+#define M_EPSILON fl2real(0.0001)
+
+real m_lerp(real from, real to, real t)
+{
+    return m_mul(from, fl2real(1.0) - t) + m_mul(to, t);
+}
 #endif

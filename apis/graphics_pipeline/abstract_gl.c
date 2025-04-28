@@ -72,11 +72,11 @@ void close_graphics();
 char* read_shader_source(char* path);
 uniform* declare_uniform(shader_stage* s, uint8_t id, char* name, gpu_data_type t);
 uint32_t retrieve_uniform_id(shader* s, char* name);
-//MACRO: void set_uniform(id, type, ...)
+//MACRO: void set_uniform(id, type, ...);
 char* cache_uniform_string(shader_stage* stage);
 void load_shader(shader* s);
 shader* load_shader_from_file(shader* s, char* vertex_source, char* fragment_source);
-void print_out_shader(shader* s);
+// void print_out_shader(shader* s);
 void use_shader(shader* s);
 void use_shader_and_sync(shader* s);
 void unload_shader(shader* s);
@@ -390,8 +390,6 @@ void load_shader(shader* s)
                 current_stage->uniforms[i].id = retrieve_uniform_id(s, current_stage->uniforms[i].name);
         }
     }
-
-    PRINT_FN("Shader %u loaded!\n", s->id);
 }
 
 //TODO switch this to source array
@@ -419,23 +417,23 @@ shader* load_shader_from_file(shader* s, char* vertex_source, char* fragment_sou
     return s;
 }
 
-void print_out_shader(shader* s)
-{
-    if(s == NULL) return;
+// void print_out_shader(shader* s)
+// {
+//     if(s == NULL) return;
 
-    uint16_t stage = 0;
-    for(stage = 0; stage < MAX_SHADER_STAGES; stage++)
-    {
-        shader_stage* current_stage = &s->stages[stage];
-        uint16_t i;
-        PRINT_FN("Stage %u:\n", stage);
-        for(i = 0; i < current_stage->no_of_strings; i++)
-            if(current_stage->strings[i])
-                PRINT_FN("%s", current_stage->strings[i]);
-            else
-                PRINT_FN("Shader source no longer in memory.");
-    }
-}
+//     uint16_t stage = 0;
+//     for(stage = 0; stage < MAX_SHADER_STAGES; stage++)
+//     {
+//         shader_stage* current_stage = &s->stages[stage];
+//         uint16_t i;
+//         PRINT_FN("Stage %u:\n", stage);
+//         for(i = 0; i < current_stage->no_of_strings; i++)
+//             if(current_stage->strings[i])
+//                 PRINT_FN("%s", current_stage->strings[i]);
+//             else
+//                 PRINT_FN("Shader source no longer in memory.");
+//     }
+// }
 
 void use_shader(shader* s)
 {
