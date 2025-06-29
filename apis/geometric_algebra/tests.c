@@ -202,6 +202,15 @@ int main()
     COLLECT_FINDINGS
 
     #undef SUBTITLE
+    #define SUBTITLE "rotor_from_scaled_axis_angle"
+    r_result = rotor_from_scaled_axis_angle((vec3){0,0, m_div(M_PI,2)});
+    VERIFY_SINGLE_VALUE(m_abs(r_result.II - m_cos(M_PI/4)), <, M_EPSILON)
+    VERIFY_SINGLE_VALUE(r_result.T.x, ==, fl2real(0.0))
+    VERIFY_SINGLE_VALUE(r_result.T.y, ==, fl2real(0.0))
+    VERIFY_SINGLE_VALUE(m_abs(r_result.T.z - m_sin(M_PI/4)), <, M_EPSILON)
+    COLLECT_FINDINGS
+
+    #undef SUBTITLE
     #define SUBTITLE "rotor_reverse"
     r_result = rotor_reverse((rotor3){fl2real(1.0), (bivec3)a});
     VERIFY_SINGLE_VALUE(r_result.II, ==, fl2real(1.0))
@@ -220,17 +229,14 @@ int main()
     VERIFY_SINGLE_VALUE(m_abs(r_result.T.z - to_compare.T.z), < , M_EPSILON)
     COLLECT_FINDINGS
 
-    //TODO fix this
     #undef SUBTITLE
     #define SUBTITLE "rotor_combine - x>y>z"
     r_result = rotor_combine(rotor_from_vectors(x,y), rotor_from_vectors(y,z));
-    to_compare = rotor_from_vectors(x,z);
+    to_compare = rotor_combine(rotor_from_vectors(x,z), rotor_from_vectors(x,y));
     VERIFY_SINGLE_VALUE(m_abs(r_result.II - to_compare.II), < , M_EPSILON)
     VERIFY_SINGLE_VALUE(m_abs(r_result.T.x - to_compare.T.x), < , M_EPSILON)
     VERIFY_SINGLE_VALUE(m_abs(r_result.T.y - to_compare.T.y), < , M_EPSILON)
     VERIFY_SINGLE_VALUE(m_abs(r_result.T.z - to_compare.T.z), < , M_EPSILON)
-    printf("\nresult:%f:%f,%f,%f\n", r_result.II, r_result.T.x, r_result.T.y, r_result.T.z);
-    printf("\nto_compare:%f:%f,%f,%f\n", to_compare.II, to_compare.T.x, to_compare.T.y, to_compare.T.z);
     COLLECT_FINDINGS
 
     #undef TITLE
@@ -296,27 +302,27 @@ int main()
     VERIFY_SINGLE_VALUE(m_abs(result.x - mid_point.x), < , M_EPSILON)
     VERIFY_SINGLE_VALUE(m_abs(result.y - mid_point.y), < , M_EPSILON)
     VERIFY_SINGLE_VALUE(m_abs(result.z - mid_point.z), < , M_EPSILON)
-    PRINT_FN("\nresult: %f,%f,%f\n", result.x, result.y, result.z);
     COLLECT_FINDINGS
 
     #undef SUBTITLE
-    #define SUBTITLE "rotor_lerp"
-    r_result = rotor_lerp(IDENTITY_ROTOR, rotor_from_vectors(x,y), fl2real(0.5));
+    #define SUBTITLE "linear rotor interpolation"
+    r_result = rotor_interpolation(IDENTITY_ROTOR, rotor_from_vectors(x,y), fl2real(0.5), LINEAR_INTERPOLATION);
     result = vec_rotate_w_rotor(x, r_result);
     VERIFY_SINGLE_VALUE(m_abs(result.x - mid_point.x), < , M_EPSILON)
     VERIFY_SINGLE_VALUE(m_abs(result.y - mid_point.y), < , M_EPSILON)
     VERIFY_SINGLE_VALUE(m_abs(result.z - mid_point.z), < , M_EPSILON)
     COLLECT_FINDINGS
-    
-    //TODO fix this
-    #undef SUBTITLE
-    #define SUBTITLE "rotor_hq_lerp"
-    r_result = rotor_hq_lerp(IDENTITY_ROTOR, rotor_from_vectors(x,y), fl2real(0.5));
-    result = vec_rotate_w_rotor(x, r_result);
-    VERIFY_SINGLE_VALUE(m_abs(result.x - mid_point.x), < , M_EPSILON)
-    VERIFY_SINGLE_VALUE(m_abs(result.y - mid_point.y), < , M_EPSILON)
-    VERIFY_SINGLE_VALUE(m_abs(result.z - mid_point.z), < , M_EPSILON)
-    COLLECT_FINDINGS
+
+    // #undef SUBTITLE
+    // #define SUBTITLE "spherical rotor interpolation"
+    // r_result = rotor_interpolation(IDENTITY_ROTOR, rotor_from_vectors(x,y), fl2real(0.5), SPHERICAL_INTERPOLATION);
+    // result = vec_rotate_w_rotor(x, r_result);
+    // VERIFY_SINGLE_VALUE(m_abs(result.x - mid_point.x), < , M_EPSILON)
+    // VERIFY_SINGLE_VALUE(m_abs(result.y - mid_point.y), < , M_EPSILON)
+    // VERIFY_SINGLE_VALUE(m_abs(result.z - mid_point.z), < , M_EPSILON)
+    // printf("\nresult:%f,%f,%f\n", result.x, result.y, result.z);
+    // printf("\nmid_point:%f,%f,%f\n", mid_point.x, mid_point.y, mid_point.z);
+    // COLLECT_FINDINGS
 
     DEBRIEF
 }

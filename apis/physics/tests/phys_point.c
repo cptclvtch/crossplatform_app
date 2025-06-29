@@ -3,10 +3,10 @@
 POST_TITLE
 
 #undef SUBTITLE
-#define SUBTITLE "integrate_phys_point - Best Case Scenario"
-phys_point p = (phys_point){0};
-integrate_phys_point(&p, 0.0);
-VERIFY_SINGLE_VALUE(p.p.x, ==, 0.0)
+#define SUBTITLE "linear_integration - Best Case Scenario"
+phys_point particle = (phys_point){0};
+linear_integration(&particle, 0.0);
+VERIFY_SINGLE_VALUE(particle.p.x, ==, 0.0)
 COLLECT_FINDINGS
 
 //TODO test more stuff?

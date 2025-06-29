@@ -5,6 +5,7 @@
 
 #define FRAME_TIMING
 uint8_t min_fps = 15, target_fps = 60, max_fps = 255;
+uint32_t frame_count = 0;
 
 typedef uint32_t nano_s;
 typedef uint32_t milli_s;
@@ -122,6 +123,7 @@ void fixed_update(void (*update_func)())
 
             frame_accumulator -= desired_ft;
             i++;
+            frame_count++;
         }
     }
 }

@@ -16,9 +16,15 @@
 #error Please include "geometric_algebra/api.c" first
 #endif
 
+#ifndef COLLISIONS
+#error Please include "collision/api.c" first
+#endif
+
 #include "common.c"
 #include "phys_point.c"
 #include "particle_bunch.c"
+
+#include "phys_rigid_body.c"
 
 // #include "force_generator.c"
 #include "phys_virtual_spring.c"

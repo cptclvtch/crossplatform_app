@@ -1,10 +1,10 @@
 #define ERROR_LOG_FUNC(string) SDL_LogError(SDL_LOG_CATEGORY_ERROR, string)
-#define ASSERT_FUNC SDL_assert
-#include "linked_list/api.c"
+#include "data_structures/includes.c"
 #include "frame_timing/api.c"
 #include "standard_application_includes.c"
 
 #include "geometric_algebra/api.c"
+#include "collisions/api.c"
 
 #include "graphics_pipeline/api.c"
 #include "asset_manager/api.c"

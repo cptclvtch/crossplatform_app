@@ -15,19 +15,14 @@ def log(string):
     if settings.logging:
         log_file.write(string)
 
-COMPRESSED_NORMAL_POSITION = 10.0
-
 def export_mesh(mesh, file):
     settings = bpy.context.screen.export_settings
-    
+
     #write vertex count
     total_triangles = len(mesh.loop_triangles)
     file.write(struct.pack('<i', total_triangles*3))
-    log("Number of triangles: " + str(total_triangles) + "\n")
-    log("Number of vertices: " + str(len(mesh.vertices)) + "\n")
-    log("Number of vertex colors: " + str(len(mesh.vertex_colors.active.data)) + "\n")
-    log("\n")
 
+    #write vertices
     triangle_number = 0
     while triangle_number < total_triangles:
         triangle = mesh.loop_triangles[triangle_number]
@@ -46,8 +41,11 @@ def export_mesh(mesh, file):
                 log(str(index) + "\t\tNormal: %.5f, %.5f, %.5f \n" % (normal.x, normal.y, normal.z))
 
             if settings.export_colors:
-                color = mesh.vertex_colors.active.data[loop_index].color
-                file.write(struct.pack('<fff', color[0], color[1], color[2]))
+                if mesh.vertex_colors.active:
+                    color = mesh.vertex_colors.active.data[loop_index].color
+                    file.write(struct.pack('<fff', color[0], color[1], color[2]))
+                else:
+                    color = [.5,.5,.5]
                 log("\t\tVertex color: %.5f, %.5f, %.5f \n" % (color[0], color[1], color[2]))
             if settings.export_uvs:
                 coords = mesh.uv_layers.active.data[loop_index].uv

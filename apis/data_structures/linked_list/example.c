@@ -10,6 +10,6 @@ int main()
     add_link_after(list, NULL);
 
     ITERATE_LIST_START(list, i)
-        if(i->data == NULL) /*Oh no! We forgot to add data to this one!*/;
+        if(i->data == NULL) /*Oh no! We forgot to add data to this one!*/ continue;
     ITERATE_LIST_END(NEXT, i)
 }

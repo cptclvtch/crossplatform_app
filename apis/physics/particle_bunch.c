@@ -67,6 +67,6 @@ void integrate_cpu_particles(cpu_particles* bunch, float dT)
 {
     uint16_t index = 0;
     for(; index <= bunch->max_particle_index; index++)
-        integrate_phys_point(&bunch->array[index], dT);
+        linear_integration(&bunch->array[index], dT);
 }
 #endif

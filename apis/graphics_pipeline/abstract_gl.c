@@ -207,6 +207,7 @@ uint8_t compile_shader_stage(shader_stage* stage)
 
 char* read_shader_source(char* path)
 {
+    //FIXME last line not being read unless it ends with \n
     char* to_return = NULL;
 
     SDL_RWops* file = SDL_RWFromFile(path, "r");

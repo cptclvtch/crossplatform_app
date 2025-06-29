@@ -31,15 +31,7 @@ void load_mesh_to_gpu(mesh* m);
 
 mesh load_mesh_from_path(char* path)
 {
-    // printf("Loading %s... ", path);
-
-    mesh loaded_mesh = (mesh){
-                                vertices: NULL,
-                                vertex_count: 0,
-                                loaded_on_gpu: 0,
-                                vertex_array: 0,
-                                vertex_buffer: 0
-                            };
+    mesh loaded_mesh = (mesh){0};
 
     SDL_RWops* file = SDL_RWFromFile(path, "rb");
     if(file == NULL)
@@ -49,7 +41,6 @@ mesh load_mesh_from_path(char* path)
     }
 
     //load mesh into buffer
-    uint32_t i = 0;
     SDL_RWread(file, &(loaded_mesh.vertex_count), 4, 1);
     
     if(loaded_mesh.vertex_count == 0)
@@ -58,29 +49,11 @@ mesh load_mesh_from_path(char* path)
         return loaded_mesh;
     }
 
-    loaded_mesh.vertices = (mesh_vertex*)malloc(loaded_mesh.vertex_count*sizeof(mesh_vertex));
+    loaded_mesh.vertices = (mesh_vertex*)calloc(loaded_mesh.vertex_count, sizeof(mesh_vertex));
 
     SDL_RWread(file, loaded_mesh.vertices, sizeof(mesh_vertex), loaded_mesh.vertex_count);
 
     SDL_RWclose(file);
-
-    // PRINT_FN("\nVertex count: %u\n", loaded_mesh.vertex_count);
-    // uint32_t index = 0;
-    // for(; index < loaded_mesh.vertex_count; index++)
-    // {
-    //     PRINT_FN("%f, %f, %f \t: %f, %f, %f\n",
-    //             loaded_mesh.vertices[index].pos.x,
-    //             loaded_mesh.vertices[index].pos.y,
-    //             loaded_mesh.vertices[index].pos.z,
-    //             // loaded_mesh.vertices[index].t_u,
-    //             // loaded_mesh.vertices[index].t_v
-    //             loaded_mesh.vertices[index].col.x,
-    //             loaded_mesh.vertices[index].col.y,
-    //             loaded_mesh.vertices[index].col.z
-    //              );
-    // }
-
-    // PRINT_FN("DONE.\n");
 
     return loaded_mesh;
 }

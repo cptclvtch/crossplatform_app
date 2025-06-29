@@ -27,6 +27,7 @@
     #define m_sub(a,b)  (a - b)
     #define m_mul(a,b)  (a*b)
     #define m_div(a,b)  (a/b)
+    #define m_cos(a)    cos(a)
     #define m_sin(a)    sin(a)
 #endif
 
@@ -48,6 +49,8 @@ vec3 vec_multiply(vec3 a, vec3 b);
 vec3 vec_divide(vec3 a, vec3 b);
 vec3 vec_scalar_multiply(vec3 a, real amount);
 vec3 vec_scalar_divide(vec3 a, real amount);
+vec3 vec_min(vec3 a, vec3 b);
+vec3 vec_max(vec3 a, vec3 b);
 
 //Unary operations
 real vec_length_squared(vec3 a);
@@ -66,6 +69,7 @@ vec3 vec_geometric_inverse(vec3 a);
 //Rotors
 #define IDENTITY_ROTOR (rotor3){fl2real(1.0), (bivec3){0}}
 rotor3 rotor_from_vectors(vec3 a, vec3 b);
+rotor3 rotor_from_scaled_axis_angle(vec3 a);
 rotor3 rotor_reverse(rotor3 r);
 real rotor_dot_product(rotor3 a, rotor3 b);
 rotor3 rotor_normalize(rotor3 r);
@@ -83,12 +87,29 @@ vec3 vec_rotateZ(vec3 a, real theta);
 //Interpolations
 vec3 vec_simple_lerp(vec3 from, vec3 to, real t);
 vec3 vec_lerp(vec3 from, vec3 to, real t);
-rotor3 rotor_lerp(rotor3 from, rotor3 to, real t);
-rotor3 rotor_hq_lerp(rotor3 from, rotor3 to, real t);
+rotor3 rotor_interpolation(rotor3 from, rotor3 to, real t, uint8_t mode);
+
+//Extras
+vec3 convert_to_coordinate_system(vec3 a, vec3 translation, rotor3 rotation);
+
+char glsl_rotor_implementation[] = 
+"void rotate_w_rotor(inout vec3 a, vec4 r)\n"
+"{\n"
+"    vec3 a_II = a * r.w;\n"
+"    vec3 a_T  = cross(a, r.xyz);\n"
+"    vec3 v = a_II + a_T;\n"
+"\n"
+"    float trivec = dot(r.xyz, a);\n"
+"\n"
+"    a.x =  v.x*r.w + v.y*r.z - v.z*r.y + trivec*r.x;\n"
+"    a.y = -v.x*r.z + v.y*r.w + v.z*r.x + trivec*r.y;\n"
+"    a.z =  v.x*r.y - v.y*r.x + v.z*r.w + trivec*r.z;\n"
+"}\n";
 
 //----------------------------------
 #else
 //----------------------------------
+
 #define FORCE_INLINE __attribute((always_inline)) inline
 
 //Component-wise operations
@@ -132,6 +153,22 @@ FORCE_INLINE vec3 vec_scalar_multiply(vec3 a, real amount)
 FORCE_INLINE vec3 vec_scalar_divide(vec3 a, real amount)
 {
     return (vec3){m_div(a.x,amount), m_div(a.y,amount), m_div(a.z,amount)};
+}
+
+inline vec3 vec_min(vec3 a, vec3 b)
+{
+    return (vec3){
+            a.x < b.x? a.x : b.x,
+            a.y < b.y? a.y : b.y,
+            a.z < b.z? a.z : b.z};
+}
+
+inline vec3 vec_max(vec3 a, vec3 b)
+{
+    return (vec3){
+        a.x > b.x? a.x : b.x,
+        a.y > b.y? a.y : b.y,
+        a.z > b.z? a.z : b.z};
 }
 
 //Unary operations
@@ -213,7 +250,6 @@ inline vec3 vec_geometric_inverse(vec3 a)
     return vec_scalar_divide(a, vec_length_squared(a));
 }
 
-//TODO add optional previous_normal?
 //Rotors
 rotor3 rotor_from_vectors(vec3 from, vec3 to /*,bivec3 previous_normal*/)
 {
@@ -236,7 +272,21 @@ rotor3 rotor_from_vectors(vec3 from, vec3 to /*,bivec3 previous_normal*/)
     return vec_geometric_product(halfway, from);
 }
 
-inline rotor3 rotor_reverse(rotor3 r)
+rotor3 rotor_from_scaled_axis_angle(vec3 a)
+{
+    real angle = vec_length(a);
+    a = vec_scalar_divide(a, angle);
+    
+    real half_angle = m_div(angle,2);
+
+    return  (rotor3)
+            {
+                m_cos(half_angle),
+                (bivec3)vec_scalar_multiply(a, m_sin(half_angle))
+            };
+}
+
+FORCE_INLINE rotor3 rotor_reverse(rotor3 r)
 {
     return (rotor3){r.II, bivec_reverse(r.T)};
 }
@@ -272,9 +322,9 @@ inline rotor3 rotor_combine(rotor3 a, rotor3 b)
                 m_mul(a.II,b.II) - vec_dot_product(a.T, b.T),
                 (bivec3)
                 {
-                    m_mul(a.II,b.T.z) + m_mul(a.T.z,b.II) - m_mul(a.T.x,b.T.y) + m_mul(a.T.y,b.T.x),
-                    m_mul(a.II,b.T.x) + m_mul(a.T.z,b.T.y) + m_mul(a.T.x,b.II) - m_mul(a.T.y,b.T.z),
-                    m_mul(a.II,b.T.y) - m_mul(a.T.z,b.T.x) + m_mul(a.T.x,b.T.z) + m_mul(a.T.y,b.II)
+                    m_mul(a.II,b.T.x) + m_mul(b.II,a.T.x) + m_mul(a.T.y,b.T.z) - m_mul(a.T.z,b.T.y),
+                    m_mul(a.II,b.T.y) + m_mul(b.II,a.T.y) + m_mul(a.T.z,b.T.x) - m_mul(a.T.x,b.T.z),
+                    m_mul(a.II,b.T.z) + m_mul(b.II,a.T.z) + m_mul(a.T.x,b.T.y) - m_mul(a.T.y,b.T.x)
                 }
             };
 }
@@ -290,12 +340,12 @@ vec3 vec_reflection(vec3 a, vec3 v)
                         m_mul((-v_sq.x + v_sq.y - v_sq.z),a.y) + m_mul(m_mul(fl2real(2.0),v.y),(dot_v.x + dot_v.z)),
                         m_mul((-v_sq.x - v_sq.y + v_sq.z),a.z) + m_mul(m_mul(fl2real(2.0),v.z),(dot_v.x + dot_v.y))};
 
-    return vec_scalar_divide(temp, vec_length_squared(v));
+    return vec_scalar_divide(temp, v_sq.x + v_sq.y + v_sq.z);
 }
 
 vec3 vec_rotate_w_rotor(vec3 a, rotor3 r)
 {
-    //rotor must be formed using unit length vectors
+    //rotor must be normalized (formed using unit-length vectors)
     
     //24 multiplications
     //17 additions
@@ -319,12 +369,12 @@ vec3 vec_rotate(vec3 a, vec3 from, vec3 to)
     return vec_rotate_w_rotor(a, rotor_from_vectors(from,to));
 }
 
-#define DEG_TO_RAD(x) x*M_PI/180.0
+#define DEG_TO_RAD(x) m_mul(x, m_div(M_PI,180.0))
 
 #define EULER_ROTATION(x,y) \
 real temp = a.x;\
-a.x = a.x*cos(theta) - a.y*sin(theta);\
-a.y = temp*sin(theta) + a.y*cos(theta);\
+a.x = m_mul(a.x, cos(theta)) - m_mul(a.y, sin(theta));\
+a.y = m_mul(temp, sin(theta)) + m_mul(a.y, cos(theta));\
 
 vec3 vec_rotateX(vec3 a, real theta)
 {
@@ -358,15 +408,33 @@ vec3 vec_lerp(vec3 from, vec3 to, real t)
     return (vec3){m_sqrt(lerp_vec.x), m_sqrt(lerp_vec.y), m_sqrt(lerp_vec.z)};
 }
 
-rotor3 rotor_lerp(rotor3 from, rotor3 to, real t)
+enum{
+    LINEAR_INTERPOLATION,
+    SPHERICAL_INTERPOLATION
+};
+rotor3 rotor_interpolation(rotor3 from, rotor3 to, real t, uint8_t mode)
 {
     real cos_theta = rotor_dot_product(from,to);
 
     if(cos_theta < fl2real(0.0))
+    {
         to = (rotor3){-to.II, (bivec3){-to.T.x, -to.T.y, -to.T.z}};
-
+        cos_theta = -cos_theta;
+    }
+    
     real f = fl2real(1.0) - t;
 
+    //TODO fix this
+    // if(mode == SPHERICAL_INTERPOLATION && cos_theta <= fl2real(0.99995))
+    // {
+    //     real theta = fl2real(acos(cos_theta));
+    //     real sin_theta = m_sqrt(fl2real(1.0) - m_mul(cos_theta,cos_theta));
+
+    //     t = m_div(m_sin(m_mul(t, theta)), sin_theta);
+    //     f = fl2real(1.0) - t;
+    //     // f = m_div(m_sin(m_mul(f, theta)), sin_theta); //doesnt work, meant for vectors, not rotors?
+    // }
+    
     rotor3 interpolated_rotor =
     (rotor3)
     {
@@ -382,35 +450,9 @@ rotor3 rotor_lerp(rotor3 from, rotor3 to, real t)
     return rotor_normalize(interpolated_rotor);
 }
 
-//High quality, spherical linear interpolation
-rotor3 rotor_hq_lerp(rotor3 from, rotor3 to, real t)
+//Extras
+vec3 convert_to_coordinate_system(vec3 a, vec3 translation, rotor3 rotation)
 {
-    real cos_theta = rotor_dot_product(from,to);
-
-    if(cos_theta > fl2real(0.99995))
-        return rotor_lerp(from, to, t);
-    
-    if(cos_theta < fl2real(0.0))
-    {
-        to = (rotor3){-to.II, (bivec3){-to.T.x, -to.T.y, -to.T.z}};
-        cos_theta = -cos_theta;
-    }
-
-    real theta = fl2real(acos(cos_theta));
-    real sin_theta = m_sqrt(fl2real(1.0) - m_mul(cos_theta,cos_theta));
-
-    real f = m_div(m_sin(m_mul(fl2real(1.0) - t, theta)), sin_theta);
-    t = m_sin(t*theta)/sin_theta;
-
-    return  (rotor3)
-            {
-                m_mul(from.II, f) + m_mul(to.II, t),
-                (bivec3)
-                {
-                    m_mul(from.T.x, f) + m_mul(to.T.x, t),
-                    m_mul(from.T.y, f) + m_mul(to.T.y, t),
-                    m_mul(from.T.z, f) + m_mul(to.T.z, t)
-                }
-            };
+    //TODO implement change of basis function
 }
 #endif

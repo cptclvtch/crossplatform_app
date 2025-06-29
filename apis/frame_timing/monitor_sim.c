@@ -95,31 +95,6 @@ int main()
 {
     frame_timing_setup(60.0);
 
-    //TODO do this in my style, using api.c
-    // double prev_frame_time = system_time;
-    // last_vsync = round(system_time * monitor_refresh_rate);
-    // int first_vsync = last_vsync;
-
-    // double accumulator = 0;
-
-    // while(total_updates < 10000)
-    // {
-    //     double current_frame_time = system_time;
-    //     double delta_frame_time = current_frame_time - prev_frame_time;
-    //     accumulator += delta_frame_time;
-    //     prev_frame_time = current_frame_time;
-
-    //     while(accumulator >= 1.0 / 60.0)
-    //     {
-    //         simulate_update();
-    //         accumulator -= 1.0 / 60.0;
-    //     }
-
-    //     simulate_render();
-    //     simulate_display();
-    //     simulate_busy();
-    // }
-
     double prev_frame_time = system_time;
     last_vsync = round(system_time * monitor_refresh_rate);
     int first_vsync = last_vsync;

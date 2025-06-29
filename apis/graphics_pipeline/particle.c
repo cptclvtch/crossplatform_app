@@ -8,7 +8,7 @@ typedef struct
     float alpha;
 }particle_vertex;
 
-#define PARTICLE_RENDER_CHUNK_SIZE 200
+#define PARTICLE_RENDER_CHUNK_SIZE 1200
 typedef struct
 {
     //CPU side

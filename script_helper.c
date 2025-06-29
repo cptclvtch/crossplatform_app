@@ -7,9 +7,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "apis/linked_list/api.c"
+#include "apis/data_structures/includes.c"
 #define API_IMPLEMENTATION_ONLY
-#include "apis/linked_list/api.c"
+#include "apis/data_structures/includes.c"
 
 #define INTERPRETER "tcc"
 #define COMPILER "tcc"

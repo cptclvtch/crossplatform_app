@@ -4,9 +4,7 @@
 #endif
 #include "mesh.c"
 #include "particle.c"
-#ifndef RELEASE
-    #include "gizmo.c"
-#endif
+#include "gizmo.c"
 
 #ifndef API_IMPLEMENTATION_ONLY
 #define GRAPHICS_PIPELINE_INCLUDED
