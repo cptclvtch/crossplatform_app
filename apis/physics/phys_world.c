@@ -14,6 +14,8 @@ typedef struct
     //rigid bodies
     linked_list rigid_bodies;
 
+    bvh_node* broad_phase_root;
+
 }phys_world;
 
 phys_point* add_point(phys_world* world, vec3 offset);

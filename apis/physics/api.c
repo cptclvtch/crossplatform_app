@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #endif
 
-#ifndef LINKED_LISTS
+#ifndef LINKED_LIST
 #error Please include "linked_list/api.c" first
 #endif
 
@@ -20,6 +20,7 @@
 #error Please include "collision/api.c" first
 #endif
 
+#define PHYSICS
 #include "common.c"
 #include "phys_point.c"
 #include "particle_bunch.c"

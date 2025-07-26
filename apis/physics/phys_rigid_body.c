@@ -39,8 +39,8 @@ void calculate_center_of_mass(phys_rigid_body* b)
     // return vec_scalar_divide(center_of_mass, no_of_cells);
 }
 
-//TODO test this
-//FIXME angular acceleration
+//TODO consider transformations of frames of reference for inertia tensor
+//TODO proper angular acceleration formula
 void angular_integration(phys_rigid_body* b, float dT/*seconds*/)
 {
     real angular_damping = fl2real(0.99);

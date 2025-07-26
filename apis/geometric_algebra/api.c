@@ -59,6 +59,7 @@ unsigned char vec_is_normalized(vec3 a);
 vec3 vec_normalize(vec3 a);
 vec3 vec_unit_cube_fit(vec3 a);
 vec3 vec_reverse(vec3 a);
+vec3 vec_abs(vec3 a);
 
 //Products
 real vec_dot_product(vec3 a, vec3 b); //cosine-proportional magnitude between vectors
@@ -80,13 +81,14 @@ vec3 vec_reflection(vec3 a, vec3 v); //reflect a on v
 
 vec3 vec_rotate_w_rotor(vec3 a, rotor3 r);
 vec3 vec_rotate(vec3 a, vec3 from, vec3 to);
+//TODO write tests for these VVV
 vec3 vec_rotateX(vec3 a, real theta);
 vec3 vec_rotateY(vec3 a, real theta);
 vec3 vec_rotateZ(vec3 a, real theta);
 
 //Interpolations
 vec3 vec_simple_lerp(vec3 from, vec3 to, real t);
-vec3 vec_lerp(vec3 from, vec3 to, real t);
+vec3 vec_interpolation(vec3 from, vec3 to, real t);
 rotor3 rotor_interpolation(rotor3 from, rotor3 to, real t, uint8_t mode);
 
 //Extras
@@ -217,6 +219,11 @@ FORCE_INLINE vec3 vec_reverse(vec3 a)
     return (vec3){-a.x, -a.y, -a.z};
 }
 #define bivec_reverse(a) (bivec3)vec_reverse(a)
+
+FORCE_INLINE vec3 vec_abs(vec3 a)
+{
+    return (vec3){m_abs(a.x), m_abs(a.y), m_abs(a.z)};
+}
 
 //Products
 FORCE_INLINE real vec_dot_product(vec3 a, vec3 b)
@@ -399,7 +406,7 @@ vec3 vec_simple_lerp(vec3 from, vec3 to, real t)
     return vec_add(vec_scalar_multiply(from,f), vec_scalar_multiply(to,t));
 }
 
-vec3 vec_lerp(vec3 from, vec3 to, real t)
+vec3 vec_interpolation(vec3 from, vec3 to, real t)
 {
     real f = fl2real(1.0) - t;
 

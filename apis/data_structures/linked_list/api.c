@@ -1,5 +1,5 @@
 #ifndef API_IMPLEMENTATION_ONLY
-#define LINKED_LISTS
+#define LINKED_LIST
 
 #ifndef RAND_MAX
 #include <stdlib.h>
@@ -26,9 +26,11 @@ typedef struct linked_list
 
 linked_list create_new_list(void (*delete_func)(void*));
 void delete_list(linked_list* list);
+
 //----------------------------------
 #else
 //----------------------------------
+
 #define ITERATE_LIST_START(list, iterator) \
 linked_list_node* iterator = list.nodes;\
 while(iterator)\
@@ -40,7 +42,7 @@ while(iterator)\
 
 #define CREATE_LINK \
 linked_list_node* new_node = (linked_list_node*)calloc(1, sizeof(linked_list_node));\
-new_node->data = data_in;\
+new_node->data = data_in;
 
 #define get_new_link(data_in) add_link_before(NULL, data_in)
 
@@ -80,7 +82,7 @@ void _dont_delete_contents(void* p){}
 
 void delete_link(linked_list_node* node, void (*delete_func)(void*))
 {
-    if(!node) return;
+    if(node == NULL) return;
     
     if(delete_func)
         delete_func(node->data);
