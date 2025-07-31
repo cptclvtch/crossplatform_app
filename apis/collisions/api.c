@@ -2,6 +2,10 @@
 #error Please include "geometric_algebra/api.c" first
 #endif
 
+#include "contacts.c"
+#include "aabb.c"
+#include "bvh.c"
+
 #ifndef API_IMPLEMENTATION_ONLY
 #define COLLISIONS
 //Volume representation
@@ -165,6 +169,3 @@ void collision_volume_add_primitive(collision_volume* v, uint8_t type, vec3 cent
 //     return 1;
 // }
 #endif
-
-#include "contacts.c"
-#include "bvh.c"

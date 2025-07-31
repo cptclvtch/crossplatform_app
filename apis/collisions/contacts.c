@@ -33,6 +33,10 @@ void clear_collision_list(collision_list* list);
 
 void clear_collision_list(collision_list* list)
 {
+    uint8_t i = 0;
+    for(; i < COLLISION_CHUNK_SIZE; i++)
+        list->pairs[i].type = NO_COLLISION;
 
+    list->last_index = 0;
 }
 #endif
