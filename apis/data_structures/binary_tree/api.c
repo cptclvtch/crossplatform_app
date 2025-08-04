@@ -17,7 +17,7 @@ typedef struct binary_tree
     void* data;
 }binary_tree;
 
-binary_tree* binary_tree_new();
+binary_tree* binary_tree_new(void* data);
 
 binary_tree* binary_tree_insert_node(binary_tree* root, binary_tree* to_insert, unsigned char (*insertion_test)(binary_tree* root, binary_tree* to_insert));
 binary_tree* binary_tree_insert_leaf(binary_tree* root, binary_tree* to_insert, unsigned char (*insertion_test)(binary_tree* root, binary_tree* to_insert));
@@ -33,9 +33,11 @@ void binary_tree_delete(binary_tree* root);
 #else
 //----------------------------------
 
-inline binary_tree* binary_tree_new()
+inline binary_tree* binary_tree_new(void* data)
 {
-    return (binary_tree*)calloc(1, sizeof(binary_tree));
+    binary_tree* new = (binary_tree*)calloc(1, sizeof(binary_tree));
+    new->data = data;
+    return new;
 }
 
 inline unsigned char default_insertion_test(binary_tree* root, binary_tree* to_insert)
@@ -66,7 +68,7 @@ binary_tree* binary_tree_insert_leaf(binary_tree* root, binary_tree* to_insert, 
 
     if(root->child[0] == NULL && root->child[1] == NULL)
     {
-        binary_tree* split = binary_tree_new();
+        binary_tree* split = binary_tree_new(NULL);
         
         split->parent = root->parent;
         split->child[0] = root;

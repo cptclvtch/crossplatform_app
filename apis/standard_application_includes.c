@@ -54,9 +54,7 @@ void setup_app()
 void close_app()
 {
     #ifndef RELEASE
-        #ifdef NUKLEAR_GUI
     nk_sdl_shutdown();
-        #endif
     #endif
     close_gl();
     SDL_DestroyWindow(window);

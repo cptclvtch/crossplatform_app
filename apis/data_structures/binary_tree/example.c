@@ -19,13 +19,13 @@ void traversal_func(binary_tree* a)
 
 int main()
 {
-    binary_tree* root = binary_tree_new();
-    binary_tree* leaf = binary_tree_new();
+    binary_tree* root = binary_tree_new(NULL);
+    binary_tree* leaf = binary_tree_new(NULL);
 
     //------------------------------
     root = binary_tree_insert_node(root, leaf, &pick_side);
 
-    binary_tree_width_traversal(root, &traversal_func, &traversal_func);
+    binary_tree_width_traversal(root, traversal_func, traversal_func);
 
     binary_tree_delete(root);
 

@@ -36,11 +36,6 @@ uint8_t combo_test(binary_tree* a, binary_tree* b)
 
 void combo_func(binary_tree* a, binary_tree* b)
 {
-    // PRINT_FN("[");
-    // if(a) PRINT_FN("%u", (uint8_t)a->data); else PRINT_FN("NULL");
-    // PRINT_FN(" ");
-    // if(b) PRINT_FN("%u", (uint8_t)b->data); else PRINT_FN("NULL");
-    // PRINT_FN("]\n");
     result_list[index++] = (uint8_t)a->data + (uint8_t)b->data;
 }
 
@@ -53,11 +48,23 @@ int main()
     #define TITLE "new node"
     POST_TITLE
 
+    unsigned int test = 2;
     #define SUBTITLE "Best Case Scenario"
-    binary_tree* new = binary_tree_new();
+    binary_tree* new = binary_tree_new(&test);
     VERIFY_SINGLE_VALUE(new->parent, ==, NULL);
     VERIFY_SINGLE_VALUE(new->child[0], ==, NULL);
     VERIFY_SINGLE_VALUE(new->child[1], ==, NULL);
+    VERIFY_SINGLE_VALUE(new->data, ==, &test);
+    COLLECT_FINDINGS
+    free(new);
+
+    #undef SUBTITLE
+    #define SUBTITLE "NULL data"
+    new = binary_tree_new(NULL);
+    VERIFY_SINGLE_VALUE(new->parent, ==, NULL);
+    VERIFY_SINGLE_VALUE(new->child[0], ==, NULL);
+    VERIFY_SINGLE_VALUE(new->child[1], ==, NULL);
+    VERIFY_SINGLE_VALUE(new->data, ==, NULL);
     COLLECT_FINDINGS
     free(new);
 
@@ -72,15 +79,14 @@ int main()
 
     #undef SUBTITLE
     #define SUBTITLE "node(NOT NULL, NULL, NULL) - should return root"
-    new = binary_tree_new();
+    new = binary_tree_new(NULL);
     VERIFY_SINGLE_VALUE(binary_tree_insert_node(new, NULL, NULL), ==, new);
     COLLECT_FINDINGS
     free(new);
 
     #undef SUBTITLE
     #define SUBTITLE "node(NULL, NOT NULL, NULL)"
-    binary_tree* leaf = binary_tree_new();
-    leaf->data = (void*)1;
+    binary_tree* leaf = binary_tree_new((void*)1);
     new = binary_tree_insert_node(NULL, leaf, NULL);
     VERIFY_SINGLE_VALUE(new, ==, leaf);
     VERIFY_SINGLE_VALUE(new->data, ==, leaf->data);
@@ -89,12 +95,9 @@ int main()
 
     #undef SUBTITLE
     #define SUBTITLE "node - fill children"
-    a = binary_tree_new();
-    a->data = (void*)2;
-    b = binary_tree_new();
-    b->data = (void*)3;
-    c = binary_tree_new();
-    c->data = (void*)4;
+    a = binary_tree_new((void*)2);
+    b = binary_tree_new((void*)3);
+    c = binary_tree_new((void*)4);
     binary_tree_insert_node(new, a, NULL);
     binary_tree_insert_node(new, b, NULL);
     binary_tree_insert_node(new, c, NULL);
@@ -108,8 +111,7 @@ int main()
 
     #undef SUBTITLE
     #define SUBTITLE "node - custom insertion test"
-    d = binary_tree_new();
-    d->data = (void*)5;
+    d = binary_tree_new((void*)5);
     binary_tree_insert_node(new, d, &always_right);
     VERIFY_SINGLE_VALUE(d->parent, ==, b);
     VERIFY_SINGLE_VALUE(b->child[1], ==, d);
@@ -117,8 +119,7 @@ int main()
 
     #undef SUBTITLE
     #define SUBTITLE "node - insertion test returning 2 or greater - should clamp to 1"
-    c = binary_tree_new();
-    c->data = (void*)6;
+    c = binary_tree_new((void*)6);
     binary_tree_insert_node(new, c, &faulty_insertion_test);
     VERIFY_SINGLE_VALUE(c->parent, ==, d);
     VERIFY_SINGLE_VALUE(d->child[1], ==, c);
@@ -159,8 +160,7 @@ int main()
     VERIFY_ARRAY_OF_VALUES(result_list[test_iterator], ==, width_list[test_iterator], sizeof(width_list)/sizeof(uint8_t)-1);
     COLLECT_FINDINGS
 
-    a = binary_tree_new();
-    a->data = (void*)7;
+    a = binary_tree_new((void*)7);
     binary_tree_insert_node(new->child[0], a, NULL);
     uint8_t cross_list[] = {5,7,9,10,10,12,13};
     #undef SUBTITLE
@@ -224,15 +224,14 @@ int main()
 
     #undef SUBTITLE
     #define SUBTITLE "leaf(NOT_NULL, NULL, NULL) - should return root"
-    new = binary_tree_new();
+    new = binary_tree_new(NULL);
     VERIFY_SINGLE_VALUE(binary_tree_insert_leaf(new, NULL, NULL), ==, new);
     COLLECT_FINDINGS
     new = NULL;
 
     #undef SUBTITLE
     #define SUBTITLE "leaf(NULL, NOT NULL, NULL)"
-    a = binary_tree_new();
-    a->data = (void*)1;
+    a = binary_tree_new((void*)1);
     new = binary_tree_insert_leaf(new, a, NULL);
     VERIFY_SINGLE_VALUE(new, ==, a);
     VERIFY_SINGLE_VALUE(new->data, ==, a->data);
@@ -240,11 +239,9 @@ int main()
 
     #undef SUBTITLE
     #define SUBTITLE "leaf - fill children"
-    b = binary_tree_new();
-    b->data = (void*)2;
+    b = binary_tree_new((void*)2);
     new = binary_tree_insert_leaf(new, b, NULL);
-    c = binary_tree_new();
-    c->data = (void*)3;
+    c = binary_tree_new((void*)3);
     new = binary_tree_insert_leaf(new, c, NULL);
 
     clear_result_list();

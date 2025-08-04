@@ -14,7 +14,7 @@ typedef struct
     //rigid bodies
     linked_list rigid_bodies;
 
-    bvh_node* broad_phase_root;
+    binary_tree* broad_phase_root;
 
 }phys_world;
 

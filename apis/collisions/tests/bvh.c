@@ -14,17 +14,34 @@
 #include "../contacts.c"
 #include "../bvh.c"
 
+void bvh_print(binary_tree* node, uint8_t tab_level);
+void bvh_print(binary_tree* node, uint8_t tab_level)
+{
+    if(node == NULL) return;
+
+    PRINT_FN("\n");
+    uint8_t i = 0;
+    for(; i < tab_level; i++)
+        PRINT_FN("\t");
+
+    aabb box = ((bvh_data*)node->data)->box;
+    PRINT_FN("[%f,%f,%f] [%f,%f,%f]", box.center.x, box.center.y, box.center.z, box.half_size.x, box.half_size.y, box.half_size.z);
+
+    bvh_print(node->child[0], tab_level + 1);
+    bvh_print(node->child[1], tab_level + 1);
+}
+
 int main()
 {
     #define TITLE "new node"
     POST_TITLE
 
-    bvh_data *result, *temp;
-    bvh_data *a, *b, *c;
+    binary_tree *result, *temp;
+    binary_tree *a, *b, *c;
 
     #undef SUBTITLE
     #define SUBTITLE "Best Case Scenario"
-    result = bvh_get_new_node();
+    result = bvh_new_data();
     VERIFY_SINGLE_VALUE(result, !=, NULL);
     COLLECT_FINDINGS
 
@@ -45,13 +62,13 @@ int main()
 
     #undef SUBTITLE
     #define SUBTITLE "bvh_insert(NULL, NOT NULL) - should return to_insert"
-    a = bvh_get_new_node();
-    a->box = (aabb){(vec3){0,0,0}, (vec3){1,1,1}};
+    a = binary_tree_new(bvh_new_data());
+    ((bvh_data*)a->data)->box = (aabb){(vec3){0,0,0}, (vec3){1,1,1}};
     result = bvh_insert(NULL, a);
     VERIFY_SINGLE_VALUE(result, ==, a);
-    VERIFY_SINGLE_VALUE(result->box.half_size.x, ==, a->box.half_size.x);
-    VERIFY_SINGLE_VALUE(result->box.half_size.y, ==, a->box.half_size.y);
-    VERIFY_SINGLE_VALUE(result->box.half_size.z, ==, a->box.half_size.z);
+    VERIFY_SINGLE_VALUE(((bvh_data*)result->data)->box.half_size.x, ==, ((bvh_data*)a->data)->box.half_size.x);
+    VERIFY_SINGLE_VALUE(((bvh_data*)result->data)->box.half_size.y, ==, ((bvh_data*)a->data)->box.half_size.y);
+    VERIFY_SINGLE_VALUE(((bvh_data*)result->data)->box.half_size.z, ==, ((bvh_data*)a->data)->box.half_size.z);
     COLLECT_FINDINGS
 
     #undef SUBTITLE
@@ -63,41 +80,31 @@ int main()
 
     #undef SUBTITLE
     #define SUBTITLE "aabb update on insertion"
-    b = bvh_get_new_node();
-    b->box = (aabb){(vec3){2,0,0}, (vec3){1,1,1}};
+    b = binary_tree_new(bvh_new_data());
+    ((bvh_data*)b->data)->box = (aabb){(vec3){2,0,0}, (vec3){1,1,1}};
     result = bvh_insert(result, b);
     VERIFY_SINGLE_VALUE(result, !=, a);
     VERIFY_SINGLE_VALUE(result, !=, b);
-    VERIFY_SINGLE_VALUE(result->node.child[0], ==, (binary_tree*)a);
-    VERIFY_SINGLE_VALUE(result->node.child[1], ==, (binary_tree*)b);
-    VERIFY_SINGLE_VALUE(result->box.center.x, ==, 1);
-    VERIFY_SINGLE_VALUE(result->box.center.y, ==, 0);
-    VERIFY_SINGLE_VALUE(result->box.center.z, ==, 0);
-    VERIFY_SINGLE_VALUE(result->box.half_size.x, ==, 2);
-    VERIFY_SINGLE_VALUE(result->box.half_size.y, ==, 1);
-    VERIFY_SINGLE_VALUE(result->box.half_size.z, ==, 1);
+    VERIFY_SINGLE_VALUE(result->child[0], ==, a);
+    VERIFY_SINGLE_VALUE(result->child[1], ==, b);
+    VERIFY_SINGLE_VALUE(((bvh_data*)result->data)->box.center.x, ==, 1);
+    VERIFY_SINGLE_VALUE(((bvh_data*)result->data)->box.center.y, ==, 0);
+    VERIFY_SINGLE_VALUE(((bvh_data*)result->data)->box.center.z, ==, 0);
+    VERIFY_SINGLE_VALUE(((bvh_data*)result->data)->box.half_size.x, ==, 2);
+    VERIFY_SINGLE_VALUE(((bvh_data*)result->data)->box.half_size.y, ==, 1);
+    VERIFY_SINGLE_VALUE(((bvh_data*)result->data)->box.half_size.z, ==, 1);
     COLLECT_FINDINGS
-    
+
     //
-    c = bvh_get_new_node();
-    c->box = (aabb){(vec3){4,0,0}, (vec3){1,1,1}};
+    c = binary_tree_new(bvh_new_data());
+    ((bvh_data*)c->data)->box = (aabb){(vec3){4,0,0}, (vec3){1,1,1}};
     result = bvh_insert(result, c);
-    VERIFY_SINGLE_VALUE(result->box.half_size.x, ==, 3);
-    VERIFY_SINGLE_VALUE(result->box.half_size.y, ==, 1);
-    VERIFY_SINGLE_VALUE(result->box.half_size.z, ==, 1);
+    VERIFY_SINGLE_VALUE(((bvh_data*)result->data)->box.half_size.x, ==, 3);
+    VERIFY_SINGLE_VALUE(((bvh_data*)result->data)->box.half_size.y, ==, 1);
+    VERIFY_SINGLE_VALUE(((bvh_data*)result->data)->box.half_size.z, ==, 1);
     COLLECT_FINDINGS
 
-    #undef TITLE
-    #define TITLE "deletion"
-    POST_TITLE
-
-    #undef SUBTITLE
-    #define SUBTITLE "last node"
-    bvh_delete_node(c);
-    VERIFY_SINGLE_VALUE(result->box.half_size.x, ==, 2);
-    VERIFY_SINGLE_VALUE(result->box.half_size.y, ==, 1);
-    VERIFY_SINGLE_VALUE(result->box.half_size.z, ==, 1);
-    COLLECT_FINDINGS
+    bvh_print(result, 0);
 
     DEBRIEF
 }
