@@ -1,4 +1,4 @@
-#ifndef API_IMPLEMENTATION_ONLY
+#ifndef INCLUDE_IMPLEMENTATION
 
 // f = G*m1*m2/(r*r);
 #define GRAVITY 10.0

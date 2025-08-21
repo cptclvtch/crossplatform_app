@@ -3,7 +3,7 @@
 #include "../../geometric_algebra/api.c"
 #include "../../linked_list/api.c"
 #include "../api.c"
-#define API_IMPLEMENTATION_ONLY
+#define INCLUDE_IMPLEMENTATION
 #include "../../geometric_algebra/api.c"
 #include "../../linked_list/api.c"
 #include "../api.c"

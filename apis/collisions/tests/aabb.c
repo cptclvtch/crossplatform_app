@@ -1,10 +1,9 @@
 #include "../../unit_testing.c"
+#include <stdint.h>
 
-#include "../../geometric_algebra/api.c"
 #include "../aabb.c"
-#define API_IMPLEMENTATION_ONLY
+#define INCLUDE_IMPLEMENTATION
 #include "../aabb.c"
-#include "../../geometric_algebra/api.c"
 
 int main()
 {

@@ -1,7 +1,7 @@
-#ifndef API_IMPLEMENTATION_ONLY
-#ifndef GEOMETRIC_ALGEBRA
-#define GEOMETRIC_ALGEBRA
-#endif
+//Dependencies
+
+#ifndef _GEOMETRIC_ALGEBRA_H
+    #define _GEOMETRIC_ALGEBRA_H
 
 #ifdef _CUSTOM_MATH_
     #warning Using custom math library. Nothing inherently wrong with that.
@@ -89,7 +89,7 @@ vec3 vec_rotateZ(vec3 a, real theta);
 //Interpolations
 vec3 vec_simple_lerp(vec3 from, vec3 to, real t);
 vec3 vec_interpolation(vec3 from, vec3 to, real t);
-rotor3 rotor_interpolation(rotor3 from, rotor3 to, real t, uint8_t mode);
+rotor3 rotor_interpolation(rotor3 from, rotor3 to, real t, unsigned char mode);
 
 //Extras
 vec3 convert_to_coordinate_system(vec3 a, vec3 translation, rotor3 rotation);
@@ -107,10 +107,12 @@ char glsl_rotor_implementation[] =
 "    a.y = -v.x*r.z + v.y*r.w + v.z*r.x + trivec*r.y;\n"
 "    a.z =  v.x*r.y - v.y*r.x + v.z*r.w + trivec*r.z;\n"
 "}\n";
+#endif //_GEOMETRIC_ALGEBRA_H
 
 //----------------------------------
-#else
-//----------------------------------
+
+#if defined(INCLUDE_IMPLEMENTATION) && !defined(_GEOMETRIC_ALGEBRA_C)
+    #define _GEOMETRIC_ALGEBRA_C
 
 #define FORCE_INLINE __attribute((always_inline)) inline
 
@@ -419,7 +421,7 @@ enum{
     LINEAR_INTERPOLATION,
     SPHERICAL_INTERPOLATION
 };
-rotor3 rotor_interpolation(rotor3 from, rotor3 to, real t, uint8_t mode)
+rotor3 rotor_interpolation(rotor3 from, rotor3 to, real t, unsigned char mode)
 {
     real cos_theta = rotor_dot_product(from,to);
 

@@ -1,24 +1,9 @@
-#ifndef UINT8_MAX
 #include <stdint.h>
-#endif
-#ifndef M_PI
 #include <math.h>
-#endif
-#ifndef RAND_MAX
 #include <stdlib.h>
-#endif
-
-#ifndef LINKED_LIST
-#error Please include "linked_list/api.c" first
-#endif
-
-#ifndef GEOMETRIC_ALGEBRA
-#error Please include "geometric_algebra/api.c" first
-#endif
-
-#ifndef COLLISIONS
-#error Please include "collision/api.c" first
-#endif
+#include "../data_structures/linked_list/api.c"
+#include "../geometric_algebra/api.c"
+#include "../collisions/api.c"
 
 #define PHYSICS
 #include "common.c"

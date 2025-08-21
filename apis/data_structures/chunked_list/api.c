@@ -4,7 +4,7 @@
 
 //TODO implement this
 
-#ifndef API_IMPLEMENTATION_ONLY
+#ifndef INCLUDE_IMPLEMENTATION
 #define CHUNKED_LISTS
 
 typedef struct

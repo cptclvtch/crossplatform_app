@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "api.c"
-#define API_IMPLEMENTATION_ONLY
+#define INCLUDE_IMPLEMENTATION
 #include "api.c"
 
 typedef struct s_test

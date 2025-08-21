@@ -4,7 +4,7 @@
 #include "backend/includes.c"
 
 #include "apis/includes.c"
-#define API_IMPLEMENTATION_ONLY
+#define INCLUDE_IMPLEMENTATION
 #include "apis/includes.c"
 
 // #include "apis_glue/includes.c"

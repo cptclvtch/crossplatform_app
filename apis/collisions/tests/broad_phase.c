@@ -1,18 +1,9 @@
 #include "../../unit_testing.c"
+#include <stdint.h>
 
-#include "../../geometric_algebra/api.c"
-#include "../../data_structures/linked_list/api.c"
-#include "../../data_structures/binary_tree/api.c"
-#include "../aabb.c"
-#include "../contacts.c"
-#include "../bvh.c"
-#define API_IMPLEMENTATION_ONLY
-#include "../../geometric_algebra/api.c"
-#include "../../data_structures/linked_list/api.c"
-#include "../../data_structures/binary_tree/api.c"
-#include "../aabb.c"
-#include "../contacts.c"
-#include "../bvh.c"
+#include "../broad_phase.c"
+#define INCLUDE_IMPLEMENTATION
+#include "../broad_phase.c"
 
 void bvh_print(binary_tree* node, uint8_t tab_level);
 void bvh_print(binary_tree* node, uint8_t tab_level)
@@ -36,13 +27,14 @@ int main()
     #define TITLE "new node"
     POST_TITLE
 
+    bvh_data* data_result;
     binary_tree *result, *temp;
     binary_tree *a, *b, *c;
 
     #undef SUBTITLE
     #define SUBTITLE "Best Case Scenario"
-    result = bvh_new_data();
-    VERIFY_SINGLE_VALUE(result, !=, NULL);
+    data_result = bvh_new_data();
+    VERIFY_SINGLE_VALUE(data_result, !=, NULL);
     COLLECT_FINDINGS
 
     #undef TITLE
@@ -104,7 +96,7 @@ int main()
     VERIFY_SINGLE_VALUE(((bvh_data*)result->data)->box.half_size.z, ==, 1);
     COLLECT_FINDINGS
 
-    bvh_print(result, 0);
+    // bvh_print(result, 0);
 
     DEBRIEF
 }

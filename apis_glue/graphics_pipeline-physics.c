@@ -1,4 +1,4 @@
-#if defined(GRAPHICS_PIPELINE_INCLUDED) && defined(PHYSICS)
+#if defined(_GRAPHICS_PIPELINE_H) && defined(PHYSICS)
 
 //sync particles
 #endif

@@ -3,7 +3,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include "api.c"
-#define API_IMPLEMENTATION_ONLY
+#define INCLUDE_IMPLEMENTATION
 #include "api.c"
 
 double monitor_refresh_rate = 60;

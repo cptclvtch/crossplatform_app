@@ -1,0 +1,23 @@
+- narrow phase funcs (narrow_phase.c)
+    - uses volume representations (volumes.c)
+- bvh (bvh.c)
+    - aabb binary tree (aabb.c)
+    - volume representation (volumes.c)
+- contact lists (contacts.c)
+
+Process:
+SETUP:
+- build scene                       <- physics API, using collision API
+    - build bvh
+
+LOOP:
+- apply forces/torques              <- physics API
+- integrate                         <- physics API
+- broad phase                       <- collision API
+    - updating/reconstructing bvh
+    - contact generation
+- iterate over contact list         <- collision API
+    - do narrow phase
+- contact resolution                <- physics API
+
+//TODO decide what a scene is and how scene composition/syncing would work

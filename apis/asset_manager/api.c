@@ -1,10 +1,9 @@
-#ifndef API_IMPLEMENTATION_ONLY
-#ifndef UINT8_MAX
+//Dependencies
 #include <stdint.h>
-#endif
-#ifndef RAND_MAX
 #include <stdlib.h>
-#endif
+
+#ifndef _ASSET_MANAGER_H
+    #define _ASSET_MANAGER_H
 
 #define ASSET_AT(type,x,y) ((type*)palettes[x].data)[y]
 #define ASSET_NAME_AT(x,y) palettes[x].asset_names[y]
@@ -39,10 +38,12 @@ uint8_t load_all_palettes();
 
 void  unload_palette(uint8_t palette_index);
 void  unload_all_palettes();
+#endif //_ASSET_MANAGER_H
 
 //----------------------------------
-#else
-//----------------------------------
+
+#if defined(INCLUDE_IMPLEMENTATION) && !defined(_ASSET_MANAGER_C)
+    #define _ASSET_MANAGER_C
 
 asset_palette palettes[256];
 

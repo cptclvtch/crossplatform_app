@@ -1,6 +1,7 @@
-#include "../unit_testing.c"
+#include "../../unit_testing.c"
+
 #include "api.c"
-#define API_IMPLEMENTATION_ONLY
+#define INCLUDE_IMPLEMENTATION
 #include "api.c"
 
 int main()

@@ -1,171 +1,74 @@
-#ifndef GEOMETRIC_ALGEBRA
-#error Please include "geometric_algebra/api.c" first
-#endif
+//Dependencies
+#include <stdlib.h>
+#include "../geometric_algebra/api.c"
+#include "../data_structures/linked_list/api.c"
 
-#include "contacts.c"
-#include "aabb.c"
-#include "bvh.c"
+#include "volumes.c"
+#include "broad_phase.c"
+#include "narrow_phase.c"
 
-#ifndef API_IMPLEMENTATION_ONLY
-#define COLLISIONS
-//Volume representation
-typedef struct
-{
-    uint32_t vertex_count;
-    vec3* vertices; //triangle list
-    vec3 inverse_inertia;
-}collision_mesh;
+#ifndef _COLLISIONS_H
+    #define _COLLISIONS_H
+/*
+- static and dynamic split at root?
+- split static branch into permanent and dormant?
+*/
 
-enum
-{
-    SPHERE,
-    BOX,
-    CYLINDER,
-    CAPSULE,
-
-    NO_OF_PRIMITIVE_TYPES
-};
-
-typedef struct
-{
-    uint8_t type;
-    vec3 center_of_mass;
-    vec3 corner;
-    vec3 inverse_inertia;
-}collision_primitive;
-
-typedef struct
-{
-    linked_list meshes;
-    // collision_mesh* meshes;
-    // uint8_t no_of_meshes;
-    linked_list primitives;
-    // collision_primitive* primitives;
-    // uint8_t no_of_primitives;
-
-    vec3 center_of_mass;
-    vec3 min, max; //axis aligned bounding box
-}collision_volume;
-
-void collision_volume_add_mesh(collision_volume* v, vec3* vertices, uint32_t vertex_count);
-void collision_volume_add_primitive(collision_volume* v, uint8_t type, vec3 center_of_mass, vec3 corner);
-//void load_collision_volume(collision_volume* v, char* path);
+void contact_generation(collision_list list);
 
 // uint8_t point_2_mesh_collision(vec3 p, collision_mesh m, collision_data* data);
+#endif //_COLLISIONS_H
 
 //----------------------------------
-#else
-//----------------------------------
 
-void collision_volume_add_mesh(collision_volume* v, vec3* vertices, uint32_t vertex_count)
+#if defined(INCLUDE_IMPLEMENTATION) && !defined(_COLLISIONS_C)
+#define _COLLISIONS_C
+
+collision_list bvh_collisions;
+static inline uint8_t _self_collision_test(binary_tree* a, binary_tree* b)
 {
-    if(v == NULL || vertices == NULL || vertex_count == 0) return;
+    return aabb_check(((bvh_data*)a->data)->box, ((bvh_data*)b->data)->box);
+}
 
-    collision_mesh* new_mesh = add_link_after(v->meshes.nodes, (collision_mesh*)calloc(1, sizeof(collision_mesh)));
-
-    new_mesh->vertices = vertices;
-    new_mesh->vertex_count = vertex_count;
-
-    uint32_t vertex = 0;
-    for(; vertex < new_mesh->vertex_count; vertex++)
+void _self_collision_func(binary_tree* a, binary_tree* b)
+{
+    if( a->child[0] == NULL && a->child[1] == NULL
+        &&
+        b->child[0] == NULL && b->child[1] == NULL)
     {
-        v->min = vec_min(v->min, new_mesh->vertices[vertex]);
-        v->max = vec_max(v->max, new_mesh->vertices[vertex]);
+        //TODO switch this to pairs of volumes between group members
+        collision_pair* p = NULL;
+        if(bvh_collisions.count < COLLISION_CHUNK_SIZE)
+            p = &bvh_collisions.pairs[bvh_collisions.count-1];
+
+        if(p)
+        {
+            //generate contact
+            p->type = POTENTIAL_COLLISION;
+            p->members[0] = a;
+            p->members[1] = b;
+        }
+        
+        bvh_collisions.count++;
     }
 }
 
-// void collision_volume_add_mesh(collision_volume* v, char* path)
-// {
-//     if(v == NULL) return;
-
-//     collision_mesh* new_mesh = add_link_after(v->meshes.nodes, (collision_mesh*)calloc(1, sizeof(collision_mesh)));
-
-//     //read file
-//     SDL_RWops* file = SDL_RWFromFile(path, "rb");
-//     if(file == NULL)
-//     {
-//         PRINT_FN("File error: %s\n", SDL_GetError());
-//         return;
-//     }
-
-//     //load mesh into buffer
-//     SDL_RWread(file, &(new_mesh->vertex_count), 4, 1);
-    
-//     if(new_mesh->vertex_count == 0)
-//     {
-//         PRINT_FN("Failed. No vertices found.\n");
-//         return;
-//     }
-
-//     new_mesh->vertices = (vec3*)calloc(new_mesh->vertex_count, sizeof(vec3));
-
-//     mesh_vertex input_vertex = {0};
-//     uint32_t vertex = 0;
-//     for(; vertex < new_mesh->vertex_count; vertex++)
-//     {
-//         SDL_RWread(file, &input_vertex, sizeof(mesh_vertex), 1);
-
-//         new_mesh->vertices[vertex] = input_vertex.pos;
-
-//         v->min = vec_min(v->min, input_vertex.pos);
-//         v->max = vec_max(v->max, input_vertex.pos);
-//     }
-
-//     SDL_RWclose(file);
-// }
-
-void collision_volume_add_primitive(collision_volume* v, uint8_t type, vec3 center_of_mass, vec3 corner)
+void bvh_check_for_collision(binary_tree* a, binary_tree* b)
 {
-    if(v == NULL) return;
-
-    collision_primitive* new_primitive = add_link_after(v->primitives.nodes, (collision_primitive*)calloc(1, sizeof(collision_primitive)));
-
-    new_primitive->type = type;
-    new_primitive->center_of_mass = center_of_mass;
-    new_primitive->corner = corner;
-
-    switch(type)
-    {
-        //TODO implement primitive bounding box calculations
-        case SPHERE:
-            v->min = vec_min(v->min, vec_subtract(new_primitive->center_of_mass, new_primitive->corner));
-            v->max = vec_max(v->max, vec_add(new_primitive->center_of_mass, new_primitive->corner));
-        break;
-
-        case BOX:
-
-        break;
-
-        case CYLINDER:
-        
-        break;
-
-        case CAPSULE:
-        
-        break;
-    }
+    binary_tree_cross_traversal(a, b, _self_collision_test, _self_collision_func);
+    binary_tree_sibling_traversal(a, _self_collision_test, _self_collision_func);
+    binary_tree_sibling_traversal(b, _self_collision_test, _self_collision_func);
 }
 
-//void load_collision_volume(collision_volume* v, char* path)
-//{}
+void contact_generation(collision_list list)
+{
+    uint16_t i = 0;
 
-// uint8_t point_2_mesh_collision(vec3 p, collision_mesh m, collision_data* data)
-// {
-//     //TODO optimize this
-//     //TODO octree implementation?
 
-//     // iterate over triangles
-//     uint32_t t = 0;
-//     for(;t < m.vertex_count; t += 3)
-//     {
-//         // find closest triangle
-//         vec3 local = vec_subtract(p, m.vertices[t]);
 
-        
-//     }
-
-//     // find perpendicular component of the point on the triangle
-//     // if(vec_dot_product(component,normal) > 0) return 1;
-//     return 1;
-// }
+    for(; i < list.count; i++)
+    {
+        // switch(list[i].)
+    }
+}
 #endif

@@ -1,5 +1,16 @@
-#ifndef API_IMPLEMENTATION_ONLY
+//Dependencies
+#include "../geometric_algebra/api.c"
+#include "volumes.c"
+
+#ifndef INCLUDE_IMPLEMENTATION
 //Collision data
+typedef struct
+{
+    vec3 point;
+    vec3 normal;
+    real penetration;
+}contact;
+
 enum
 {
     NO_COLLISION,
@@ -7,36 +18,40 @@ enum
     CONFIRMED_COLLISION,
     POTENTIAL_COLLISION
 };
+#define MAX_CONTACT_POINTS 6
 typedef struct
 {
     uint8_t type;
-    void* data[2];
+    collision_volume* members[2];
 
-    vec3 normal;
-    real penetration;
-}collision_data;
+    //contacts
+    contact points[MAX_CONTACT_POINTS];
+    uint8_t contact_count;
+}collision_pair;
 
 //Collision list
 #define COLLISION_CHUNK_SIZE 100
 typedef struct
 {
-    collision_data pairs[COLLISION_CHUNK_SIZE];
-    uint32_t last_index;
+    collision_pair pairs[COLLISION_CHUNK_SIZE];
+    uint32_t count;
 }collision_list;
 
+collision_list* get_new_collision_list();
 void clear_collision_list(collision_list* list);
 
 //----------------------------------
 #else
 //----------------------------------
 
+collision_list* get_new_collision_list()
+{
+    return (collision_list*)calloc(1, sizeof(collision_list));
+}
 
 void clear_collision_list(collision_list* list)
 {
-    uint8_t i = 0;
-    for(; i < COLLISION_CHUNK_SIZE; i++)
-        list->pairs[i].type = NO_COLLISION;
-
-    list->last_index = 0;
+    for(; list->count > 0; list->count--)
+        list->pairs[list->count].type = NO_COLLISION;
 }
 #endif

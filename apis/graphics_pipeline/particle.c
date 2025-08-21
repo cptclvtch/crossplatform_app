@@ -1,4 +1,4 @@
-#ifndef API_IMPLEMENTATION_ONLY
+#ifndef INCLUDE_IMPLEMENTATION
 typedef uint16_t particle_index_t;
 
 typedef struct

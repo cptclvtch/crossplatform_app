@@ -1,18 +1,16 @@
-#ifndef API_IMPLEMENTATION_ONLY
-/*
-- possibly collect stats while traversing or inserting?
-- static and dynamic split at root?
-- split static branch into permanent and dormant?
-*/
-#ifndef BINARY_TREE
-#error "Please include data_structures/binary_tree/api.c first."
-#endif
+//Dependencies
+#include "../data_structures/binary_tree/api.c"
+#include "aabb.c"
+#include "contacts.c"
+
+#ifndef _BROAD_PHASE_H
+    #define _BROAD_PHASE_H
+//TODO consider making this an API
 
 typedef struct
 {
     aabb box;
-    //game object
-    //mesh
+    collision_volume* group;
 }bvh_data;
 
 bvh_data* bvh_new_data();
@@ -20,12 +18,14 @@ void bvh_upward_aabb_update(binary_tree* a);
 
 binary_tree* bvh_insert(binary_tree* root, binary_tree* to_insert);
 void bvh_traverse_for_self_collision(binary_tree* a, binary_tree* b);
+#endif //_BVH_H
 
 //----------------------------------
-#else
-//----------------------------------
 
-bvh_data* bvh_new_data()
+#if defined(INCLUDE_IMPLEMENTATION) && !defined(_BROAD_PHASE_C)
+    #define _BROAD_PHASE_C
+
+inline bvh_data* bvh_new_data()
 {
     return (bvh_data*)calloc(1, sizeof(bvh_data));
 }
@@ -83,40 +83,5 @@ binary_tree* bvh_insert(binary_tree* root, binary_tree* to_insert)
     return result;
 }
 
-collision_list bvh_collisions;
-inline uint8_t _self_collision_test(binary_tree* a, binary_tree* b)
-{
-    return aabb_check(((bvh_data*)a->data)->box, ((bvh_data*)b->data)->box);
-}
-
-void _self_collision_func(binary_tree* a, binary_tree* b)
-{
-    if( a->child[0] == NULL && a->child[1] == NULL
-        &&
-        b->child[0] == NULL && b->child[1] == NULL)
-    {
-        bvh_collisions.last_index++;
-        collision_data* cd = NULL;
-        if(bvh_collisions.last_index < COLLISION_CHUNK_SIZE)
-            cd = &bvh_collisions.pairs[bvh_collisions.last_index];
-
-        if(cd)
-        {
-            //generate contact
-            cd->type = POTENTIAL_COLLISION;
-            cd->data[0] = a;
-            cd->data[1] = b;
-        }
-    }
-}
-
-void bvh_traverse_for_self_collision(binary_tree* a, binary_tree* b)
-{
-    binary_tree_cross_traversal(a, b, _self_collision_test, _self_collision_func);
-    binary_tree_sibling_traversal(a, _self_collision_test, _self_collision_func);
-    binary_tree_sibling_traversal(b, _self_collision_test, _self_collision_func);
-}
-
 //TODO fix memory leaks when using bvhs
-
 #endif

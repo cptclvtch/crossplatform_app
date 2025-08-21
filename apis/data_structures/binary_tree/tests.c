@@ -1,10 +1,8 @@
 #include "../../unit_testing.c"
 #include <stdint.h>
 
-#include "../linked_list/api.c"
 #include "api.c"
-#define API_IMPLEMENTATION_ONLY
-#include "../linked_list/api.c"
+#define INCLUDE_IMPLEMENTATION
 #include "api.c"
 
 uint8_t always_right(binary_tree* a, binary_tree* b) {return 1;}

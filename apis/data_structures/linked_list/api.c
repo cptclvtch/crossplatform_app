@@ -1,9 +1,8 @@
-#ifndef API_IMPLEMENTATION_ONLY
-#define LINKED_LIST
-
-#ifndef RAND_MAX
+//Dependencies
 #include <stdlib.h>
-#endif
+
+#ifndef _LINKED_LIST_H
+    #define _LINKED_LIST_H
 
 typedef struct linked_list_node
 {
@@ -27,12 +26,17 @@ typedef struct linked_list
 linked_list create_new_list(void (*delete_func)(void*));
 void delete_list(linked_list* list);
 
-//----------------------------------
-#else
+void DONT_DELETE_CONTENTS(void* p){}
+
+#endif //_LINKED_LIST_H
+
 //----------------------------------
 
+#if defined(INCLUDE_IMPLEMENTATION) && !defined(_LINKED_LIST_C)
+    #define _LINKED_LIST_C
+    
 #define ITERATE_LIST_START(list, iterator) \
-linked_list_node* iterator = list.nodes;\
+linked_list_node* iterator = (linked_list_node*)list;\
 while(iterator)\
 {
 
@@ -76,9 +80,6 @@ linked_list_node* add_link_after(linked_list_node* add_to, void* data_in)
     return new_node;
 }
 #undef CREATE_LINK
-
-void _dont_delete_contents(void* p){}
-#define DONT_DELETE_CONTENTS &_dont_delete_contents
 
 void delete_link(linked_list_node* node, void (*delete_func)(void*))
 {

@@ -1,14 +1,12 @@
-#ifndef API_IMPLEMENTATION_ONLY
-#define BINARY_TREE
-
-#ifndef LINKED_LIST
-#error Please include "data_structures/linked_list/api.c" first
-#endif
-
-#ifndef RAND_MAX
+//Dependencies
+#include "../linked_list/api.c"
 #include <stdlib.h>
-#endif
 
+#ifndef _BINARY_TREE_H
+    #define _BINARY_TREE_H
+
+// TODO possibly collect stats while traversing or inserting?
+// TODO maybe store and use a delete function?
 typedef struct binary_tree
 {
     struct binary_tree* parent;
@@ -28,10 +26,12 @@ void binary_tree_cross_traversal(binary_tree* a, binary_tree* b, unsigned char (
 void binary_tree_sibling_traversal(binary_tree* a, unsigned char (*combination_test)(binary_tree* a, binary_tree* b), void (*combination_func)(binary_tree* a, binary_tree* b));
 
 void binary_tree_delete(binary_tree* root);
+#endif //_BINARY_TREE_H
 
 //----------------------------------
-#else
-//----------------------------------
+
+#if defined(INCLUDE_IMPLEMENTATION) && !defined(_BINARY_TREE_C)
+    #define _BINARY_TREE_C
 
 inline binary_tree* binary_tree_new(void* data)
 {
@@ -40,7 +40,7 @@ inline binary_tree* binary_tree_new(void* data)
     return new;
 }
 
-inline unsigned char default_insertion_test(binary_tree* root, binary_tree* to_insert)
+unsigned char default_insertion_test(binary_tree* root, binary_tree* to_insert)
 {
     //TODO turn this into a balanced tree algorithm
     return (root->child[0] != NULL) && (root->child[1] == NULL);
@@ -51,7 +51,7 @@ binary_tree* binary_tree_insert_node(binary_tree* root, binary_tree* to_insert, 
     if(to_insert == NULL) return root;
     if(root == NULL) return to_insert;
 
-    if(insertion_test == NULL) insertion_test = &default_insertion_test;
+    if(insertion_test == NULL) insertion_test = default_insertion_test;
 
     unsigned char side = insertion_test(root, to_insert) > 0; //forces boolean return
 
@@ -79,7 +79,7 @@ binary_tree* binary_tree_insert_leaf(binary_tree* root, binary_tree* to_insert, 
         return split;
     }
 
-    if(insertion_test == NULL) insertion_test = &default_insertion_test;
+    if(insertion_test == NULL) insertion_test = default_insertion_test;
 
     unsigned char side = insertion_test(root, to_insert) > 0; //forces boolean return
 

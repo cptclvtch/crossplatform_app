@@ -1,4 +1,4 @@
-#ifndef API_IMPLEMENTATION_ONLY
+#ifndef INCLUDE_IMPLEMENTATION
 typedef struct
 {
     // vec3* position_cache;

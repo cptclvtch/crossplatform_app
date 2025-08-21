@@ -1,18 +1,19 @@
-#ifndef API_IMPLEMENTATION_ONLY
-#ifndef MAX_VSYNC_MULTIPLES
-#error Please include frame_timing/api.c
-#endif
-#ifndef GRAPHICS_PIPELINE_INCLUDED
-#error Please include graphics_pipeline/api.c
-#endif
+//Dependencies
+#include "../frame_timing/api.c"
+#include "../graphics_pipeline/api.c"
+
+#ifndef _GAME_ENGINE_H
+    #define _GAME_ENGINE_H
 //Variables
 //Functions
 void game_setup();
 void update_game();
+#endif //_GAME_ENGINE_H
 
 //----------------------------------
-#else
-//----------------------------------
+
+#if defined(INCLUDE_IMPLEMENTATION) && !defined(_GAME_ENGINE_C)
+#define _GAME_ENGINE_C
 
 void gui_setup(SDL_Window* w, SDL_Renderer* r, struct nk_context** c)
 {

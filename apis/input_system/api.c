@@ -21,7 +21,8 @@ An input context holds:
         - can run over multiple frames (holds a "running" flag)
         - 
 */
-#ifndef API_IMPLEMENTATION_ONLY
+#ifndef _INPUT_SYSTEM_H
+    #define _INPUT_SYSTEM_H
 typedef struct
 {
     //inputs sources:
@@ -82,10 +83,12 @@ typedef struct
 input_context* current_input_context;
 
 void interpret_input();
+#endif //_INPUT_SYSTEM_H
 
 //----------------------------------
-#else
-//----------------------------------
+
+#if defined(INCLUDE_IMPLEMENTATION) && !defined(_INPUT_SYSTEM_C)
+    #define _INPUT_SYSTEM_C
 
 void interpret_input()
 {

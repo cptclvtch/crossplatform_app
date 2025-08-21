@@ -1,4 +1,4 @@
-#ifndef API_IMPLEMENTATION_ONLY
+#ifndef INCLUDE_IMPLEMENTATION
 #define CHECK_ERROR(test, message) \
 do \
 { \

@@ -1,4 +1,4 @@
-#ifndef API_IMPLEMENTATION_ONLY
+#ifndef INCLUDE_IMPLEMENTATION
 typedef uint8_t gizmo_index_t;
 typedef struct
 {

@@ -1,9 +1,9 @@
-#ifndef API_IMPLEMENTATION_ONLY
-#ifndef UINT8_MAX
+//Dependencies
 #include <stdint.h>
-#endif
 
-#define FRAME_TIMING
+#ifndef _FRAME_TIMING_H
+    #define _FRAME_TIMING_H
+
 uint8_t min_fps = 15, target_fps = 60, max_fps = 255;
 uint32_t frame_count = 0;
 
@@ -28,10 +28,12 @@ uint8_t update_multiplicity = 1;
 void measure_dt(milli_s newtime);
 void massage_dt();
 void frame_timing_setup(float display_refresh_rate);
+#endif //_FRAME_TIMING_H
 
 //----------------------------------
-#else
-//----------------------------------
+
+#if defined(INCLUDE_IMPLEMENTATION) && !defined(_FRAME_TIMING_C)
+    #define _FRAME_TIMING_C
 
 void frame_timing_setup(float display_refresh_rate)
 {

@@ -1,9 +1,8 @@
 #include "../../unit_testing.c"
+#include <stdint.h>
 
-#include "../../geometric_algebra/api.c"
 #include "../contacts.c"
-#define API_IMPLEMENTATION_ONLY
-#include "../../geometric_algebra/api.c"
+#define INCLUDE_IMPLEMENTATION
 #include "../contacts.c"
 
 int main()

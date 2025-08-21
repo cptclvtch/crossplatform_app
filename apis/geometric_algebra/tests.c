@@ -1,6 +1,6 @@
 #include "../unit_testing.c"
 #include "api.c"
-#define API_IMPLEMENTATION_ONLY
+#define INCLUDE_IMPLEMENTATION
 #include "api.c"
 
 int main()
@@ -280,24 +280,24 @@ int main()
     POST_TITLE
 
     #undef SUBTITLE
-    #define SUBTITLE "vec_lerp - x>y @ 0"
-    result = vec_lerp(x,y,fl2real(0.0));
+    #define SUBTITLE "vec_interpolation - x>y @ 0"
+    result = vec_interpolation(x,y,fl2real(0.0));
     VERIFY_SINGLE_VALUE(m_abs(result.x - x.x), < , M_EPSILON)
     VERIFY_SINGLE_VALUE(m_abs(result.y - x.y), < , M_EPSILON)
     VERIFY_SINGLE_VALUE(m_abs(result.z - x.z), < , M_EPSILON)
     COLLECT_FINDINGS
 
     #undef SUBTITLE
-    #define SUBTITLE "vec_lerp - x>y @ 1"
-    result = vec_lerp(x,y,fl2real(1.0));
+    #define SUBTITLE "vec_interpolation - x>y @ 1"
+    result = vec_interpolation(x,y,fl2real(1.0));
     VERIFY_SINGLE_VALUE(m_abs(result.x - y.x), < , M_EPSILON)
     VERIFY_SINGLE_VALUE(m_abs(result.y - y.y), < , M_EPSILON)
     VERIFY_SINGLE_VALUE(m_abs(result.z - y.z), < , M_EPSILON)
     COLLECT_FINDINGS
     
     #undef SUBTITLE
-    #define SUBTITLE "vec_lerp - x>y @ 0.5"
-    result = vec_lerp(x,y,fl2real(0.5));
+    #define SUBTITLE "vec_interpolation - x>y @ 0.5"
+    result = vec_interpolation(x,y,fl2real(0.5));
     vec3 mid_point = vec_normalize(vec_add(x,y));
     VERIFY_SINGLE_VALUE(m_abs(result.x - mid_point.x), < , M_EPSILON)
     VERIFY_SINGLE_VALUE(m_abs(result.y - mid_point.y), < , M_EPSILON)

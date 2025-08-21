@@ -1,7 +1,8 @@
-#ifndef API_IMPLEMENTATION_ONLY
-#ifndef GEOMETRIC_ALGEBRA
-#error Please include "geometric_algebra/api.c" first.
-#endif
+//Dependencies
+#include "../geometric_algebra/api.c"
+
+#ifndef _AABB_H
+    #define _AABB_H
 
 typedef struct
 {
@@ -15,10 +16,12 @@ enum{
 };
 uint8_t aabb_check(aabb a, aabb b);
 aabb aabb_for_pair(aabb a, aabb b, uint8_t size_only);
+#endif //_AABB_H
 
 //----------------------------------
-#else
-//----------------------------------
+
+#if defined(INCLUDE_IMPLEMENTATION) && !defined(_AABB_C)
+    #define _AABB_C
 
 uint8_t aabb_check(aabb a, aabb b)
 {

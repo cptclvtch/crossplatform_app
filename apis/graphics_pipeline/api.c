@@ -1,13 +1,12 @@
+//Dependencies
 #include "abstract_gl.c"
-#ifndef GEOMETRIC_ALGEBRA
-#error Please include "geometric_algebra/api.c" first
-#endif
+#include "../geometric_algebra/api.c"
 #include "mesh.c"
 #include "particle.c"
 #include "gizmo.c"
 
-#ifndef API_IMPLEMENTATION_ONLY
-#define GRAPHICS_PIPELINE_INCLUDED
+#ifndef _GRAPHICS_PIPELINE_H
+    #define _GRAPHICS_PIPELINE_H
 
 SDL_GLContext* context;
 uint32_t triangles_drawn;
@@ -19,10 +18,12 @@ void load_mesh_to_gpu(mesh* m);
 void unload_mesh_from_gpu(mesh m);
 
 void deallocate_mesh(mesh m);
+#endif //_GRAPHICS_PIPELINE_H
 
 //----------------------------------
-#else
-//----------------------------------
+
+#if defined(INCLUDE_IMPLEMENTATION) && !defined(_GRAPHICS_PIPELINE_C)
+    #define _GRAPHICS_PIPELINE_C
 
 uint32_t load_texture_from_path(char* path)
 {
