@@ -9,7 +9,6 @@ enum
     SPHERE,
     BOX,
     // CYLINDER,
-    // CAPSULE,
     MESH,
 
     NO_OF_VOLUME_TYPES,
@@ -29,16 +28,16 @@ typedef struct
         union
         {
             real radius;
-            // struct
-            // {
-                vec3 dimensions;
-            // }primitive;
+            vec3 dimensions;
+            vec3 half_size;
         };
 
         struct
         {
             uint32_t vertex_count;
             vec3* vertices; //triangle list
+            //make it 3 vertices and one face normal?
+            //face normal calculated during mesh loading?
         }mesh;
 
         linked_list_node* volumes;

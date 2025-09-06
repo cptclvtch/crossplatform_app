@@ -1,12 +1,12 @@
 //Dependencies
-#include "abstract_gl.c"
 #include "../geometric_algebra/api.c"
+#ifndef _GRAPHICS_PIPELINE_H
+    #define _GRAPHICS_PIPELINE_H
+
+    #include "abstract_gl.c"
 #include "mesh.c"
 #include "particle.c"
 #include "gizmo.c"
-
-#ifndef _GRAPHICS_PIPELINE_H
-    #define _GRAPHICS_PIPELINE_H
 
 SDL_GLContext* context;
 uint32_t triangles_drawn;
@@ -24,6 +24,11 @@ void deallocate_mesh(mesh m);
 
 #if defined(INCLUDE_IMPLEMENTATION) && !defined(_GRAPHICS_PIPELINE_C)
     #define _GRAPHICS_PIPELINE_C
+
+#include "abstract_gl.c"
+#include "mesh.c"
+#include "particle.c"
+#include "gizmo.c"
 
 uint32_t load_texture_from_path(char* path)
 {

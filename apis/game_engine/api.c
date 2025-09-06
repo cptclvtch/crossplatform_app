@@ -1,6 +1,5 @@
 //Dependencies
 #include "../frame_timing/api.c"
-#include "../graphics_pipeline/api.c"
 
 #ifndef _GAME_ENGINE_H
     #define _GAME_ENGINE_H

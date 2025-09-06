@@ -56,8 +56,14 @@ int main()
     VERIFY_SINGLE_VALUE(node_b->NEXT, == , NULL)
     COLLECT_FINDINGS
 
-    delete_link(node_a, NULL); node_a = NULL;
-    delete_link(node_b, NULL); node_b = NULL;
+    #undef SUBTITLE
+    #define SUBTITLE "delete_link_chain - Best Case Scenario - shouldnt crash"
+    delete_link_chain(node_a, NULL, 1);
+    VERIFY_SINGLE_VALUE(1,==,1);
+    COLLECT_FINDINGS
+
+    node_a = NULL;
+    node_b = NULL;
 
     ADD_SEPARATOR
 

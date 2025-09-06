@@ -2,19 +2,20 @@
 #include "../geometric_algebra/api.c"
 #include "volumes.c"
 
-#ifndef INCLUDE_IMPLEMENTATION
+#ifndef _CONTACT_H
+#define _CONTACT_H
 //Collision data
 typedef struct
 {
-    vec3 point;
-    vec3 normal;
-    real penetration;
+    vec3 point; // point of other volume with deepest penetration
+    vec3 normal; // the direction in which the objects will push each other away
+    real penetration; //longest overlap along the normal
 }contact;
 
 enum
 {
     NO_COLLISION,
-    RAYCAST_COLLISION,
+    // RAYCAST_COLLISION,
     CONFIRMED_COLLISION,
     POTENTIAL_COLLISION
 };
@@ -39,9 +40,10 @@ typedef struct
 
 collision_list* get_new_collision_list();
 void clear_collision_list(collision_list* list);
+#endif //_CONTACT_H
 
-//----------------------------------
-#else
+#if defined(INCLUDE_IMPLEMENTATION) && !defined(_CONTACT_C)
+#define _CONTACT_C
 //----------------------------------
 
 collision_list* get_new_collision_list()
@@ -54,4 +56,4 @@ void clear_collision_list(collision_list* list)
     for(; list->count > 0; list->count--)
         list->pairs[list->count].type = NO_COLLISION;
 }
-#endif
+#endif //_CONTACT_C

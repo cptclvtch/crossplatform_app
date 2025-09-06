@@ -15,6 +15,7 @@ typedef struct linked_list_node
 linked_list_node* add_link_before(linked_list_node* add_to, void* data_in);
 linked_list_node* add_link_after(linked_list_node* add_to, void* data_in);
 void delete_link(linked_list_node* to_delete, void (*delete_func)(void*));
+void delete_link_chain(linked_list_node* to_delete, void (*delete_func)(void*), unsigned char direction);
 
 typedef struct linked_list
 {
@@ -99,6 +100,17 @@ void delete_link(linked_list_node* node, void (*delete_func)(void*))
     free(node);
 }
 
+void delete_link_chain(linked_list_node* to_delete, void (*delete_func)(void*), unsigned char direction)
+{
+    linked_list_node* current_node = to_delete;
+    while(current_node)
+    {
+        linked_list_node* next_node = direction ? current_node->PREV : current_node->NEXT;
+        delete_link(current_node, delete_func);
+        current_node = next_node;
+    }
+}
+
 //
 linked_list create_new_list(void (*delete_func)())
 {
@@ -110,13 +122,7 @@ linked_list create_new_list(void (*delete_func)())
 
 void delete_list(linked_list* list)
 {
-    linked_list_node* current_node = list->nodes;
-    while(current_node)
-    {
-        linked_list_node* next_node = current_node->NEXT;
-        delete_link(current_node, list->delete_func);
-        current_node = next_node;
-    }
+    delete_link_chain(list->nodes, list->delete_func, 1);
 
     list->nodes = NULL;
 }

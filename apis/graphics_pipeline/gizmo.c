@@ -1,5 +1,5 @@
 #ifndef INCLUDE_IMPLEMENTATION
-typedef uint8_t gizmo_index_t;
+typedef uint16_t gizmo_index_t;
 typedef struct
 {
     vec3 pos;

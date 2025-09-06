@@ -10,12 +10,11 @@ typedef struct
     vec3 half_size; //(vec3){0} should be treated same as a non-existent aabb
 } aabb;
 
-enum{
-    AABB_FULL_CALCULATION,
-    AABB_SIZE_CALCULATION
-};
-uint8_t aabb_check(aabb a, aabb b);
-aabb aabb_for_pair(aabb a, aabb b, uint8_t size_only);
+uint8_t aabb_is_invalid(aabb a);
+uint8_t aabb_aabb_check(aabb a, aabb b);
+uint8_t aabb_vec3_check(aabb a, vec3 b);
+aabb aabb_union(aabb a, aabb b);
+aabb aabb_intersection(aabb a, aabb b);
 #endif //_AABB_H
 
 //----------------------------------
@@ -23,36 +22,77 @@ aabb aabb_for_pair(aabb a, aabb b, uint8_t size_only);
 #if defined(INCLUDE_IMPLEMENTATION) && !defined(_AABB_C)
     #define _AABB_C
 
-uint8_t aabb_check(aabb a, aabb b)
+static inline uint8_t aabb_is_invalid(aabb a)
 {
-    //just like spheres, but even easier
-    vec3 center_diff = vec_abs(vec_subtract(a.center, b.center));
-    vec3 total_size = vec_add(a.half_size, b.half_size);
-    return (center_diff.x <= total_size.x &&
-            center_diff.y <= total_size.y &&
-            center_diff.z <= total_size.z);
+    return  a.half_size.x < M_EPSILON &&
+            a.half_size.y < M_EPSILON &&
+            a.half_size.z < M_EPSILON;
 }
 
-aabb aabb_for_pair(aabb a, aabb b, uint8_t size_only)
+#define CHECK_CALCULATION \
+return (center_diff.x <= total_size.x &&\
+        center_diff.y <= total_size.y &&\
+        center_diff.z <= total_size.z);
+
+uint8_t aabb_aabb_check(aabb a, aabb b)
 {
-    if(a.half_size.x == fl2real(0.0) && a.half_size.y == fl2real(0.0) && a.half_size.z == fl2real(0.0))
-        return b;
+    if(aabb_is_invalid(a)) return 0;
+    if(aabb_is_invalid(b)) return 0;
 
-    if(b.half_size.x == fl2real(0.0) && b.half_size.y == fl2real(0.0) && b.half_size.z == fl2real(0.0))
-        return a;
+    vec3 total_size = vec_add(a.half_size, b.half_size);
+    vec3 center_diff = vec_abs(vec_subtract(a.center, b.center));
+    CHECK_CALCULATION
+}
 
-    vec3 max_corner = vec_max(  vec_add(a.center, a.half_size),
-                                vec_add(b.center, b.half_size));
+uint8_t aabb_vec3_check(aabb a, vec3 b)
+{
+    if(aabb_is_invalid(a)) return 0;
 
-    vec3 min_corner = vec_min(  vec_subtract(a.center, a.half_size),
-                                vec_subtract(b.center, b.half_size));
+    vec3 total_size = a.half_size;
+    vec3 center_diff = vec_abs(vec_subtract(a.center, b));
+    CHECK_CALCULATION
+}
+#undef CHECK_CALCULATION
 
-    aabb new = {0};
-    new.half_size = vec_scalar_divide(vec_subtract(max_corner, min_corner), 2);
-    if(size_only) return new;
+aabb aabb_union(aabb a, aabb b)
+{
+    if(aabb_is_invalid(a)) return b;
+    if(aabb_is_invalid(b)) return a;
 
-    new.center = vec_add(min_corner, new.half_size);
+    vec3 min = vec_min( vec_subtract(a.center, a.half_size),
+                        vec_subtract(b.center, b.half_size));
 
-    return new;
+    vec3 max = vec_max( vec_add(a.center, a.half_size),
+                        vec_add(b.center, b.half_size));
+    
+    min = vec_scalar_divide(min,2);
+    max = vec_scalar_divide(max,2);
+
+    return  (aabb)
+            {
+                vec_add(max, min),
+                vec_subtract(max, min)
+            };
+}
+
+aabb aabb_intersection(aabb a, aabb b)
+{
+    if(aabb_is_invalid(a)) return a;
+    if(aabb_is_invalid(b)) return b;
+
+    vec3 min =  vec_max(vec_subtract(a.center, a.half_size),
+                        vec_subtract(b.center, b.half_size));
+
+    vec3 max = vec_min( vec_add(a.center, a.half_size),
+                        vec_add(b.center, b.half_size));
+
+    min = vec_scalar_divide(min,2);
+    max = vec_scalar_divide(max,2);
+
+    return  (aabb)
+            {
+                vec_add(max,min),
+                vec_subtract(max,min)
+            };
 }
 #endif

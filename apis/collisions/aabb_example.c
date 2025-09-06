@@ -14,8 +14,8 @@ int main()
     b.center = (vec3){1,1,1};
     b.half_size = a.half_size;
 
-    printf("\nBoxes a and b are %s.\n", aabb_check(a,b)? "overlapping":"not overlapping");
+    printf("\nBoxes a and b are %s.\n", aabb_aabb_check(a,b)? "overlapping":"not overlapping");
 
-    aabb size_of_the_two_boxes = aabb_for_pair(a,b, AABB_SIZE_CALCULATION);
-    aabb size_and_location_of_boxes = aabb_for_pair(a,b, AABB_FULL_CALCULATION);
+    aabb combo = aabb_union(a,b);
+    aabb intersection = aabb_intersection(a,b);
 }

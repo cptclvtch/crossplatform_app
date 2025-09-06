@@ -3,12 +3,13 @@
 #include "../geometric_algebra/api.c"
 #include "../data_structures/linked_list/api.c"
 
+#ifndef _COLLISIONS_H
+    #define _COLLISIONS_H
+    
 #include "volumes.c"
 #include "broad_phase.c"
 #include "narrow_phase.c"
 
-#ifndef _COLLISIONS_H
-    #define _COLLISIONS_H
 /*
 - static and dynamic split at root?
 - split static branch into permanent and dormant?
@@ -24,10 +25,14 @@ void contact_generation(collision_list list);
 #if defined(INCLUDE_IMPLEMENTATION) && !defined(_COLLISIONS_C)
 #define _COLLISIONS_C
 
+#include "volumes.c"
+#include "broad_phase.c"
+#include "narrow_phase.c"
+
 collision_list bvh_collisions;
 static inline uint8_t _self_collision_test(binary_tree* a, binary_tree* b)
 {
-    return aabb_check(((bvh_data*)a->data)->box, ((bvh_data*)b->data)->box);
+    return aabb_aabb_check(((bvh_data*)a->data)->box, ((bvh_data*)b->data)->box);
 }
 
 void _self_collision_func(binary_tree* a, binary_tree* b)

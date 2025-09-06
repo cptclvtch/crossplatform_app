@@ -61,6 +61,13 @@ vec3 vec_unit_cube_fit(vec3 a);
 vec3 vec_reverse(vec3 a);
 vec3 vec_abs(vec3 a);
 
+//Comparisons
+vec3 vec_greater(vec3 a, vec3 b);
+vec3 vec_greater_equal(vec3 a, vec3 b);
+vec3 vec_equal(vec3 a, vec3 b);
+vec3 vec_lesser_equal(vec3 a, vec3 b);
+vec3 vec_lesser(vec3 a, vec3 b);
+
 //Products
 real vec_dot_product(vec3 a, vec3 b); //cosine-proportional magnitude between vectors
 vec3 vec_cross_product(vec3 a, vec3 b); //normal between vectors with sine-proportional magnitude
@@ -92,6 +99,7 @@ vec3 vec_interpolation(vec3 from, vec3 to, real t);
 rotor3 rotor_interpolation(rotor3 from, rotor3 to, real t, unsigned char mode);
 
 //Extras
+unsigned char vec_are_parallel(vec3 a, vec3 b, real tolerance); //tolerance measured in percent
 vec3 convert_to_coordinate_system(vec3 a, vec3 translation, rotor3 rotation);
 
 char glsl_rotor_implementation[] = 
@@ -460,6 +468,12 @@ rotor3 rotor_interpolation(rotor3 from, rotor3 to, real t, unsigned char mode)
 }
 
 //Extras
+unsigned char vec_are_parallel(vec3 a, vec3 b, real tolerance)
+{
+    return fl2real(1.0) - m_abs(vec_dot_product(vec_normalize(a), vec_normalize(b))) < tolerance;
+    // return vec_length_squared(vec_subtract(vec_normalize(a), vec_normalize(b))) < tolerance*tolerance;
+}
+
 vec3 convert_to_coordinate_system(vec3 a, vec3 translation, rotor3 rotation)
 {
     //TODO implement change of basis function

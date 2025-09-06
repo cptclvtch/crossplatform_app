@@ -42,8 +42,7 @@ void bvh_upward_aabb_update(binary_tree* a)
     if(a->child[1] && a->child[1]->data) volumes[count++] = ((bvh_data*)a->child[1]->data)->box;
 
     if(count)
-        ((bvh_data*)a->data)->box = aabb_for_pair(  volumes[0],
-                                                    volumes[1], AABB_FULL_CALCULATION);
+        ((bvh_data*)a->data)->box = aabb_union(volumes[0], volumes[1]);
 
     bvh_upward_aabb_update(a->parent);
 }
@@ -61,7 +60,7 @@ uint8_t _insertion_test(binary_tree* node, binary_tree* to_insert)
                                 m_mul(  child->box.half_size.y,
                                         child->box.half_size.z));
 
-            aabb new = aabb_for_pair(child->box, ((bvh_data*)to_insert->data)->box, AABB_SIZE_CALCULATION);
+            aabb new = aabb_union(child->box, ((bvh_data*)to_insert->data)->box);
             real new_volume =   m_mul(  new.half_size.x,
                                 m_mul(  new.half_size.y,
                                         new.half_size.z));
