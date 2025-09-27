@@ -1,7 +1,7 @@
-#include "../unit_testing.c"
-#include "api.c"
+#include "../../unit_testing.c"
+#include "../api.c"
 #define INCLUDE_IMPLEMENTATION
-#include "api.c"
+#include "../api.c"
 
 int main()
 {    
@@ -354,7 +354,7 @@ int main()
     
     #undef SUBTITLE
     #define SUBTITLE "vec_are_parallel() - Failing"
-    result = vec_are_parallel((vec3){1,0,0},(vec3){1,1,0},M_EPSILON);
+    result = vec_are_parallel((vec3){1,0,0},vec_normalize((vec3){1,1,0}),M_EPSILON);
     VERIFY_SINGLE_VALUE(result, == , 0);
     COLLECT_FINDINGS
 

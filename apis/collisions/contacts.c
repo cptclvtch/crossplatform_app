@@ -19,6 +19,21 @@ enum
     CONFIRMED_COLLISION,
     POTENTIAL_COLLISION
 };
+
+/*ordered by contact generation priority
+VERTEX_FACE,    EDGE_EDGE,
+EDGE_FACE,      FACE_FACE,
+VERTEX_EDGE,    VERTEX_VERTEX */
+
+enum
+{
+    VERTEX,
+    EDGE,
+    FACE,
+
+    NO_OF_CONTACT_TYPES
+};
+
 #define MAX_CONTACT_POINTS 6
 typedef struct
 {

@@ -1,4 +1,3 @@
-#define ERROR_LOG_FUNC(string) SDL_LogError(SDL_LOG_CATEGORY_ERROR, string)
 #include "data_structures/includes.c"
 #include "frame_timing/api.c"
 #include "standard_application_includes.c"

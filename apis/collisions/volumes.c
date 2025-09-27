@@ -16,6 +16,18 @@ enum
     GROUP
 };
 
+//mesh triangle format
+enum
+{
+    COLLISION_TRI_ORIGIN,
+    COLLISION_TRI_EDGE_1,
+    COLLISION_TRI_EDGE_2,
+    COLLISION_TRI_NORMAL,
+
+    COLLISION_TRI_FORMAT_SIZE
+};
+#define COLLISION_GET_TRI_DATA(volume_pointer, t, m) (volume_pointer->mesh.data[t*COLLISION_TRI_FORMAT_SIZE + m])
+
 typedef struct
 {
     vec3* position;
@@ -34,10 +46,9 @@ typedef struct
 
         struct
         {
-            uint32_t vertex_count;
-            vec3* vertices; //triangle list
-            //make it 3 vertices and one face normal?
             //face normal calculated during mesh loading?
+            uint32_t face_count;
+            vec3* data;
         }mesh;
 
         linked_list_node* volumes;

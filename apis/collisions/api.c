@@ -1,5 +1,6 @@
 //Dependencies
 #include <stdlib.h>
+#include <stdint.h>
 #include "../geometric_algebra/api.c"
 #include "../data_structures/linked_list/api.c"
 

@@ -9,6 +9,10 @@ do \
     } \
 } while(0)
 
+#ifndef FORCE_INLINE
+#define FORCE_INLINE __attribute((always_inline)) inline
+#endif
+
 //Variables
 uint8_t running = 1;
 
