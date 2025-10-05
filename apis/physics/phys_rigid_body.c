@@ -3,11 +3,13 @@ typedef struct
 {
     //Representation
         collision_volume representation;
-        real density; //kg/m^3
         real volume; //m^3
+        real density; //kg/m^3
         // real surface_area; //m^2
 
     //Dynamics
+        real k_restitution;
+
         //linear part
         phys_point* center_of_mass;
 
@@ -59,7 +61,7 @@ void angular_integration(phys_rigid_body* b, float dT/*seconds*/)
     //calculate derived data
     b->orientation = rotor_normalize(b->orientation);
     //calculate transform matrix
-    //convert local inertia tensor to inverse world tensor
+    //convert local inertia tensor to world inverse inverse tensor
 
     //clear d'alembert caches
     b->torque_accumulator = (vec3){0};

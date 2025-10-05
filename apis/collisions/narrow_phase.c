@@ -1,7 +1,11 @@
 //Dependencies
 #include "contacts.c"
 
-#ifdef INCLUDE_IMPLEMENTATION
+#ifndef INCLUDE_IMPLEMENTATION
+
+void collision_detect(collision_pair* p);
+
+#else
 
 #include "narrow_phase_helper.c"
 
@@ -260,42 +264,42 @@ void sphere_to_mesh(collision_pair* p)
     collision_volume* a = p->members[0];
     collision_volume* b = p->members[1];
 
-    linked_list_node* axes = NULL;//pick_test_axes(b,b);
+    vec3 center_diff = vec_subtract(*a->position, *b->position);
+    center_diff = vec_rotate_w_rotor(center_diff, rotor_reverse(*b->orientation));
+    vec3 direction = vec_normalize(center_diff);
 
-    real least_overlap = REAL_MIN;
-    ITERATE_LIST_START(axes, axis)
-        vec3 separating_axis = *(vec3*)axis;
-        real min = REAL_MAX;
-        real max = REAL_MIN;
-        uint32_t i = 0;
-        for(; i < b->mesh.face_count; i++)
+    //find closest triangle
+    real sameness = 0;
+    uint32_t closest_t = -1;
+    uint32_t t = 0;
+    for(; t < b->mesh.face_count; t++)
+    {
+        real likeness = vec_dot_product(COLLISION_GET_TRI_DATA(b, t, COLLISION_TRI_NORMAL), direction);
+
+        if(likeness > sameness)
         {
-            real projection = vec_dot_product(b->mesh.data[i*4], separating_axis);
-            if(projection > max) max = projection;
-            if(projection < min) min = projection;
+            sameness = likeness;
+            closest_t = t;
         }
+    }
 
-        real sphere_pos = vec_dot_product(*a->position, separating_axis);
-        vec3 overlap_on_axis = minmax_separating_axis_test(sphere_pos - a->radius, sphere_pos + a->radius, min, max);
-        if(overlap_on_axis.x < least_overlap)
-        {
-            least_overlap = overlap_on_axis.x;
-        }
+    real to_closest_point = vec_dot_product(vec_subtract(center_diff, COLLISION_GET_TRI_DATA(b,closest_t, COLLISION_TRI_ORIGIN)), direction);
 
-        if(least_overlap < fl2real(0))
-        {
-            p->type = NO_COLLISION;
-            return;
-        }
-    ITERATE_LIST_END(NEXT, axis)
+    //early out
+    if(to_closest_point > a->radius)
+    {
+        p->type = NO_COLLISION;
+        return;
+    }
 
-    //at most one collision point
-    //find closest point on mesh and derive the data from it
+    vec3 contact_point = vec_subtract(center_diff, vec_scalar_multiply(vec_reverse(direction), to_closest_point));
+
+    contact_point = vec_add(vec_rotate_w_rotor(contact_point, *b->orientation), *b->position);
 
     update_potential_contact(   p,
-                                (vec3){0},
-                                (vec3){0},
-                                least_overlap);
+                                contact_point,
+                                vec_normalize(vec_subtract(contact_point, *a->position)),
+                                a->radius - to_closest_point);
 
     VALIDATE_POTENTIAL_CONTACT(p)
 }
@@ -317,7 +321,6 @@ void box_to_mesh(collision_pair* p)
     p->type = CONFIRMED_COLLISION;
     p->contact_count++;
 }
-
 
 //TODO add support for aabb helper optimization
 //TODO research how bvhs and aabbs can help with multicontact mesh-mesh implementation (p327 in book)
@@ -424,15 +427,14 @@ void (*narrow_funcs[])(collision_pair*) =
 
 #define CALL_NARROW_FUNC(p) \
 {uint8_t index = p->members[0]->type*NO_OF_VOLUME_TYPES + p->members[1]->type;\
-if(narrow_funcs[index]) narrow_funcs[index](p);}
+/*if(narrow_funcs[index])*/ narrow_funcs[index](p);}
 
-//TODO test this
 void collision_detect(collision_pair* p)
 {
     collision_volume* a = p->members[0];
     collision_volume* b = p->members[1];
 
-    p->contact_count = 0;
+    reset_contact_data(p);
 
     if(a->type != GROUP && b->type != GROUP)
         CALL_NARROW_FUNC(p)

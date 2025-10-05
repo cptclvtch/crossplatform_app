@@ -1,7 +1,3 @@
-/*Mesh considerations:
-- cache face normals
-- store edges (origin and direction)*/
-
 vec3 minmax_separating_axis_test(real min_a, real max_a, real min_b, real max_b)
 {
     real min = (min_a > min_b)? min_a : min_b;
@@ -72,59 +68,72 @@ rotor3 edge_edge_overlap(vec3 center_diff, vec3 a_origin, vec3 a_edge, vec3 b_or
                     .T  = midpoint};
 }
 
-vec3 get_dimensions_on_axis(collision_volume* v, vec3 a)
-{
-    //sanitize?
-    //a = vec_normalize(a);
+// vec3 get_dimensions_on_axis(collision_volume* v, vec3 a)
+// {
+//     //sanitize?
+//     //a = vec_normalize(a);
 
-    real center = vec_dot_product(*v->position, a);
+//     real center = vec_dot_product(*v->position, a);
 
-    real min = REAL_MAX;
-    real max = REAL_MIN;
-    switch(v->type)
-    {
+//     real min = REAL_MAX;
+//     real max = REAL_MIN;
+//     switch(v->type)
+//     {
 
-        case SPHERE:
-        {
-            min = center - v->radius;
-            max = center + v->radius;
-            break;
-        }
+//         case SPHERE:
+//         {
+//             min = center - v->radius;
+//             max = center + v->radius;
+//             break;
+//         }
 
-        case BOX:
-        {
-            real extent = vec_dot_product(v->half_size, vec_rotate_w_rotor(a, rotor_reverse(*v->orientation)));
-            min = center - extent;
-            max = center + extent;
-            break;
-        }
+//         case BOX:
+//         {
+//             real extent = vec_dot_product(v->half_size, vec_rotate_w_rotor(a, rotor_reverse(*v->orientation)));
+//             min = center - extent;
+//             max = center + extent;
+//             break;
+//         }
 
-        case MESH:
-        {
-            uint32_t i = 0;
-            for(; i < v->mesh.face_count; i++)
-            {
-                real projection = vec_dot_product(v->mesh.data[i], a);
-                if(projection < min) min = projection;
-                if(projection > max) max = projection;
-            }
-            min += center;
-            max += center;
-            break;
-        }
-    }
+//         case MESH:
+//         {
+//             uint32_t i = 0;
+//             for(; i < v->mesh.face_count; i++)
+//             {
+//                 real projection = vec_dot_product(v->mesh.data[i], a);
+//                 if(projection < min) min = projection;
+//                 if(projection > max) max = projection;
+//             }
+//             min += center;
+//             max += center;
+//             break;
+//         }
+//     }
 
-    return (vec3){max-min, min, max};
-}
+//     return (vec3){max-min, min, max};
+// }
 
-real separating_axis_test_iteration(collision_volume* a, collision_volume* b, vec3 axis)
-{
-    vec3 min_max_a = get_dimensions_on_axis(a, axis);
-    vec3 min_max_b = get_dimensions_on_axis(b, axis);
+// real separating_axis_test_iteration(collision_volume* a, collision_volume* b, vec3 axis)
+// {
+//     vec3 min_max_a = get_dimensions_on_axis(a, axis);
+//     vec3 min_max_b = get_dimensions_on_axis(b, axis);
 
-    vec3 overlap = minmax_separating_axis_test(min_max_a.y, min_max_a.z, min_max_b.y, min_max_b.z);
+//     vec3 overlap = minmax_separating_axis_test(min_max_a.y, min_max_a.z, min_max_b.y, min_max_b.z);
     
-    return overlap.x;
+//     return overlap.x;
+// }
+
+void reset_contact_data(collision_pair* p)
+{
+    if(p == NULL) return;
+
+    p->contact_count = MAX_CONTACT_POINTS;
+    do
+    {
+        p->contact_count--;
+        p->points[p->contact_count].penetration = REAL_MAX;
+    }
+    while(p->contact_count > 0);
 }
 
 void update_potential_contact(collision_pair* p, vec3 contact_point, vec3 contact_normal, real overlap)
@@ -138,4 +147,6 @@ void update_potential_contact(collision_pair* p, vec3 contact_point, vec3 contac
     potential_contact->penetration = overlap;
 }
 
-#define VALIDATE_POTENTIAL_CONTACT(p) if((p->points[p->contact_count]).penetration >= 0) p->contact_count++;
+#define VALIDATE_POTENTIAL_CONTACT(p) \
+if((p->points[p->contact_count]).penetration >= 0)\
+{p->contact_count++; p->type = CONFIRMED_COLLISION;}
