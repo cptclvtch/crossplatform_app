@@ -14,4 +14,6 @@ int main()
         printf("\n%p\n", i);
         if(i->data == NULL) /*Oh no! We forgot to add data to this one!*/;
     ITERATE_LIST_END(NEXT, i)
+
+    free_list(&list);
 }

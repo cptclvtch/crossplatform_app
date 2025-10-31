@@ -1,31 +1,41 @@
 //Dependencies
 #include <stdlib.h>
 
+#include "../template_header.c"
+#define linked_list_node CONCATENATE(PREFIX, linked_list_node)
+#define linked_list     CONCATENATE(PREFIX, linked_list)
+#define add_link_before CONCATENATE(add, CONCATENATE(PREFIX, link_before))
+#define add_link_after  CONCATENATE(add, CONCATENATE(PREFIX, link_after))
+#define free_link       CONCATENATE(free, CONCATENATE(PREFIX, link))
+#define free_link_chain CONCATENATE(free, CONCATENATE(PREFIX, link_chain))
+#define create_new_list CONCATENATE(create_new, CONCATENATE(PREFIX, list))
+#define free_list       CONCATENATE(free, CONCATENATE(PREFIX, list))
+
 #ifndef _LINKED_LIST_H
     #define _LINKED_LIST_H
 
 typedef struct linked_list_node
 {
-    void* data;
+    TYPE* data;
 
     struct linked_list_node* PREV;
     struct linked_list_node* NEXT;
 }linked_list_node;
 
-linked_list_node* add_link_before(linked_list_node* add_to, void* data_in);
-linked_list_node* add_link_after(linked_list_node* add_to, void* data_in);
-void delete_link(linked_list_node* to_delete, void (*delete_func)(void*));
-void delete_link_chain(linked_list_node* to_delete, void (*delete_func)(void*), unsigned char direction);
+linked_list_node* add_link_before(linked_list_node* add_to, TYPE data_in);
+linked_list_node* add_link_after(linked_list_node* add_to, TYPE data_in);
+void free_link(linked_list_node* to_free, void (*free_func)(void*));
+void free_link_chain(linked_list_node* to_free, void (*free_func)(void*), unsigned char direction);
 
 typedef struct linked_list
 {
-    linked_list_node* nodes;
+    linked_list_node* nodes; //FIXME is it supposed to be pointer?
 
-    void (*delete_func)();
+    void (*free_func)();
 }linked_list;
 
-linked_list create_new_list(void (*delete_func)(void*));
-void delete_list(linked_list* list);
+linked_list create_new_list(void (*free_func)(void*));
+void free_list(linked_list* list);
 
 void DONT_DELETE_CONTENTS(void* p){}
 
@@ -51,7 +61,7 @@ new_node->data = data_in;
 
 #define get_new_link(data_in) add_link_before(NULL, data_in)
 
-linked_list_node* add_link_before(linked_list_node* add_to, void* data_in)
+linked_list_node* add_link_before(linked_list_node* add_to, TYPE data_in)
 {
     CREATE_LINK
 
@@ -66,7 +76,7 @@ linked_list_node* add_link_before(linked_list_node* add_to, void* data_in)
     return new_node;
 }
 
-linked_list_node* add_link_after(linked_list_node* add_to, void* data_in)
+linked_list_node* add_link_after(linked_list_node* add_to, TYPE data_in)
 {
     CREATE_LINK
 
@@ -82,12 +92,12 @@ linked_list_node* add_link_after(linked_list_node* add_to, void* data_in)
 }
 #undef CREATE_LINK
 
-void delete_link(linked_list_node* node, void (*delete_func)(void*))
+void free_link(linked_list_node* node, void (*free_func)(void*))
 {
     if(node == NULL) return;
     
-    if(delete_func)
-        delete_func(node->data);
+    if(free_func)
+        free_func(node->data);
     else
         free(node->data);
     
@@ -100,30 +110,32 @@ void delete_link(linked_list_node* node, void (*delete_func)(void*))
     free(node);
 }
 
-void delete_link_chain(linked_list_node* to_delete, void (*delete_func)(void*), unsigned char direction)
+void free_link_chain(linked_list_node* to_free, void (*free_func)(void*), unsigned char direction)
 {
-    linked_list_node* current_node = to_delete;
+    linked_list_node* current_node = to_free;
     while(current_node)
     {
-        linked_list_node* next_node = direction ? current_node->PREV : current_node->NEXT;
-        delete_link(current_node, delete_func);
+        linked_list_node* next_node = direction ? current_node->NEXT : current_node->PREV;
+        free_link(current_node, free_func);
         current_node = next_node;
     }
 }
 
 //
-linked_list create_new_list(void (*delete_func)())
+linked_list create_new_list(void (*free_func)())
 {
     linked_list new_list = {0};
-    new_list.delete_func = delete_func;
+    new_list.free_func = free_func;
 
     return new_list;
 }
 
-void delete_list(linked_list* list)
+void free_list(linked_list* list)
 {
-    delete_link_chain(list->nodes, list->delete_func, 1);
+    free_link_chain(list->nodes, list->free_func, 1);
 
     list->nodes = NULL;
 }
 #endif
+
+#include "../template_footer.c"

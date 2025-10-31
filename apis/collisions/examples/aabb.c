@@ -1,8 +1,7 @@
 #include <stdio.h>
 
-#include "aabb.c"
 #define INCLUDE_IMPLEMENTATION
-#include "aabb.c"
+#include "../aabb.c"
 
 int main()
 {

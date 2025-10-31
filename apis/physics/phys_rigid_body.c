@@ -8,7 +8,7 @@ typedef struct
         // real surface_area; //m^2
 
     //Dynamics
-        real k_restitution;
+        real restitution;
 
         //linear part
         phys_point* center_of_mass;

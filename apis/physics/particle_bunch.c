@@ -47,7 +47,7 @@ cpu_particles* get_new_particle_bunch(vec3 offset, uint16_t max_index)
 //presets
 void apply_particle_explosion_preset(cpu_particles* bunch, float force)
 {
-    uint16_t index;   
+    uint16_t index;
     for(index = 0; index <= bunch->max_particle_index; index++)
     {
         float acc = force * bunch->array[index].inverse_mass;

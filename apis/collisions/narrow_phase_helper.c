@@ -65,7 +65,7 @@ rotor3 edge_edge_overlap(vec3 center_diff, vec3 a_origin, vec3 a_edge, vec3 b_or
     real overlap = vec_dot_product(a_origin, axis) - vec_dot_product(b_origin, axis);
 
     return (rotor3){.II = overlap,
-                    .T  = midpoint};
+                    .T  = midpoint}; //not actually a rotor, just a real[4]
 }
 
 // vec3 get_dimensions_on_axis(collision_volume* v, vec3 a)
@@ -136,7 +136,7 @@ void reset_contact_data(collision_pair* p)
     while(p->contact_count > 0);
 }
 
-void update_potential_contact(collision_pair* p, vec3 contact_point, vec3 contact_normal, real overlap)
+FORCE_INLINE void update_potential_contact(collision_pair* p, vec3 contact_point, vec3 contact_normal, real overlap)
 {
     contact* potential_contact = &p->points[p->contact_count];
 

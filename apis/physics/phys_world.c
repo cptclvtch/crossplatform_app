@@ -1,21 +1,22 @@
 #ifndef INCLUDE_IMPLEMENTATION
 typedef struct
 {
-    //list of points
+    //points and particles
     linked_list points;
-
-    //list of particle bunches
     linked_list particle_bunches;
-
-    //force generators
-    // linked_list force_generators;
-    linked_list virtual_springs;
 
     //rigid bodies
     linked_list rigid_bodies;
 
-    binary_tree* broad_phase_root;
+    //force generators
+    // linked_list force_generators;
 
+    //constraints
+    linked_list virtual_springs;
+
+    //collision internals
+    binary_tree* broad_phase_root;
+    collision_list* collisions;
 }phys_world;
 
 phys_point* add_point(phys_world* world, vec3 offset);
@@ -98,8 +99,19 @@ void integrate_physics(phys_world* world, float dT)
     ITERATE_LIST_END(NEXT, pb)
 }
 
+void custom_broad_phase(binary_tree* root, collision_list* list)
+{
+    /*
+    - static and dynamic split at root?
+    - split static branch into permanent and dormant?
+    */
+    
+}
+
 void physics_update(phys_world* world, float dT)
 {
+    gather_contacts(world->broad_phase_root, world->collisions, NULL /*custom_broad_phase*/);
+    resolve_contacts(world->collisions, dT);
     update_forces(world);
     integrate_physics(world, dT);
 }

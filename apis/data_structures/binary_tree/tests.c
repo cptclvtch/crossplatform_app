@@ -5,8 +5,8 @@
 #define INCLUDE_IMPLEMENTATION
 #include "api.c"
 
-uint8_t always_right(binary_tree* a, binary_tree* b) {return 1;}
-uint8_t faulty_insertion_test(binary_tree* a, binary_tree* b) {return 2;}
+uint8_t always_right(binary_tree* a, binary_tree* b, void* user_data) {return 1;}
+uint8_t faulty_insertion_test(binary_tree* a, binary_tree* b, void* user_data) {return 2;}
 
 #define NO_OF_NODES 30
 uint8_t result_list[NO_OF_NODES];
@@ -18,21 +18,21 @@ void clear_result_list()
         result_list[index] = -1;
 }
 
-void node_func(binary_tree* node)
+void node_func(binary_tree* node, void* user_data)
 {
     result_list[index++] = (uint8_t)node->data;
 }
-void leaf_func(binary_tree* node)
+void leaf_func(binary_tree* node, void* user_data)
 {
-    node_func(node);
+    node_func(node, user_data);
 }
 
-uint8_t combo_test(binary_tree* a, binary_tree* b)
+uint8_t combo_test(binary_tree* a, binary_tree* b, void* user_data)
 {
     return 1;
 }
 
-void combo_func(binary_tree* a, binary_tree* b)
+void combo_func(binary_tree* a, binary_tree* b, void* user_data)
 {
     result_list[index++] = (uint8_t)a->data + (uint8_t)b->data;
 }
@@ -72,20 +72,20 @@ int main()
 
     #undef SUBTITLE
     #define SUBTITLE "node(NULL, NULL, NULL) - should return NULL"
-    VERIFY_SINGLE_VALUE(binary_tree_insert_node(NULL, NULL, NULL), ==, NULL);
+    VERIFY_SINGLE_VALUE(binary_tree_insert_node(NULL, NULL, NULL, NULL), ==, NULL);
     COLLECT_FINDINGS
 
     #undef SUBTITLE
     #define SUBTITLE "node(NOT NULL, NULL, NULL) - should return root"
     new = binary_tree_new(NULL);
-    VERIFY_SINGLE_VALUE(binary_tree_insert_node(new, NULL, NULL), ==, new);
+    VERIFY_SINGLE_VALUE(binary_tree_insert_node(new, NULL, NULL, NULL), ==, new);
     COLLECT_FINDINGS
     free(new);
 
     #undef SUBTITLE
     #define SUBTITLE "node(NULL, NOT NULL, NULL)"
     binary_tree* leaf = binary_tree_new((void*)1);
-    new = binary_tree_insert_node(NULL, leaf, NULL);
+    new = binary_tree_insert_node(NULL, leaf, NULL, NULL);
     VERIFY_SINGLE_VALUE(new, ==, leaf);
     VERIFY_SINGLE_VALUE(new->data, ==, leaf->data);
     VERIFY_SINGLE_VALUE(new->parent, ==, NULL);
@@ -96,9 +96,9 @@ int main()
     a = binary_tree_new((void*)2);
     b = binary_tree_new((void*)3);
     c = binary_tree_new((void*)4);
-    binary_tree_insert_node(new, a, NULL);
-    binary_tree_insert_node(new, b, NULL);
-    binary_tree_insert_node(new, c, NULL);
+    binary_tree_insert_node(new, a, NULL, NULL);
+    binary_tree_insert_node(new, b, NULL, NULL);
+    binary_tree_insert_node(new, c, NULL, NULL);
     VERIFY_SINGLE_VALUE(a->parent, ==, new);
     VERIFY_SINGLE_VALUE(b->parent, ==, new);
     VERIFY_SINGLE_VALUE(c->parent, ==, a);
@@ -110,7 +110,7 @@ int main()
     #undef SUBTITLE
     #define SUBTITLE "node - custom insertion test"
     d = binary_tree_new((void*)5);
-    binary_tree_insert_node(new, d, &always_right);
+    binary_tree_insert_node(new, d, &always_right, NULL);
     VERIFY_SINGLE_VALUE(d->parent, ==, b);
     VERIFY_SINGLE_VALUE(b->child[1], ==, d);
     COLLECT_FINDINGS
@@ -118,7 +118,7 @@ int main()
     #undef SUBTITLE
     #define SUBTITLE "node - insertion test returning 2 or greater - should clamp to 1"
     c = binary_tree_new((void*)6);
-    binary_tree_insert_node(new, c, &faulty_insertion_test);
+    binary_tree_insert_node(new, c, &faulty_insertion_test, NULL);
     VERIFY_SINGLE_VALUE(c->parent, ==, d);
     VERIFY_SINGLE_VALUE(d->child[1], ==, c);
     COLLECT_FINDINGS
@@ -131,14 +131,14 @@ int main()
     #undef SUBTITLE
     #define SUBTITLE "depth, NULL funcs - shouldnt crash"
     index = 0;
-    binary_tree_depth_traversal(new, NULL, NULL);
+    binary_tree_depth_traversal(new, NULL, NULL, NULL);
     VERIFY_SINGLE_VALUE(1, ==, 1);
     COLLECT_FINDINGS
 
     #undef SUBTITLE
     #define SUBTITLE "depth"
     index = 0;
-    binary_tree_depth_traversal(new, &node_func, &node_func);
+    binary_tree_depth_traversal(new, &node_func, &node_func, NULL);
     VERIFY_ARRAY_OF_VALUES(result_list[test_iterator], ==, depth_list[test_iterator], sizeof(depth_list)/sizeof(uint8_t)-1);
     COLLECT_FINDINGS
 
@@ -146,7 +146,7 @@ int main()
     #undef SUBTITLE
     #define SUBTITLE "width, NULL funcs - shouldnt crash"
     index = 0;
-    binary_tree_width_traversal(new, NULL, NULL);
+    binary_tree_width_traversal(new, NULL, NULL, NULL);
     VERIFY_SINGLE_VALUE(1, ==, 1);
     COLLECT_FINDINGS
 
@@ -154,17 +154,17 @@ int main()
     #define SUBTITLE "width"
     clear_result_list();
     index = 0;
-    binary_tree_width_traversal(new, &node_func, &node_func);
+    binary_tree_width_traversal(new, &node_func, &node_func, NULL);
     VERIFY_ARRAY_OF_VALUES(result_list[test_iterator], ==, width_list[test_iterator], sizeof(width_list)/sizeof(uint8_t)-1);
     COLLECT_FINDINGS
 
     a = binary_tree_new((void*)7);
-    binary_tree_insert_node(new->child[0], a, NULL);
+    binary_tree_insert_node(new->child[0], a, NULL, NULL);
     uint8_t cross_list[] = {5,7,9,10,10,12,13};
     #undef SUBTITLE
     #define SUBTITLE "cross, NULL funcs - shouldnt crash"
     index = 0;
-    binary_tree_cross_traversal(new->child[0], new->child[1], NULL, NULL);
+    binary_tree_cross_traversal(new->child[0], new->child[1], NULL, NULL, NULL);
     VERIFY_SINGLE_VALUE(1, ==, 1);
     COLLECT_FINDINGS
 
@@ -172,7 +172,7 @@ int main()
     #define SUBTITLE "cross"
     clear_result_list();
     index = 0;
-    binary_tree_cross_traversal(new->child[0], new->child[1], &combo_test, &combo_func);
+    binary_tree_cross_traversal(new->child[0], new->child[1], &combo_test, &combo_func, NULL);
     VERIFY_ARRAY_OF_VALUES(result_list[test_iterator], ==, cross_list[test_iterator], sizeof(cross_list)/sizeof(uint8_t)-1)
     COLLECT_FINDINGS
 
@@ -180,7 +180,7 @@ int main()
     #undef SUBTITLE
     #define SUBTITLE "sibling, NULL funcs - shouldnt crash"
     index = 0;
-    binary_tree_sibling_traversal(new, NULL, NULL);
+    binary_tree_sibling_traversal(new, NULL, NULL, NULL);
     VERIFY_SINGLE_VALUE(1, ==, 1);
     COLLECT_FINDINGS
 
@@ -188,7 +188,7 @@ int main()
     #define SUBTITLE "sibling"
     clear_result_list();
     index = 0;
-    binary_tree_sibling_traversal(new, &combo_test, &combo_func);
+    binary_tree_sibling_traversal(new, &combo_test, &combo_func, NULL);
     VERIFY_ARRAY_OF_VALUES(result_list[test_iterator], ==, sibling_list[test_iterator], sizeof(sibling_list)/sizeof(uint8_t)-1)
     COLLECT_FINDINGS
 
@@ -217,20 +217,20 @@ int main()
 
     #undef SUBTITLE
     #define SUBTITLE "leaf(NULL, NULL, NULL) - should return NULL"
-    VERIFY_SINGLE_VALUE(binary_tree_insert_leaf(NULL, NULL, NULL), ==, NULL);
+    VERIFY_SINGLE_VALUE(binary_tree_insert_leaf(NULL, NULL, NULL, NULL), ==, NULL);
     COLLECT_FINDINGS
 
     #undef SUBTITLE
     #define SUBTITLE "leaf(NOT_NULL, NULL, NULL) - should return root"
     new = binary_tree_new(NULL);
-    VERIFY_SINGLE_VALUE(binary_tree_insert_leaf(new, NULL, NULL), ==, new);
+    VERIFY_SINGLE_VALUE(binary_tree_insert_leaf(new, NULL, NULL, NULL), ==, new);
     COLLECT_FINDINGS
     new = NULL;
 
     #undef SUBTITLE
     #define SUBTITLE "leaf(NULL, NOT NULL, NULL)"
     a = binary_tree_new((void*)1);
-    new = binary_tree_insert_leaf(new, a, NULL);
+    new = binary_tree_insert_leaf(new, a, NULL, NULL);
     VERIFY_SINGLE_VALUE(new, ==, a);
     VERIFY_SINGLE_VALUE(new->data, ==, a->data);
     COLLECT_FINDINGS
@@ -238,15 +238,15 @@ int main()
     #undef SUBTITLE
     #define SUBTITLE "leaf - fill children"
     b = binary_tree_new((void*)2);
-    new = binary_tree_insert_leaf(new, b, NULL);
+    new = binary_tree_insert_leaf(new, b, NULL, NULL);
     c = binary_tree_new((void*)3);
-    new = binary_tree_insert_leaf(new, c, NULL);
+    new = binary_tree_insert_leaf(new, c, NULL, NULL);
 
     clear_result_list();
     index = 0;
     uint8_t leaf_list[] = {2,3,5,2,4};
-    binary_tree_cross_traversal(new->child[0], new->child[1], &combo_test, &combo_func);
-    binary_tree_sibling_traversal(new, &combo_test, &combo_func);
+    binary_tree_cross_traversal(new->child[0], new->child[1], &combo_test, &combo_func, NULL);
+    binary_tree_sibling_traversal(new, &combo_test, &combo_func, NULL);
 
     VERIFY_ARRAY_OF_VALUES(result_list[test_iterator], ==, leaf_list[test_iterator], sizeof(leaf_list)/sizeof(uint8_t)-1);
     COLLECT_FINDINGS

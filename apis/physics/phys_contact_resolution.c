@@ -8,23 +8,17 @@ real calculate_separating_velocity(phys_rigid_body* a, phys_rigid_body* b, vec3 
 
 void resolve_velocity(collision_pair* p, real dT)
 {
-    if(p->type == NO_COLLISION) return;
-
     //TODO replace upcasting?
     phys_rigid_body* a = (phys_rigid_body*)p->members[0];
     phys_rigid_body* b = (phys_rigid_body*)p->members[1];
-    
-    if(a->center_mass->inverse_mass + b->center_mass->inverse_mass <= 0) return;
-
-    real separating_velocity = calculate_separating_velocity(a, b, p->points[0].normal);
-
-    if(separating_velocity > 0) return;
 
     real inverse_mass_sum = a->center_mass->inverse_mass + b->center_mass->inverse_mass;
-
     if(inverse_mass_sum <= 0) return;
+    
+    real separating_velocity = calculate_separating_velocity(a, b, p->points[0].normal);
+    if(separating_velocity > 0) return;
 
-    real pair_restitution = m_div(a->k_restitution + b->k_restitution, 2);
+    real pair_restitution = m_div(a->restitution + b->restitution, 2);
 
     real new_sep_velocity = m_mul(-separating_velocity, pair_restitution);
 
@@ -77,6 +71,10 @@ void resolve_contacts(collision_list* list, real dT)
     {
         collision_pair* pair = &(list->pairs[pair_index]);
 
+        if(pair->type == NO_COLLISION) continue;
+
+        resolve_velocity(pair, dT);
+
         //TODO replace upcasting?
         phys_rigid_body* a = (phys_rigid_body*)pair->members[0];
         phys_rigid_body* b = (phys_rigid_body*)pair->members[1];
@@ -104,7 +102,6 @@ void resolve_contacts(collision_list* list, real dT)
 
             if(min_contact_index == pair->contact_count) break;
 
-            resolve_velocity(contact, dT);
             rotor3 correction = resolve_interpenetration(contact);
 
             //TODO update interpenetrations

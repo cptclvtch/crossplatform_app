@@ -187,12 +187,11 @@ void box_to_box(collision_pair* p)
         real half_size_b = m_abs(vec_dot_product(vec_rotate_w_rotor(b->half_size, rotor_b), separating_axis));
 
         vec3 overlap_on_axis = halfsize_separating_axis_test(center_a, half_size_a, center_b, half_size_b);
-        // PRINT_FN("(%f, %f) on (%f, %f) overlap: %f\n",center_a, half_size_a, center_b, half_size_b, overlap_on_axis.x);
         
         if(overlap_on_axis.x < fl2real(0))
         {
             p->type = NO_COLLISION;
-            delete_link_chain(axes, NULL, 1);
+            free_link_chain(axes, NULL, 1);
             return;
         }
 
@@ -248,7 +247,7 @@ void box_to_box(collision_pair* p)
         contact_normal = best_axis;
     }
     
-    delete_link_chain(axes, NULL, 1);
+    free_link_chain(axes, NULL, 1);
     
     update_potential_contact(   p,
                                 contact_point,
@@ -426,7 +425,7 @@ void (*narrow_funcs[])(collision_pair*) =
 };
 
 #define CALL_NARROW_FUNC(p) \
-{uint8_t index = p->members[0]->type*NO_OF_VOLUME_TYPES + p->members[1]->type;\
+{uint8_t index = p->members[0]->type*NO_OF_VOLUME_TYPES + p->members[1]->type;printf("Calling %u(%u+%u)/6 narrow func\n", index, p->members[0]->type, p->members[1]->type);\
 /*if(narrow_funcs[index])*/ narrow_funcs[index](p);}
 
 void collision_detect(collision_pair* p)
@@ -460,7 +459,6 @@ void collision_detect(collision_pair* p)
 
 void SWAP_AND_CALL(collision_pair* p)
 {
-    PRINT_FN("Swapping\n");
     collision_volume* temp = p->members[0];
     p->members[0] = p->members[1];
     p->members[1] = temp;

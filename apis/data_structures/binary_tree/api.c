@@ -17,13 +17,13 @@ typedef struct binary_tree
 
 binary_tree* binary_tree_new(void* data);
 
-binary_tree* binary_tree_insert_node(binary_tree* root, binary_tree* to_insert, unsigned char (*insertion_test)(binary_tree* root, binary_tree* to_insert));
-binary_tree* binary_tree_insert_leaf(binary_tree* root, binary_tree* to_insert, unsigned char (*insertion_test)(binary_tree* root, binary_tree* to_insert));
+binary_tree* binary_tree_insert_node(binary_tree* root, binary_tree* to_insert, unsigned char (*insertion_test)(binary_tree* root, binary_tree* to_insert, void* user_data), void* user_data);
+binary_tree* binary_tree_insert_leaf(binary_tree* root, binary_tree* to_insert, unsigned char (*insertion_test)(binary_tree* root, binary_tree* to_insert, void* user_data), void* user_data);
 
-void binary_tree_depth_traversal(binary_tree* root, void (*non_leaf_func)(binary_tree* node), void (*leaf_func)(binary_tree* node));
-void binary_tree_width_traversal(binary_tree* root, void (*non_leaf_func)(binary_tree* node), void (*leaf_func)(binary_tree* node));
-void binary_tree_cross_traversal(binary_tree* a, binary_tree* b, unsigned char (*combination_test)(binary_tree* a, binary_tree* b), void (*combination_func)(binary_tree* a, binary_tree* b));
-void binary_tree_sibling_traversal(binary_tree* a, unsigned char (*combination_test)(binary_tree* a, binary_tree* b), void (*combination_func)(binary_tree* a, binary_tree* b));
+void binary_tree_depth_traversal(binary_tree* root, void (*non_leaf_func)(binary_tree* node, void* user_data), void (*leaf_func)(binary_tree* node, void* user_datae), void* user_data);
+void binary_tree_width_traversal(binary_tree* root, void (*non_leaf_func)(binary_tree* node, void* user_data), void (*leaf_func)(binary_tree* node, void* user_data), void* user_data);
+void binary_tree_cross_traversal(binary_tree* a, binary_tree* b, unsigned char (*combination_test)(binary_tree* a, binary_tree* b, void* user_data), void (*combination_func)(binary_tree* a, binary_tree* b, void* user_data), void* user_data);
+void binary_tree_sibling_traversal(binary_tree* a, unsigned char (*combination_test)(binary_tree* a, binary_tree* b, void* user_data), void (*combination_func)(binary_tree* a, binary_tree* b, void* user_data), void* user_data);
 
 void binary_tree_delete(binary_tree* root);
 #endif //_BINARY_TREE_H
@@ -40,28 +40,28 @@ inline binary_tree* binary_tree_new(void* data)
     return new;
 }
 
-unsigned char default_insertion_test(binary_tree* root, binary_tree* to_insert)
+unsigned char default_insertion_test(binary_tree* root, binary_tree* to_insert, void* user_data)
 {
     //TODO turn this into a balanced tree algorithm
     return (root->child[0] != NULL) && (root->child[1] == NULL);
 }
 
-binary_tree* binary_tree_insert_node(binary_tree* root, binary_tree* to_insert, unsigned char (*insertion_test)(binary_tree* root, binary_tree* to_insert))
+binary_tree* binary_tree_insert_node(binary_tree* root, binary_tree* to_insert, unsigned char (*insertion_test)(binary_tree* root, binary_tree* to_insert, void* user_data), void* user_data)
 {
     if(to_insert == NULL) return root;
     if(root == NULL) return to_insert;
 
     if(insertion_test == NULL) insertion_test = default_insertion_test;
 
-    unsigned char side = insertion_test(root, to_insert) > 0; //forces boolean return
+    unsigned char side = insertion_test(root, to_insert, user_data) > 0; //forces boolean return
 
     to_insert->parent = root;
-    root->child[side] = binary_tree_insert_node(root->child[side], to_insert, insertion_test);
+    root->child[side] = binary_tree_insert_node(root->child[side], to_insert, insertion_test, user_data);
 
     return root;
 }
 
-binary_tree* binary_tree_insert_leaf(binary_tree* root, binary_tree* to_insert, unsigned char (*insertion_test)(binary_tree* root, binary_tree* to_insert))
+binary_tree* binary_tree_insert_leaf(binary_tree* root, binary_tree* to_insert, unsigned char (*insertion_test)(binary_tree* root, binary_tree* to_insert, void* user_data), void* user_data)
 {
     if(to_insert == NULL) return root;
     if(root == NULL) return to_insert;
@@ -81,33 +81,33 @@ binary_tree* binary_tree_insert_leaf(binary_tree* root, binary_tree* to_insert, 
 
     if(insertion_test == NULL) insertion_test = default_insertion_test;
 
-    unsigned char side = insertion_test(root, to_insert) > 0; //forces boolean return
+    unsigned char side = insertion_test(root, to_insert, user_data) > 0; //forces boolean return
 
-    root->child[side] = binary_tree_insert_leaf(root->child[side], to_insert, insertion_test);
+    root->child[side] = binary_tree_insert_leaf(root->child[side], to_insert, insertion_test, user_data);
 
     return root;
 }
 
-void binary_tree_depth_traversal(binary_tree* root, void (*non_leaf_func)(binary_tree* node), void (*leaf_func)(binary_tree* node))
+void binary_tree_depth_traversal(binary_tree* root, void (*non_leaf_func)(binary_tree* node, void* user_data), void (*leaf_func)(binary_tree* node, void* user_data), void* user_data)
 {
     if(root == NULL) return;
 
     if(root->child[0] || root->child[1])
     {
-        if(non_leaf_func) non_leaf_func(root);
+        if(non_leaf_func) non_leaf_func(root, user_data);
     }
     else
     {
-        if(leaf_func) leaf_func(root);
+        if(leaf_func) leaf_func(root, user_data);
         return;
     }
 
-    binary_tree_depth_traversal(root->child[0], non_leaf_func, leaf_func);
-    binary_tree_depth_traversal(root->child[1], non_leaf_func, leaf_func);
+    binary_tree_depth_traversal(root->child[0], non_leaf_func, leaf_func, user_data);
+    binary_tree_depth_traversal(root->child[1], non_leaf_func, leaf_func, user_data);
 }
 
 //same as breadth, but width has the same amount of letters as depth
-void binary_tree_width_traversal(binary_tree* root, void (*non_leaf_func)(binary_tree* node), void (*leaf_func)(binary_tree* node))
+void binary_tree_width_traversal(binary_tree* root, void (*non_leaf_func)(binary_tree* node, void* user_data), void (*leaf_func)(binary_tree* node, void* user_data), void* user_data)
 {
     if(root == NULL) return;
 
@@ -124,30 +124,30 @@ void binary_tree_width_traversal(binary_tree* root, void (*non_leaf_func)(binary
 
         if(current_node->child[0] || current_node->child[1])
         {
-            if(non_leaf_func) non_leaf_func(current_node);
+            if(non_leaf_func) non_leaf_func(current_node, user_data);
         }
         else
         {
-            if(leaf_func) leaf_func(current_node);
+            if(leaf_func) leaf_func(current_node, user_data);
         }
 
-        delete_link(current->PREV, DONT_DELETE_CONTENTS);
+        free_link(current->PREV, DONT_DELETE_CONTENTS);
         current = current->NEXT;
     }
-    delete_link(queue, DONT_DELETE_CONTENTS);
+    free_link(queue, DONT_DELETE_CONTENTS);
 }
 
 //performs a function on every segregated combination of nodes that pass the test (doesnt apply to node combinations from the same tree)
-void binary_tree_cross_traversal(binary_tree* a, binary_tree* b, unsigned char (*combination_test)(binary_tree* a, binary_tree* b), void (*combination_func)(binary_tree* a, binary_tree* b))
+void binary_tree_cross_traversal(binary_tree* a, binary_tree* b, unsigned char (*combination_test)(binary_tree* a, binary_tree* b, void* user_data), void (*combination_func)(binary_tree* a, binary_tree* b, void* user_data), void* user_data)
 {
     //TODO try to make more elegant
     //TODO consider rewriting this in a way that allows leaf and non_leaf functions
     if(a == NULL || b == NULL) return;
     if(combination_test == NULL) return;
 
-    if(combination_test(a,b))
+    if(combination_test(a,b, user_data))
     {
-        if(combination_func) combination_func(a,b);
+        if(combination_func) combination_func(a,b, user_data);
 
         //pick either the node itself, or its child(ren), if it has any
         unsigned char side,j,k = 0;
@@ -169,23 +169,23 @@ void binary_tree_cross_traversal(binary_tree* a, binary_tree* b, unsigned char (
         
         for(j = 0; j < 2; j++)
             for(k = 0; k < 2; k++)
-                binary_tree_cross_traversal(check[0][j], check[1][k], combination_test, combination_func);
+                binary_tree_cross_traversal(check[0][j], check[1][k], combination_test, combination_func, user_data);
     }
 }
 
 //performs a function on every pair of siblings that pass the combination test
-void binary_tree_sibling_traversal(binary_tree* a, unsigned char (*combination_test)(binary_tree* a, binary_tree* b), void (*combination_func)(binary_tree* a, binary_tree* b))
+void binary_tree_sibling_traversal(binary_tree* a, unsigned char (*combination_test)(binary_tree* a, binary_tree* b, void* user_data), void (*combination_func)(binary_tree* a, binary_tree* b, void* user_data), void* user_data)
 {
     if(a == NULL) return;
     if(a->child[0] == NULL || a->child[1] == NULL) return;
     if(combination_test == NULL) return;
 
-    if(combination_test(a->child[0], a->child[1]))
+    if(combination_test(a->child[0], a->child[1], user_data))
     {
-        if(combination_func) combination_func(a->child[0], a->child[1]);
+        if(combination_func) combination_func(a->child[0], a->child[1], user_data);
 
-        binary_tree_sibling_traversal(a->child[0], combination_test, combination_func);
-        binary_tree_sibling_traversal(a->child[1], combination_test, combination_func);
+        binary_tree_sibling_traversal(a->child[0], combination_test, combination_func, user_data);
+        binary_tree_sibling_traversal(a->child[1], combination_test, combination_func, user_data);
     }
 }
 

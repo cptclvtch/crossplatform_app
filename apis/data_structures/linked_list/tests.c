@@ -18,7 +18,7 @@ int main()
     node_a = get_new_link(NULL);
     VERIFY_SINGLE_VALUE(node_a, !=, NULL)
     VERIFY_SINGLE_VALUE(node_a->data, ==, NULL)
-    delete_link(node_a, NULL); node_a = NULL;
+    free_link(node_a, NULL); node_a = NULL;
     COLLECT_FINDINGS
 
     #undef SUBTITLE
@@ -37,8 +37,8 @@ int main()
     VERIFY_SINGLE_VALUE(node_b->PREV, == , NULL)
     COLLECT_FINDINGS
 
-    delete_link(node_a, NULL); node_a = NULL;
-    delete_link(node_b, NULL); node_b = NULL;
+    free_link(node_a, NULL); node_a = NULL;
+    free_link(node_b, NULL); node_b = NULL;
 
     #undef SUBTITLE
     #define SUBTITLE "add_link_after - NULL add_to"
@@ -57,8 +57,8 @@ int main()
     COLLECT_FINDINGS
 
     #undef SUBTITLE
-    #define SUBTITLE "delete_link_chain - Best Case Scenario - shouldnt crash"
-    delete_link_chain(node_a, NULL, 1);
+    #define SUBTITLE "free_link_chain - Best Case Scenario - shouldnt crash"
+    free_link_chain(node_a, NULL, 1);
     VERIFY_SINGLE_VALUE(1,==,1);
     COLLECT_FINDINGS
 
@@ -73,29 +73,29 @@ int main()
     POST_TITLE
 
     #undef SUBTITLE
-    #define SUBTITLE "create_new_list - NULL delete function"
+    #define SUBTITLE "create_new_list - NULL free function"
     list_a = create_new_list(NULL);
-    VERIFY_SINGLE_VALUE(list_a.delete_func, ==, NULL)
+    VERIFY_SINGLE_VALUE(list_a.free_func, ==, NULL)
     COLLECT_FINDINGS
 
     #undef SUBTITLE
-    #define SUBTITLE "delete_list - NULL delete function"
+    #define SUBTITLE "free_list - NULL free function"
     list_a.nodes = get_new_link(NULL);
-    delete_list(&list_a);
+    free_list(&list_a);
     VERIFY_SINGLE_VALUE(list_a.nodes, ==, NULL)
     COLLECT_FINDINGS
     
     #undef SUBTITLE
     #define SUBTITLE "create_new_list - DONT_DELETE_CONTENTS"
     list_a = create_new_list(DONT_DELETE_CONTENTS);
-    VERIFY_SINGLE_VALUE(list_a.delete_func, ==, DONT_DELETE_CONTENTS)
+    VERIFY_SINGLE_VALUE(list_a.free_func, ==, DONT_DELETE_CONTENTS)
     COLLECT_FINDINGS
 
     #undef SUBTITLE
-    #define SUBTITLE "delete_list - DONT_DELETE_CONTENTS"
+    #define SUBTITLE "free_list - DONT_DELETE_CONTENTS"
     list_a.nodes = get_new_link(malloc(2));
     void* a = list_a.nodes->data;
-    delete_list(&list_a);
+    free_list(&list_a);
     VERIFY_SINGLE_VALUE(a, !=, NULL)
     VERIFY_SINGLE_VALUE(list_a.nodes, ==, NULL)
     COLLECT_FINDINGS
