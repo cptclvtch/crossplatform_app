@@ -1,17 +1,23 @@
 //Dependencies
 #include "contacts.c"
 
-#ifndef INCLUDE_IMPLEMENTATION
+#ifndef _NARROW_PHASE_H
+    #define _NARROW_PHASE_H
 
 void collision_detect(collision_pair* p);
+#endif
 
-#else
+#if defined(INCLUDE_IMPLEMENTATION) && !defined(_NARROW_PHASE_C)
+    #define _NARROW_PHASE_C
 
 #include "narrow_phase_helper.c"
 
 void sphere_to_sphere(collision_pair* p)
 {
-    collision_volume* a = p->members[0];
+    printf("p->members[0]: %p\n", p->members[0]);
+    printf("p->members[1]: %p\n", p->members[1]);
+    collision_volume* a;
+    a = p->members[0];
     collision_volume* b = p->members[1];
 
     vec3 dir = vec_subtract(*b->position, *a->position); //a to b
@@ -122,6 +128,9 @@ void sphere_to_box(collision_pair* p)
 //     VALIDATE_POTENTIAL_CONTACT(p)
 // }
 
+#define DESIRED_TYPE vec3
+#include "../data_structures/linked_list/api.c"
+
 void box_to_box(collision_pair* p)
 {
     collision_volume* a = p->members[0];
@@ -148,19 +157,13 @@ void box_to_box(collision_pair* p)
     };
     b_axes[2] = vec_cross_product(b_axes[0], b_axes[1]);
 
-    linked_list_node* axes = NULL;
-    axes = add_link_before(axes, calloc(1,sizeof(vec3)));
-    *(vec3*)axes->data = a_axes[0];
-    axes = add_link_before(axes, calloc(1,sizeof(vec3)));
-    *(vec3*)axes->data = a_axes[1];
-    axes = add_link_before(axes, calloc(1,sizeof(vec3)));
-    *(vec3*)axes->data = a_axes[2];
-    axes = add_link_before(axes, calloc(1,sizeof(vec3)));
-    *(vec3*)axes->data = b_axes[0];
-    axes = add_link_before(axes, calloc(1,sizeof(vec3)));
-    *(vec3*)axes->data = b_axes[1];
-    axes = add_link_before(axes, calloc(1,sizeof(vec3)));
-    *(vec3*)axes->data = b_axes[2];
+    vec3_ll_node* axes = NULL;
+    axes = ll_add_vec3_data(axes, NEXT, a_axes[0]);
+    axes = ll_add_vec3_data(axes, NEXT, a_axes[1]);
+    axes = ll_add_vec3_data(axes, NEXT, a_axes[2]);
+    axes = ll_add_vec3_data(axes, NEXT, b_axes[0]);
+    axes = ll_add_vec3_data(axes, NEXT, b_axes[1]);
+    axes = ll_add_vec3_data(axes, NEXT, b_axes[2]);
 
     uint8_t i,j;
     for(i = 0; i < 3; i++)
@@ -168,8 +171,7 @@ void box_to_box(collision_pair* p)
     {
         if(m_abs(vec_dot_product(a_axes[i], b_axes[j])) < 1)
         {
-            axes = add_link_before(axes, calloc(1, sizeof(vec3)));
-            *(vec3*)axes->data = vec_cross_product(a_axes[i], b_axes[j]);
+            axes = ll_add_vec3_data(axes, NEXT, vec_cross_product(a_axes[i], b_axes[j]));
         }
     }
 
@@ -178,8 +180,10 @@ void box_to_box(collision_pair* p)
     uint8_t best_axis_index = 255;
     uint8_t axis_index = 0;
     
-    ITERATE_LIST_START(axes, axis)
-        vec3 separating_axis = *(vec3*)axis->data;
+    vec3_ll_node* axis = axes;
+    for(; axis; axis = axis->NEXT)
+    {
+        vec3 separating_axis = axis->data;
         real center_a = vec_dot_product(pos_a, separating_axis);
         real center_b = vec_dot_product(pos_b, separating_axis);
 
@@ -191,7 +195,7 @@ void box_to_box(collision_pair* p)
         if(overlap_on_axis.x < fl2real(0))
         {
             p->type = NO_COLLISION;
-            free_link_chain(axes, NULL, 1);
+            free_vec3_ll_chain(axes, PREV);
             return;
         }
 
@@ -203,7 +207,7 @@ void box_to_box(collision_pair* p)
         }
         
         axis_index++;
-    ITERATE_LIST_END(NEXT, axis)
+    }
     
     if(best_axis_index == 255) return;
     
@@ -247,7 +251,7 @@ void box_to_box(collision_pair* p)
         contact_normal = best_axis;
     }
     
-    free_link_chain(axes, NULL, 1);
+    free_vec3_ll_chain(axes, PREV);
     
     update_potential_contact(   p,
                                 contact_point,
@@ -425,7 +429,7 @@ void (*narrow_funcs[])(collision_pair*) =
 };
 
 #define CALL_NARROW_FUNC(p) \
-{uint8_t index = p->members[0]->type*NO_OF_VOLUME_TYPES + p->members[1]->type;printf("Calling %u(%u+%u)/6 narrow func\n", index, p->members[0]->type, p->members[1]->type);\
+{uint8_t index = p->members[0]->type*NO_OF_VOLUME_TYPES + p->members[1]->type;\
 /*if(narrow_funcs[index])*/ narrow_funcs[index](p);}
 
 void collision_detect(collision_pair* p)
@@ -440,21 +444,21 @@ void collision_detect(collision_pair* p)
 
     //handle groups
     //FIXME wont work if b is GROUP and a is not
-    if(a->type == GROUP)
-    {
-        ITERATE_LIST_START(a->volumes, volume_a)
-            p->members[0] = volume_a;
-            if(b->type == GROUP)
-            {
-                ITERATE_LIST_START(b->volumes, volume_b)
-                    p->members[1] = volume_b;
-                    CALL_NARROW_FUNC(p)
-                ITERATE_LIST_END(NEXT, volume_b)
-            }
-            else
-                CALL_NARROW_FUNC(p);
-        ITERATE_LIST_END(NEXT, volume_a)
-    }
+    // if(a->type == GROUP)
+    // {
+    //     ITERATE_LIST_START(a->volumes, volume_a)
+    //         p->members[0] = volume_a;
+    //         if(b->type == GROUP)
+    //         {
+    //             ITERATE_LIST_START(b->volumes, volume_b)
+    //                 p->members[1] = volume_b;
+    //                 CALL_NARROW_FUNC(p)
+    //             ITERATE_LIST_END(NEXT, volume_b)
+    //         }
+    //         else
+    //             CALL_NARROW_FUNC(p);
+    //     ITERATE_LIST_END(NEXT, volume_a)
+    // }
 }
 
 void SWAP_AND_CALL(collision_pair* p)

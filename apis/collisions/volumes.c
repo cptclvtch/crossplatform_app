@@ -1,6 +1,6 @@
 //Dependencies
-#include "../data_structures/linked_list/api.c"
 #include "aabb.c"
+#include <stdlib.h>
 
 #ifndef _VOLUMES_H
     #define _VOLUMES_H
@@ -29,7 +29,7 @@ enum
 };
 #define COLLISION_GET_TRI_DATA(volume_pointer, t, m) (volume_pointer->mesh.data[t*COLLISION_TRI_FORMAT_SIZE + m])
 
-typedef struct
+typedef struct collision_volume
 {
     vec3* position;
     rotor3* orientation;
@@ -54,7 +54,8 @@ typedef struct
             vec3* data;
         }mesh;
 
-        linked_list_node* volumes;
+        struct collision_volume** volumes; //recursive structure
+        uint8_t group_count;
     };
 
 }collision_volume;
@@ -62,7 +63,7 @@ typedef struct
 collision_volume* create_primitive_collision_volume(uint8_t type, vec3 dimensions, vec3* position, rotor3* orientation);
 collision_volume* create_mesh_collision_volume(uint32_t face_count, vec3* data, vec3* position, rotor3* orientation);
 
-void collision_volume_group(collision_volume* a, collision_volume* b);
+void group_collision_volumes(collision_volume* a, collision_volume* b);
 
 #define BASIC_CALCULATION 0
 #define KEEP_MAX 1
@@ -85,6 +86,7 @@ collision_volume* create_primitive_collision_volume(uint8_t type, vec3 dimension
     new_primitive->position = position;
     new_primitive->orientation = orientation;
 
+    if(type >= MESH) type = MESH-1;
     new_primitive->type = type;
     new_primitive->dimensions = dimensions;
 
@@ -131,7 +133,7 @@ void _apply_domestic_pointer(collision_volume* v, uint8_t type, vec3 new_vec, ro
     v->_is_domestic |= type;
 }
 
-void collision_volume_group(collision_volume* a, collision_volume* b)
+void group_collision_volumes(collision_volume* a, collision_volume* b)
 {
     if(a == NULL || b == NULL) return;
 
@@ -144,13 +146,21 @@ void collision_volume_group(collision_volume* a, collision_volume* b)
         _apply_domestic_pointer(volume_copy, ORIENTATION_POINTER, (vec3){0}, IDENTITY_ROTOR);
         
         a->type = GROUP;
-        a->volumes = add_link_before(a->volumes, volume_copy);
+        a->group_count = 1;
+        a->volumes = (collision_volume**)calloc(1, sizeof(collision_volume*));
+        a->volumes[0] = volume_copy;
     }
     
     _apply_domestic_pointer(b, POSITION_POINTER, vec_subtract(*b->position, *a->position), IDENTITY_ROTOR);
     _apply_domestic_pointer(b, ORIENTATION_POINTER, (vec3){0}, rotor_combine(*b->orientation, rotor_reverse(*a->orientation)));
 
-    a->volumes = add_link_after(a->volumes, b);
+    //resize group
+    collision_volume** new_group = realloc(a->volumes, (a->group_count+1)*sizeof(collision_volume*));
+    if(new_group)
+    {
+        a->volumes = new_group;
+        a->volumes[a->group_count++] = b;
+    }
 }
 
 aabb calculate_aabb_from_volume(collision_volume* v, uint8_t mode)
@@ -194,9 +204,9 @@ aabb calculate_aabb_from_volume(collision_volume* v, uint8_t mode)
 
         case GROUP:
         {
-            ITERATE_LIST_START(v->volumes, child)
-                result = aabb_union(result, calculate_aabb_from_volume((collision_volume*)child, mode));
-            ITERATE_LIST_END(NEXT, child)
+            uint8_t i = 0;
+            for(; i < v->group_count; i++)
+                result = aabb_union(result, calculate_aabb_from_volume(v->volumes[i], mode));
             break;
         }
     }
@@ -217,11 +227,11 @@ void free_collision_volume(collision_volume* v)
 
     if(v->type == GROUP)
     {
-        ITERATE_LIST_START(v->volumes, node)
-            free_collision_volume(node->data);
-        ITERATE_LIST_END(NEXT, node)
+        uint8_t i = 0;
+        for(; i < v->group_count; i++)
+            free_collision_volume(v->volumes[i]);
 
-        free_link_chain(v->volumes, NULL, 1);
+        free(v->volumes);
     }
 
     if(POSITION_POINTER & v->_is_domestic) free(v->position);

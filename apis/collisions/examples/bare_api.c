@@ -3,11 +3,14 @@
 #define INCLUDE_IMPLEMENTATION
 #include "../api.c"
 
-void simple_loop(binary_tree* scene)
+#ifndef FRAME_COUNT
+#define FRAME_COUNT 20
+#endif
+void simple_loop(bvh_bt_node* scene)
 {
-    collision_list* collisions = get_new_collision_list();
+    collision_list* collisions = create_collision_list();
 
-    uint32_t frame = 1000;
+    uint32_t frame = FRAME_COUNT;
     while(frame)
     {
         //perform collision calculations
@@ -20,21 +23,22 @@ void simple_loop(binary_tree* scene)
     }
 
     clear_collision_list(collisions);
+    
+    printf("Simple loop finished.\n");
 }
 
-void custom_collision_combos(binary_tree* scene, collision_list* list)
+void custom_collision_combos(bvh_bt_node* scene, collision_list* list)
 {
-    void* custom_data = (void*)list;
-    binary_tree_cross_traversal(scene->child[0], scene->child[1], _self_collision_test, _self_collision_func, custom_data);
+    bvh_bt_cross_traversal(scene->child[0], scene->child[1], _self_collision_test, _self_collision_func, list);
     //lets say one side is static volumes, no need to check between static objects, skip it
-    binary_tree_sibling_traversal(scene->child[1], _self_collision_test, _self_collision_func, custom_data);
+    bvh_bt_sibling_traversal(scene->child[1], _self_collision_test, _self_collision_func, list);
 }
 
-void custom_combo_loop(binary_tree* scene)
+void custom_combo_loop(bvh_bt_node* scene)
 {
-    collision_list* collisions = get_new_collision_list();
+    collision_list* collisions = create_collision_list();
 
-    uint32_t frame = 1000;
+    uint32_t frame = FRAME_COUNT;
     while(frame)
     {
         //perform collision calculations
@@ -47,9 +51,11 @@ void custom_combo_loop(binary_tree* scene)
     }
 
     clear_collision_list(collisions);
+
+    printf("Combo loop finished.\n");
 }
 
-void multi_threaded_loop(binary_tree* scene)
+void multi_threaded_loop(bvh_bt_node* scene)
 {
     //create multiple collision lists
 
@@ -58,7 +64,27 @@ void multi_threaded_loop(binary_tree* scene)
 
 #define NO_OF_VOLUMES 5
 collision_volume* my_volumes[NO_OF_VOLUMES];
-void load_scene();
+
+bvh_bt_node* scene = NULL;
+
+vec3* get_random_vec();
+void load_scene()
+{
+    uint32_t i = 0;
+    for(; i < NO_OF_VOLUMES; i++)
+    {
+        vec3* rand_pos = get_random_vec();
+        uint8_t shape = SPHERE;
+
+        rotor3* new_rotor = (rotor3*)calloc(1, sizeof(rotor3));
+        *new_rotor = IDENTITY_ROTOR;
+
+        my_volumes[i] = create_primitive_collision_volume(shape, (vec3){1,1,1}, rand_pos, new_rotor);
+        
+        scene = bvh_insert(scene, create_bvh_bt_node(bvh_data_from_volume(my_volumes[i])));
+    }
+}
+
 void unload_scene();
 
 int main()
@@ -66,47 +92,29 @@ int main()
     //create your collision volumes
     load_scene();
 
-    //build BVH
-    binary_tree* bvh = NULL;
-    uint32_t i = 0;
-    for(i = 0; i < NO_OF_VOLUMES; i++)
-        bvh = bvh_insert(bvh, binary_tree_new(bvh_data_from_volume(my_volumes[i])));
-
     //run loop
-    simple_loop(bvh);
+    simple_loop(scene);
 
-    custom_combo_loop(bvh);
+    custom_combo_loop(scene);
 
-    multi_threaded_loop(bvh);
+    // multi_threaded_loop(bvh);
 
     //cleanup
-    binary_tree_delete(bvh);
+    free_bvh_bt_node(scene);
     unload_scene();
 }
 //----------------------------------------------------
 
-
+int8_t seed = 0;
 vec3* get_random_vec()
 {
     vec3* result = (vec3*)calloc(1, sizeof(vec3));
 
-    *result = (vec3){0,0,0}; //TODO switch to random
+    #define rand fl2real(seed = seed*17 + 111)/13.0
+    *result = (vec3){rand,rand,rand};
+    #undef rand
 
     return result;
-}
-
-void load_scene()
-{
-    uint32_t i = 0;
-    for(; i < NO_OF_VOLUMES; i++)
-    {
-        vec3* rand_pos = get_random_vec();
-        rotor3* new_rotor = (rotor3*)calloc(1, sizeof(rotor3));
-        *new_rotor = IDENTITY_ROTOR;
-        uint8_t shape = SPHERE; //TODO switch to random
-
-        my_volumes[i] = create_primitive_collision_volume(shape, (vec3){1,1,1}, rand_pos, new_rotor);
-    }
 }
 
 void unload_scene()

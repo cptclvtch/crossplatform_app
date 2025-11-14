@@ -3,7 +3,7 @@
 #include "volumes.c"
 
 #ifndef _CONTACT_H
-#define _CONTACT_H
+    #define _CONTACT_H
 //Collision data
 typedef struct
 {
@@ -53,7 +53,8 @@ typedef struct
     uint32_t count;
 }collision_list;
 
-collision_list* get_new_collision_list();
+void reset_contact_data(collision_pair* p);
+collision_list* create_collision_list();
 void clear_collision_list(collision_list* list);
 #endif //_CONTACT_H
 
@@ -61,9 +62,28 @@ void clear_collision_list(collision_list* list);
 #define _CONTACT_C
 //----------------------------------
 
-collision_list* get_new_collision_list()
+void reset_contact_data(collision_pair* p)
 {
-    return (collision_list*)calloc(1, sizeof(collision_list));
+    if(p == NULL) return;
+
+    p->contact_count = MAX_CONTACT_POINTS;
+    do
+    {
+        p->contact_count--;
+        p->points[p->contact_count].penetration = REAL_MAX;
+    }
+    while(p->contact_count > 0);
+}
+
+collision_list* create_collision_list()
+{
+    collision_list* new_list = (collision_list*)calloc(1, sizeof(collision_list));
+
+    // uint32_t i = 0;
+    // for(; i < new_list->count; i++)
+    //     reset_contact_data(&new_list->pairs[i]);
+
+    return new_list;
 }
 
 void clear_collision_list(collision_list* list)

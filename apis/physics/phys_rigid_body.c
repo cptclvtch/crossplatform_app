@@ -4,7 +4,6 @@ typedef struct
     //Representation
         collision_volume representation;
         real volume; //m^3
-        real density; //kg/m^3
         // real surface_area; //m^2
 
     //Dynamics
@@ -14,7 +13,7 @@ typedef struct
         phys_point* center_of_mass;
 
         //angular part
-        rotor3 orientation;
+        rotor3* orientation;
         vec3 angular_velocity; //scaled axis representation
         vec3 inertia_tensor; //TODO figure out units for inertia
         vec3 inverse_inertia_tensor;
@@ -55,11 +54,11 @@ void angular_integration(phys_rigid_body* b, float dT/*seconds*/)
 
     b->angular_velocity = vec_scalar_multiply(b->angular_velocity, angular_damping);
 
-    b->orientation = rotor_combine( b->orientation,
-                                    rotor_from_scaled_axis_angle(vec_scalar_multiply(b->angular_velocity, m_div(fl2real(dT),2))));
+    *(b->orientation) = rotor_combine(  *(b->orientation),
+                                        rotor_from_scaled_axis_angle(vec_scalar_multiply(b->angular_velocity, m_div(fl2real(dT),2))));
 
     //calculate derived data
-    b->orientation = rotor_normalize(b->orientation);
+    *(b->orientation) = rotor_normalize(*(b->orientation));
     //calculate transform matrix
     //convert local inertia tensor to world inverse inverse tensor
 

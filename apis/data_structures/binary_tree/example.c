@@ -1,34 +1,38 @@
-#include "../linked_list/api.c"
-#include "api.c"
-#define INCLUDE_IMPLEMENTATION
-#include "../linked_list/api.c"
-#include "api.c"
-
 #include <stdio.h>
 
-unsigned char pick_side(binary_tree* node, binary_tree* to_insert)
+#include "api.c"
+
+#define DESIRED_TYPE int
+#define ASSISTING_TYPE short
+#include "api.c"
+
+unsigned char pick_side(bt_node* node, bt_node* to_insert, void* user_data)
 {
     if(node->child[0] == NULL) return 0;
     return node->child[0]->data > to_insert->data;
 }
 
-void traversal_func(binary_tree* a)
+void traversal_func(bt_node* a, void* user_data)
 {
     printf("Node: %p\n", a);
 }
 
 int main()
 {
-    binary_tree* root = binary_tree_new(NULL);
-    binary_tree* leaf = binary_tree_new(NULL);
+    bt_node* root = create_bt_node(NULL);
+    bt_node* leaf = create_bt_node(NULL);
+
+    int_bt_node* other_root = create_int_bt_node(0);
 
     //------------------------------
-    root = binary_tree_insert_node(root, leaf, &pick_side);
+    root = bt_insert_node(root, leaf, &pick_side, NULL);
 
-    binary_tree_width_traversal(root, traversal_func, traversal_func);
-
-    binary_tree_delete(root);
+    bt_width_traversal(root, traversal_func, traversal_func, NULL);
 
     //------------------------------
+
+    free_bt_node(root);
+    free_int_bt_node(other_root);
+
     printf("Done.");
 }

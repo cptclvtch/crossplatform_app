@@ -1,6 +1,9 @@
 #undef TYPE
-#undef PREFIX
-#undef USING_VOIDP_DEFAULT
+#undef DESIRED_TYPE
 
-#undef CPP_IS_STUPID
-#undef CONCATENATE
+#undef PREFIX
+#undef DESIRED_PREFIX
+
+#undef ASSISTING_TYPE
+
+#undef USING_VOIDP_DEFAULT

@@ -1,52 +1,74 @@
 //Dependencies
-#include "../linked_list/api.c"
 #include <stdlib.h>
 
-#ifndef _BINARY_TREE_H
-    #define _BINARY_TREE_H
+#include "../template_header.c"
+#define bt_node            CONCATENATE(PREFIX, bt_node)                   //PREFIX_bt_node
+#define create_bt_node     CONCATENATE(create_, bt_node)                  //create_PREFIX_bt_node
+#define bt_insert_node     CONCATENATE(PREFIX, bt_insert_node)            //PREFIX_bt_insert_node
+#define bt_insert_leaf     CONCATENATE(PREFIX, bt_insert_leaf)            //PREFIX_bt_insert_leaf
+#define bt_node_count      CONCATENATE(PREFIX, bt_node_count)             //PREFIX_bt_node_count
+#define bt_leaf_count      CONCATENATE(PREFIX, bt_leaf_count)             //PREFIX_bt_leaf_count
+#define bt_is_leaf         CONCATENATE(PREFIX, bt_is_leaf)                //PREFIX_bt_is_leaf
+#define bt_depth_traversal CONCATENATE(PREFIX, bt_depth_traversal)        //PREFIX_bt_depth_traversal
+#define bt_width_traversal CONCATENATE(PREFIX, bt_width_traversal)        //PREFIX_bt_width_traversal
+#define bt_cross_traversal CONCATENATE(PREFIX, bt_cross_traversal)        //PREFIX_bt_cross_traversal
+#define bt_sibling_traversal CONCATENATE(PREFIX, bt_sibling_traversal)    //PREFIX_bt_sibling_traversal
+#define free_bt_node       CONCATENATE(free_, bt_node)                    //free_PREFIX_bt_node
 
-// TODO possibly collect stats while traversing or inserting?
-// TODO maybe store and use a delete function?
-typedef struct binary_tree
+typedef struct bt_node
 {
-    struct binary_tree* parent;
-    struct binary_tree* child[2];
+    TYPE data;
 
-    void* data;
-}binary_tree;
+    struct bt_node* parent;
+    struct bt_node* child[2];
+}bt_node;
 
-binary_tree* binary_tree_new(void* data);
+// typedef struct
+// {
+//     bt_node* root;
+    
+//     // TODO possibly collect stats while traversing or inserting?
+        // maybe create bt_stats instead and pass it to funcs, instead of rewriting funcs to accept binary_tree input?
+//     // TODO include a free function?
+// }binary_tree;
 
-binary_tree* binary_tree_insert_node(binary_tree* root, binary_tree* to_insert, unsigned char (*insertion_test)(binary_tree* root, binary_tree* to_insert, void* user_data), void* user_data);
-binary_tree* binary_tree_insert_leaf(binary_tree* root, binary_tree* to_insert, unsigned char (*insertion_test)(binary_tree* root, binary_tree* to_insert, void* user_data), void* user_data);
+typedef void            (*node_func_t )(bt_node* node, ASSISTING_TYPE user_data);
+typedef unsigned char   (*combo_test_t)(bt_node* a, bt_node* b, ASSISTING_TYPE user_data);
+typedef void            (*combo_func_t)(bt_node* a, bt_node* b, ASSISTING_TYPE user_data);
 
-void binary_tree_depth_traversal(binary_tree* root, void (*non_leaf_func)(binary_tree* node, void* user_data), void (*leaf_func)(binary_tree* node, void* user_datae), void* user_data);
-void binary_tree_width_traversal(binary_tree* root, void (*non_leaf_func)(binary_tree* node, void* user_data), void (*leaf_func)(binary_tree* node, void* user_data), void* user_data);
-void binary_tree_cross_traversal(binary_tree* a, binary_tree* b, unsigned char (*combination_test)(binary_tree* a, binary_tree* b, void* user_data), void (*combination_func)(binary_tree* a, binary_tree* b, void* user_data), void* user_data);
-void binary_tree_sibling_traversal(binary_tree* a, unsigned char (*combination_test)(binary_tree* a, binary_tree* b, void* user_data), void (*combination_func)(binary_tree* a, binary_tree* b, void* user_data), void* user_data);
+bt_node* create_bt_node(TYPE data);
 
-void binary_tree_delete(binary_tree* root);
-#endif //_BINARY_TREE_H
+bt_node* bt_insert_node(bt_node* root, bt_node* to_insert, combo_test_t insertion_test, ASSISTING_TYPE user_data);
+bt_node* bt_insert_leaf(bt_node* root, bt_node* to_insert, combo_test_t insertion_test, ASSISTING_TYPE user_data);
+
+unsigned int bt_node_count(bt_node* root);
+unsigned int bt_leaf_count(bt_node* root);
+inline unsigned char bt_is_leaf(bt_node* node);
+
+void bt_depth_traversal(bt_node* root, node_func_t non_leaf_func, node_func_t leaf_func, ASSISTING_TYPE user_data);
+void bt_width_traversal(bt_node* root, node_func_t non_leaf_func, node_func_t leaf_func, ASSISTING_TYPE user_data);
+void bt_cross_traversal  (bt_node* a, bt_node* b, combo_test_t combination_test, combo_func_t combination_func, ASSISTING_TYPE user_data);
+void bt_sibling_traversal(bt_node* a,             combo_test_t combination_test, combo_func_t combination_func, ASSISTING_TYPE user_data);
+
+void free_bt_node(bt_node* root);
 
 //----------------------------------
-
-#if defined(INCLUDE_IMPLEMENTATION) && !defined(_BINARY_TREE_C)
-    #define _BINARY_TREE_C
-
-inline binary_tree* binary_tree_new(void* data)
+#ifndef HEADERS_ONLY
+inline bt_node* create_bt_node(TYPE data)
 {
-    binary_tree* new = (binary_tree*)calloc(1, sizeof(binary_tree));
+    bt_node* new = (bt_node*)calloc(1, sizeof(bt_node));
     new->data = data;
     return new;
 }
 
-unsigned char default_insertion_test(binary_tree* root, binary_tree* to_insert, void* user_data)
+#define default_insertion_test CONCATENATE(default_, CONCATENATE(PREFIX, insertion_test))
+unsigned char default_insertion_test(bt_node* root, bt_node* to_insert, ASSISTING_TYPE user_data)
 {
     //TODO turn this into a balanced tree algorithm
     return (root->child[0] != NULL) && (root->child[1] == NULL);
 }
 
-binary_tree* binary_tree_insert_node(binary_tree* root, binary_tree* to_insert, unsigned char (*insertion_test)(binary_tree* root, binary_tree* to_insert, void* user_data), void* user_data)
+bt_node* bt_insert_node(bt_node* root, bt_node* to_insert, combo_test_t insertion_test, ASSISTING_TYPE user_data)
 {
     if(to_insert == NULL) return root;
     if(root == NULL) return to_insert;
@@ -56,19 +78,19 @@ binary_tree* binary_tree_insert_node(binary_tree* root, binary_tree* to_insert, 
     unsigned char side = insertion_test(root, to_insert, user_data) > 0; //forces boolean return
 
     to_insert->parent = root;
-    root->child[side] = binary_tree_insert_node(root->child[side], to_insert, insertion_test, user_data);
+    root->child[side] = bt_insert_node(root->child[side], to_insert, insertion_test, user_data);
 
     return root;
 }
 
-binary_tree* binary_tree_insert_leaf(binary_tree* root, binary_tree* to_insert, unsigned char (*insertion_test)(binary_tree* root, binary_tree* to_insert, void* user_data), void* user_data)
+bt_node* bt_insert_leaf(bt_node* root, bt_node* to_insert, combo_test_t insertion_test, ASSISTING_TYPE user_data)
 {
     if(to_insert == NULL) return root;
     if(root == NULL) return to_insert;
 
     if(root->child[0] == NULL && root->child[1] == NULL)
     {
-        binary_tree* split = binary_tree_new(NULL);
+        bt_node* split = create_bt_node((TYPE){0});
         
         split->parent = root->parent;
         split->child[0] = root;
@@ -83,12 +105,35 @@ binary_tree* binary_tree_insert_leaf(binary_tree* root, binary_tree* to_insert, 
 
     unsigned char side = insertion_test(root, to_insert, user_data) > 0; //forces boolean return
 
-    root->child[side] = binary_tree_insert_leaf(root->child[side], to_insert, insertion_test, user_data);
+    root->child[side] = bt_insert_leaf(root->child[side], to_insert, insertion_test, user_data);
 
     return root;
 }
+#undef default_insertion_test
 
-void binary_tree_depth_traversal(binary_tree* root, void (*non_leaf_func)(binary_tree* node, void* user_data), void (*leaf_func)(binary_tree* node, void* user_data), void* user_data)
+unsigned int bt_node_count(bt_node* root)
+{
+    if(root == NULL) return 0;
+
+    return bt_node_count(root->child[0]) + bt_node_count(root->child[1]) + 1;
+}
+
+unsigned int bt_leaf_count(bt_node* root)
+{
+    if(root == NULL) return 0;
+    if(root->child[0] == NULL && root->child[1] == NULL) return 1;
+
+    return bt_leaf_count(root->child[0]) + bt_leaf_count(root->child[1]);
+}
+
+inline unsigned char bt_is_leaf(bt_node* node)
+{
+    if(node == NULL) return 0;
+
+    return node->child[0] == NULL && node->child[1] == NULL;
+}
+
+void bt_depth_traversal(bt_node* root, node_func_t non_leaf_func, node_func_t leaf_func, ASSISTING_TYPE user_data)
 {
     if(root == NULL) return;
 
@@ -102,79 +147,83 @@ void binary_tree_depth_traversal(binary_tree* root, void (*non_leaf_func)(binary
         return;
     }
 
-    binary_tree_depth_traversal(root->child[0], non_leaf_func, leaf_func, user_data);
-    binary_tree_depth_traversal(root->child[1], non_leaf_func, leaf_func, user_data);
+    bt_depth_traversal(root->child[0], non_leaf_func, leaf_func, user_data);
+    bt_depth_traversal(root->child[1], non_leaf_func, leaf_func, user_data);
 }
 
 //same as breadth, but width has the same amount of letters as depth
-void binary_tree_width_traversal(binary_tree* root, void (*non_leaf_func)(binary_tree* node, void* user_data), void (*leaf_func)(binary_tree* node, void* user_data), void* user_data)
+void bt_width_traversal(bt_node* root, node_func_t non_leaf_func, node_func_t leaf_func, ASSISTING_TYPE user_data)
 {
     if(root == NULL) return;
 
-    linked_list_node* current = add_link_after(NULL, root);
-    linked_list_node* queue = current;
+    //count nodes in tree and allocate corresponding cache memory    
+    unsigned int node_count = bt_node_count(root);
+    bt_node** queue = (bt_node**)calloc(node_count, sizeof(bt_node*));
+    
+    unsigned int max_index = 0;
+    unsigned int current_index = 0;
+    
+    queue[max_index] = root;
 
-    while(current)
+    while(current_index < node_count)
     {
-        binary_tree* current_node = (binary_tree*)current->data;
-
         unsigned char i = 0;
         for(;i < 2; i++)
-            if(current_node->child[i]) queue = add_link_after(queue, current_node->child[i]);
+            if(queue[current_index]->child[i])
+            {
+                max_index++;
+                queue[max_index] = queue[current_index]->child[i];
+            }
 
-        if(current_node->child[0] || current_node->child[1])
+        if(queue[current_index]->child[0] || queue[current_index]->child[1])
         {
-            if(non_leaf_func) non_leaf_func(current_node, user_data);
+            if(non_leaf_func) non_leaf_func(queue[current_index], user_data);
         }
         else
         {
-            if(leaf_func) leaf_func(current_node, user_data);
+            if(leaf_func) leaf_func(queue[current_index], user_data);
         }
 
-        free_link(current->PREV, DONT_DELETE_CONTENTS);
-        current = current->NEXT;
+        current_index++;
     }
-    free_link(queue, DONT_DELETE_CONTENTS);
+
+    free(queue);
 }
 
 //performs a function on every segregated combination of nodes that pass the test (doesnt apply to node combinations from the same tree)
-void binary_tree_cross_traversal(binary_tree* a, binary_tree* b, unsigned char (*combination_test)(binary_tree* a, binary_tree* b, void* user_data), void (*combination_func)(binary_tree* a, binary_tree* b, void* user_data), void* user_data)
+void bt_cross_traversal(bt_node* a, bt_node* b, combo_test_t combination_test, combo_func_t combination_func, ASSISTING_TYPE user_data)
 {
-    //TODO try to make more elegant
-    //TODO consider rewriting this in a way that allows leaf and non_leaf functions
     if(a == NULL || b == NULL) return;
-    if(combination_test == NULL) return;
 
-    if(combination_test(a,b, user_data))
+    if(combination_test && combination_test(a,b,user_data) == 0) return;
+
+    if(combination_func) combination_func(a,b, user_data);
+
+    //pick either the node itself, or its child(ren), if it has any
+    unsigned char side,j,k = 0;
+    bt_node* combo[2] = {a,b};
+    bt_node* check[2][2] = {{a, NULL},{b, NULL}};
+    for(side = 0; side < 2; side++)
     {
-        if(combination_func) combination_func(a,b, user_data);
-
-        //pick either the node itself, or its child(ren), if it has any
-        unsigned char side,j,k = 0;
-        binary_tree* combo[2] = {a,b};
-        binary_tree* check[2][2] = {{a, NULL},{b, NULL}};
-        for(side = 0; side < 2; side++)
+        for(j = 0; j < 2; j++)
         {
-            for(j = 0; j < 2; j++)
+            if(combo[side]->child[j] != NULL)
             {
-                if(combo[side]->child[j] != NULL)
-                {
-                    check[side][k] = combo[side]->child[j];
-                    k++;
-                }
+                check[side][k] = combo[side]->child[j];
+                k++;
             }
         }
-
-        if(check[0][0] == a && check[1][0] == b) return;
-        
-        for(j = 0; j < 2; j++)
-            for(k = 0; k < 2; k++)
-                binary_tree_cross_traversal(check[0][j], check[1][k], combination_test, combination_func, user_data);
     }
+
+    if(check[0][0] == a && check[1][0] == b) return;
+    
+    for(j = 0; j < 2; j++)
+        for(k = 0; k < 2; k++)
+            bt_cross_traversal(check[0][j], check[1][k], combination_test, combination_func, user_data);
 }
 
 //performs a function on every pair of siblings that pass the combination test
-void binary_tree_sibling_traversal(binary_tree* a, unsigned char (*combination_test)(binary_tree* a, binary_tree* b, void* user_data), void (*combination_func)(binary_tree* a, binary_tree* b, void* user_data), void* user_data)
+void bt_sibling_traversal(bt_node* a, combo_test_t combination_test, combo_func_t combination_func, ASSISTING_TYPE user_data)
 {
     if(a == NULL) return;
     if(a->child[0] == NULL || a->child[1] == NULL) return;
@@ -184,22 +233,36 @@ void binary_tree_sibling_traversal(binary_tree* a, unsigned char (*combination_t
     {
         if(combination_func) combination_func(a->child[0], a->child[1], user_data);
 
-        binary_tree_sibling_traversal(a->child[0], combination_test, combination_func, user_data);
-        binary_tree_sibling_traversal(a->child[1], combination_test, combination_func, user_data);
+        bt_sibling_traversal(a->child[0], combination_test, combination_func, user_data);
+        bt_sibling_traversal(a->child[1], combination_test, combination_func, user_data);
     }
 }
 
-void binary_tree_delete(binary_tree* root)
+void free_bt_node(bt_node* root)
 {
     if(root == NULL) return;
 
     if(root->parent)
         root->parent->child[root->parent->child[1] == root] = NULL;
 
-    binary_tree_delete(root->child[0]);
-    binary_tree_delete(root->child[1]);
+    free_bt_node(root->child[0]);
+    free_bt_node(root->child[1]);
     
-    //Dont do this if using binary_tree in an inheritance style (at the front of a larger struct)
+    //Dont do this if using bt_node in an inheritance style (at the front of a larger struct)
     // free(root);
 }
 #endif
+
+#undef bt_node
+#undef create_bt_node
+#undef bt_insert_node
+#undef bt_insert_leaf
+#undef bt_node_count
+#undef bt_leaf_count
+#undef bt_is_leaf
+#undef bt_depth_traversal
+#undef bt_width_traversal
+#undef bt_cross_traversal
+#undef bt_sibling_traversal
+#undef free_bt_node
+#include "../template_footer.c"

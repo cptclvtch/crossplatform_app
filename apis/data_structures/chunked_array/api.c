@@ -1,8 +1,14 @@
 //Dependencies
 #include "../bit_vector/api.c"
 
-#ifndef _CHUNKED_ARRAY_H
-    #define _CHUNKED_ARRAY_H
+#include "../template_header.c"
+#define chunked_array           CONCATENATE(PREFIX, chunked_array)          //TYPE_chunked_array
+#define create_chunked_array    CONCATENATE(create_, chunked_array)         //create_TYPE_chunked_array
+#define chunked_array_at        CONCATENATE(chunked_array, _at)             //TYPE_chunked_array_at
+#define add_to_chunked_array    CONCATENATE(add_, CONCATENATE(PREFIX, to_chunked_array))    //add_TYPE_to_chunked_array
+#define chunked_array_remove_range CONCATENATE(chunked_array, _remove_range)//TYPE_chunked_array_remove_range
+#define chunked_array_remove    CONCATENATE(chunked_array, _remove)         //TYPE_chunked_array_remove
+#define free_chunked_array      CONCATENATE(free_, chunked_array)           //free_TYPE_chunked_array
 
 #ifndef FORCE_INLINE
 #define FORCE_INLINE __attribute((always_inline)) inline
@@ -10,29 +16,24 @@
 
 typedef struct
 {
-    uint8_t** chunks;
+    TYPE** chunks;
 
     uint32_t chunk_size;
-    uint32_t item_size;
     
     bit_vector* occupancy;
 }chunked_array;
 
-chunked_array* create_chunked_array(uint32_t chunk_size, uint32_t item_size);
+chunked_array* create_TYPE_chunked_array(uint32_t chunk_size);
 
 void* chunked_array_at(chunked_array* array, uint32_t index);
-chunked_array* chunked_array_add(chunked_array* array, void* item);
+chunked_array* add_to_chunked_array(chunked_array* array, TYPE item);
 
 chunked_array* chunked_array_remove_range(chunked_array* array, uint32_t start, uint32_t end);
 chunked_array* chunked_array_remove(chunked_array* array, uint32_t index);
 void free_chunked_array(chunked_array* array);
 
-#endif //_CHUNKED_ARRAY_H
-
-#if defined(INCLUDE_IMPLEMENTATION) && !defined(_CHUNKED_ARRAY_C)
-    #define _CHUNKED_ARRAY_C
-
-#define ITEM_AT(a, i) (*(a->chunks[i / a->chunk_size] + a->item_size*(i % a->chunk_size)))
+//----------------------------------
+#ifdef INCLUDE_IMPLEMENTATION
 
 chunked_array* create_chunked_array(uint32_t chunk_size, uint32_t item_size)
 {
@@ -40,26 +41,27 @@ chunked_array* create_chunked_array(uint32_t chunk_size, uint32_t item_size)
 
     chunked_array* array = (chunked_array*)calloc(1, sizeof(chunked_array));
     array->chunk_size = chunk_size;
-    array->item_size = item_size;
     array->chunks = calloc(1, sizeof(void*));
-    array->chunks[0] = calloc(chunk_size, item_size);
+    array->chunks[0] = calloc(chunk_size, sizeof(TYPE));
 
     array->occupancy = create_bit_vector(0);
 
     return array;
 }
 
-void* chunked_array_at(chunked_array* array, uint32_t index)
+TYPE chunked_array_at(chunked_array* array, uint32_t index)
 {
     //sanitize args
     if(array == NULL) return NULL;
     
-    if(bit_vector_get(array->occupancy, index) == 0) return NULL;
+    if(bit_vector_get(array->occupancy, index) == 0) return (TYPE){0};
 
-    return ITEM_AT(array, index);
+    TYPE* chunk = array->chunks[index / array->chunk_size];
+
+    return chunk[index % array->chunk_size];
 }
 
-chunked_array* chunked_array_add(chunked_array* array, void* item)
+chunked_array* add_to_chunked_array(chunked_array* array, TYPE item)
 {
     if(array == NULL) return NULL;
 
@@ -123,4 +125,13 @@ void free_chunked_array(chunked_array* array)
     free_bit_vector(array->occupancy);
     free(array);
 }
-#endif // _CHUNKED_ARRAY_C
+#endif
+
+#undef chunked_array
+#undef create_chunked_array
+#undef chunked_array_at
+#undef add_to_chunked_array
+#undef chunked_array_remove_range
+#undef chunked_array_remove
+#undef free_chunked_array
+#include "../template_footer.c"

@@ -123,30 +123,17 @@ rotor3 edge_edge_overlap(vec3 center_diff, vec3 a_origin, vec3 a_edge, vec3 b_or
 //     return overlap.x;
 // }
 
-void reset_contact_data(collision_pair* p)
-{
-    if(p == NULL) return;
-
-    p->contact_count = MAX_CONTACT_POINTS;
-    do
-    {
-        p->contact_count--;
-        p->points[p->contact_count].penetration = REAL_MAX;
-    }
-    while(p->contact_count > 0);
-}
+#define VALIDATE_POTENTIAL_CONTACT(p) \
+if((p->points[p->contact_count]).penetration >= 0)\
+{p->contact_count++; p->type = CONFIRMED_COLLISION;}
 
 FORCE_INLINE void update_potential_contact(collision_pair* p, vec3 contact_point, vec3 contact_normal, real overlap)
 {
     contact* potential_contact = &p->points[p->contact_count];
 
-    if(overlap > potential_contact->penetration) return;
+    if(overlap >= potential_contact->penetration) return;
 
     potential_contact->point = contact_point;
     potential_contact->normal = contact_normal;
     potential_contact->penetration = overlap;
 }
-
-#define VALIDATE_POTENTIAL_CONTACT(p) \
-if((p->points[p->contact_count]).penetration >= 0)\
-{p->contact_count++; p->type = CONFIRMED_COLLISION;}

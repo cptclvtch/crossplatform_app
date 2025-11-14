@@ -1,12 +1,14 @@
 #include "../../unit_testing.c"
-#include "api.c"
-#define INCLUDE_IMPLEMENTATION
-#include "api.c"
 
 typedef struct
 {
     char a,b;
 }test_struct;
+
+#define INCLUDE_IMPLEMENTATION
+
+#define DESIRED_TYPE test_struct
+#include "api.c"
 
 int main()
 {
@@ -46,18 +48,18 @@ int main()
     a = create_chunked_array(50, sizeof(test_struct));
 
     #undef SUBTITLE
-    #define SUBTITLE "chunked_array_add - Best Case Scenario"
+    #define SUBTITLE "add_to_chunked_array - Best Case Scenario"
     b = calloc(1,sizeof(test_struct));
     b->a = 2;
-    chunked_array_add(a, b);
+    add_to_chunked_array(a, b);
     VERIFY_SINGLE_VALUE(a->occupancy->last_index, ==, 0);
     COLLECT_FINDINGS
 
     #undef SUBTITLE
-    #define SUBTITLE "chunked_array_add - repeated use"
+    #define SUBTITLE "add_to_chunked_array - repeated use"
     b = calloc(1,sizeof(test_struct));
     b->a = 3;
-    chunked_array_add(a, b);
+    add_to_chunked_array(a, b);
     VERIFY_SINGLE_VALUE(a->occupancy->last_index, ==, 1);
     COLLECT_FINDINGS
 

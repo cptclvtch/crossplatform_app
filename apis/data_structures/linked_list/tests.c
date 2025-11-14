@@ -1,55 +1,53 @@
 #include "../../unit_testing.c"
 
 #include "api.c"
-#define INCLUDE_IMPLEMENTATION
-#include "api.c"
 
 int main()
 {
     CLEAR_SCREEN
 
-    linked_list_node* node_a = NULL;
-    linked_list_node* node_b = NULL;
+    ll_node* node_a = NULL;
+    ll_node* node_b = NULL;
     #define TITLE "linked list node"
     POST_TITLE
 
     #undef SUBTITLE
-    #define SUBTITLE "get_new_link - Best Case Scenario"
-    node_a = get_new_link(NULL);
+    #define SUBTITLE "create_ll_node - Best Case Scenario"
+    node_a = create_ll_node(NULL);
     VERIFY_SINGLE_VALUE(node_a, !=, NULL)
     VERIFY_SINGLE_VALUE(node_a->data, ==, NULL)
-    free_link(node_a, NULL); node_a = NULL;
+    free_ll_node(node_a); node_a = NULL;
     COLLECT_FINDINGS
 
     #undef SUBTITLE
-    #define SUBTITLE "add_link_before - NULL add_to"
-    node_a = add_link_before(NULL, NULL);
+    #define SUBTITLE "ll_add_data(PREV) - NULL add_to"
+    node_a = ll_add_data(NULL, PREV, NULL);
     VERIFY_SINGLE_VALUE(node_a, !=, NULL)
     VERIFY_SINGLE_VALUE(node_a->data, ==, NULL)
     COLLECT_FINDINGS
     
     #undef SUBTITLE
-    #define SUBTITLE "add_link_before - Best Case Scenario"
-    node_b = add_link_before(node_a, NULL);
+    #define SUBTITLE "ll_add_data(PREV) - Best Case Scenario"
+    node_b = ll_add_data(node_a, PREV, NULL);
     VERIFY_SINGLE_VALUE(node_b, !=, NULL)
     VERIFY_SINGLE_VALUE(node_b->data, ==, NULL)
     VERIFY_SINGLE_VALUE(node_b->NEXT, == , node_a)
     VERIFY_SINGLE_VALUE(node_b->PREV, == , NULL)
     COLLECT_FINDINGS
 
-    free_link(node_a, NULL); node_a = NULL;
-    free_link(node_b, NULL); node_b = NULL;
+    free_ll_node(node_a); node_a = NULL;
+    free_ll_node(node_b); node_b = NULL;
 
     #undef SUBTITLE
-    #define SUBTITLE "add_link_after - NULL add_to"
-    node_a = add_link_after(NULL, NULL);
+    #define SUBTITLE "ll_add_data(NEXT) - NULL add_to"
+    node_a = ll_add_data(NULL, NEXT, NULL);
     VERIFY_SINGLE_VALUE(node_a, !=, NULL)
     VERIFY_SINGLE_VALUE(node_a->data, ==, NULL)
     COLLECT_FINDINGS
     
     #undef SUBTITLE
-    #define SUBTITLE "add_link_after - Best Case Scenario"
-    node_b = add_link_after(node_a, NULL);
+    #define SUBTITLE "ll_add_data(NEXT) - Best Case Scenario"
+    node_b = ll_add_data(node_a, NEXT, NULL);
     VERIFY_SINGLE_VALUE(node_b, !=, NULL)
     VERIFY_SINGLE_VALUE(node_b->data, ==, NULL)
     VERIFY_SINGLE_VALUE(node_b->PREV, == , node_a)
@@ -57,47 +55,57 @@ int main()
     COLLECT_FINDINGS
 
     #undef SUBTITLE
-    #define SUBTITLE "free_link_chain - Best Case Scenario - shouldnt crash"
-    free_link_chain(node_a, NULL, 1);
-    VERIFY_SINGLE_VALUE(1,==,1);
-    COLLECT_FINDINGS
-
-    node_a = NULL;
-    node_b = NULL;
-
-    ADD_SEPARATOR
-
-    linked_list list_a;
-    #undef TITLE
-    #define TITLE "linked list"
-    POST_TITLE
-
-    #undef SUBTITLE
-    #define SUBTITLE "create_new_list - NULL free function"
-    list_a = create_new_list(NULL);
-    VERIFY_SINGLE_VALUE(list_a.free_func, ==, NULL)
-    COLLECT_FINDINGS
-
-    #undef SUBTITLE
-    #define SUBTITLE "free_list - NULL free function"
-    list_a.nodes = get_new_link(NULL);
-    free_list(&list_a);
-    VERIFY_SINGLE_VALUE(list_a.nodes, ==, NULL)
+    #define SUBTITLE "ll_add_link(PREV) - NULL add_to"
+    node_a = ll_add_link(NULL, PREV, NULL);
+    VERIFY_SINGLE_VALUE(node_a, !=, NULL)
+    VERIFY_SINGLE_VALUE(node_a->data, ==, NULL)
     COLLECT_FINDINGS
     
     #undef SUBTITLE
-    #define SUBTITLE "create_new_list - DONT_DELETE_CONTENTS"
-    list_a = create_new_list(DONT_DELETE_CONTENTS);
-    VERIFY_SINGLE_VALUE(list_a.free_func, ==, DONT_DELETE_CONTENTS)
+    #define SUBTITLE "ll_add_link(PREV) - NULL link_in"
+    node_b = ll_add_link(node_a, PREV, NULL);
+    VERIFY_SINGLE_VALUE(node_b, !=, NULL)
+    VERIFY_SINGLE_VALUE(node_b->data, ==, NULL)
+    VERIFY_SINGLE_VALUE(node_b->NEXT, == , node_a)
+    VERIFY_SINGLE_VALUE(node_b->PREV, == , NULL)
     COLLECT_FINDINGS
 
     #undef SUBTITLE
-    #define SUBTITLE "free_list - DONT_DELETE_CONTENTS"
-    list_a.nodes = get_new_link(malloc(2));
-    void* a = list_a.nodes->data;
-    free_list(&list_a);
-    VERIFY_SINGLE_VALUE(a, !=, NULL)
-    VERIFY_SINGLE_VALUE(list_a.nodes, ==, NULL)
+    #define SUBTITLE "ll_add_link(PREV) - Best Case Scenario"
+    ll_node* temp = create_ll_node(NULL);
+    ll_add_link(node_b, PREV, temp);
+    VERIFY_SINGLE_VALUE(node_b->PREV, ==, temp)
+    VERIFY_SINGLE_VALUE(temp->NEXT, ==, node_b)
+    COLLECT_FINDINGS
+
+    free_ll_node(node_a); node_a = NULL;
+    free_ll_node(node_b); node_b = NULL;
+
+    #undef SUBTITLE
+    #define SUBTITLE "ll_add_link(NEXT) - NULL add_to"
+    node_a = ll_add_link(NULL, NEXT, NULL);
+    VERIFY_SINGLE_VALUE(node_a, !=, NULL)
+    VERIFY_SINGLE_VALUE(node_a->data, ==, NULL)
+    COLLECT_FINDINGS
+    
+    #undef SUBTITLE
+    #define SUBTITLE "ll_add_link(NEXT) - NULL link_in"
+    node_b = ll_add_link(node_a, NEXT, NULL);
+    VERIFY_SINGLE_VALUE(node_a, !=, NULL)
+    VERIFY_SINGLE_VALUE(node_b->data, ==, NULL)
+    COLLECT_FINDINGS
+    
+    #undef SUBTITLE
+    #define SUBTITLE "ll_add_link(NEXT) - Best Case Scenario"
+    ll_add_link(node_a, NEXT, temp);
+    VERIFY_SINGLE_VALUE(node_a->NEXT, == , temp)
+    VERIFY_SINGLE_VALUE(temp->PREV, ==, node_a)
+    COLLECT_FINDINGS
+
+    #undef SUBTITLE
+    #define SUBTITLE "free_link_chain - Best Case Scenario - shouldnt crash"
+    free_ll_chain(node_a, NEXT);
+    VERIFY_SINGLE_VALUE(1,==,1);
     COLLECT_FINDINGS
 
     DEBRIEF

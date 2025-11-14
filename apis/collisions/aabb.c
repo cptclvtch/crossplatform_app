@@ -1,5 +1,6 @@
 //Dependencies
 #include "../geometric_algebra/api.c"
+#include <stdint.h>
 
 #ifndef _AABB_H
     #define _AABB_H
@@ -10,7 +11,7 @@ typedef struct
     vec3 half_size; //(vec3){0} should be treated same as a non-existent aabb
 } aabb;
 
-uint8_t aabb_is_invalid(aabb a);
+static inline uint8_t aabb_is_invalid(aabb a);
 uint8_t aabb_aabb_check(aabb a, aabb b);
 uint8_t aabb_vec3_check(aabb a, vec3 b);
 aabb aabb_union(aabb a, aabb b);

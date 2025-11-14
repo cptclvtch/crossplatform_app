@@ -7,9 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "apis/data_structures/includes.c"
-#define INCLUDE_IMPLEMENTATION
-#include "apis/data_structures/includes.c"
+#include "apis/data_structures/linked_list/api.c"
 
 #define INTERPRETER "tcc"
 #define COMPILER "tcc"
@@ -119,10 +117,10 @@ void add_value_to_environment_variable(char* val, char* var)
     }
 }
 
-linked_list_node* get_list_of_files(char* path, char* extension);
-linked_list_node* get_list_of_files(char* path, char* extension)
+ll_node* get_list_of_files(char* path, char* extension);
+ll_node* get_list_of_files(char* path, char* extension)
 {
-    linked_list_node* list = NULL;
+    ll_node* list = NULL;
 
     //search for files
     #ifdef _WIN32
@@ -141,7 +139,7 @@ linked_list_node* get_list_of_files(char* path, char* extension)
                 if((ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && ffd.cFileName[0] != '.')
                 {
                     sprintf(query, "%s/%s", path, ffd.cFileName);
-                    linked_list_node* recursive_return = get_list_of_files(query, extension);
+                    ll_node* recursive_return = get_list_of_files(query, extension);
                     if(recursive_return)
                     {
                         //prepend to current list
@@ -172,13 +170,14 @@ linked_list_node* get_list_of_files(char* path, char* extension)
                     strcpy(tuple[0], path);
                     tuple[1] = (char*)malloc(64);
                     strcpy(tuple[1], ffd.cFileName);
-                    list = add_link_before(list, tuple);
+                    list = ll_add_data(list, PREV, tuple);
                 }
             }
             while(FindNextFile(hFind, &ffd) != 0);
         FindClose(hFind);
     #endif
     #if defined __APPLE__ || __linux__
+        //TODO
         #error Please implement me
         //ls
     #endif

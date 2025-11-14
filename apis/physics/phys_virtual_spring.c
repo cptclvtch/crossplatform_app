@@ -46,7 +46,7 @@ void delete_virtual_spring(phys_virtual_spring* s)
 
 void apply_spring_force(phys_virtual_spring* s)
 {
-    vec3 delta = vec_subtract(s->a->p, s->b->p);
+    vec3 delta = vec_subtract(*(s->a->p), *(s->b->p));
 
     vec3 force = vec_scalar_multiply(vec_normalize(delta), -(vec_length(delta) - s->rest_length)*s->k);
 

@@ -1,5 +1,5 @@
 #include "../../unit_testing.c"
-#include "../narrow_phase.c"
+
 #define INCLUDE_IMPLEMENTATION
 #include "../narrow_phase.c"
 
@@ -86,10 +86,11 @@ int main()
     #define SUBTITLE "Passing"
     v_a = (vec3){0,0,0};
     v_b = (vec3){1.5,0,0};
-    sphere_to_sphere(&p);
+    collision_detect(&p);
     VERIFY_SINGLE_VALUE(p.type, ==, CONFIRMED_COLLISION);
+    vec3 n = p.points[p.contact_count-1].normal;
     VERIFY_SINGLE_VALUE(vec_are_parallel(p.points[p.contact_count-1].normal, (vec3){1,0,0}, M_EPSILON), ==, 1);
-    VERIFY_SINGLE_VALUE(p.points[p.contact_count].penetration - fl2real(1), <, M_EPSILON);
+    VERIFY_SINGLE_VALUE(p.points[p.contact_count-1].penetration - fl2real(1), <, M_EPSILON);
     COLLECT_FINDINGS
     p.contact_count = 0;
 

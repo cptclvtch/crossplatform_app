@@ -2,7 +2,7 @@
 typedef struct
 {
     //Dynamics
-        vec3 p; //m
+        vec3* p; //m
         vec3 v; //m/s
         vec3 a; //m/s^2
         float inverse_mass; //1/kg
@@ -22,7 +22,7 @@ void linear_integration(phys_point* p, float dT /*seconds*/)
     if(p->inverse_mass <= 0.0) return;
 
     //update position
-    p->p = vec_add(p->p, vec_scalar_multiply(p->v, dT));
+    *(p->p) = vec_add(*(p->p), vec_scalar_multiply(p->v, dT));
     // p->p = vec_add(p->p, vec_scalar_multiply(p->a, dT*dT)); //if acceleration component needed
 
     //determine acceleration
