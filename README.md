@@ -1,6 +1,16 @@
 # What is this?
- This is a C template meant to be used as a starting point for creating crossplatform projects.
+ This is a C project template meant to be used as a starting point for creating crossplatform projects.
  It comes bundled with SDL2 and Nuklear GUI, so feel free to use any of the functions they provide!
+
+## Features:
+- Collision API
+- Physics API
+- Geometric Algebra API (vector and rotor math)
+- Data Structures
+    - With Template Support: Linked list, Binary tree
+    - No Template Support: Bit vector
+- Frame Timing API
+- simple Asset Manager API
 
 ## Supported Platforms:
 - Windows
