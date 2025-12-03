@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include "app_configuration.c"
+// #define COMPILER "gcc"
+// #include CROSSPLATFORM_APP_FOLDER"script_helper.c"
 #include "../../../script_helper.c"
 
 //-------------------------
@@ -32,7 +34,7 @@
 //-------------------------
 #define FLAGS DEBUG_FLAGS " -w" WINDOWS_FLAGS " " RELEASE_FLAG
 
-#define LIBRARY_PATHS " -L../../../backend/SDL2/lib/x86"
+#define LIBRARY_PATHS " -L"CROSSPLATFORM_APP_FOLDER"/backend/SDL2/lib/x86"
 #define LIBRARY_NAMES " -lSDL2"
 #define LIBRARIES LIBRARY_PATHS LIBRARY_NAMES
 
@@ -94,11 +96,11 @@ int main()
     printf("\nCopying libraries... \n");
     printf("-----------------\n");
     #ifdef _WIN32
-    fs_copy("../../../backend/SDL2/lib/x86/SDL2.dll", "build/", NON_RECURSIVE);
+    fs_copy(CROSSPLATFORM_APP_FOLDER"/backend/SDL2/lib/x86/SDL2.dll", "build/", NON_RECURSIVE);
     #endif
 
     #if defined __APPLE__ || __linux__
-    fs_copy("../../../backend/SDL2/lib/x86/libSDL2.a", "build/", NON_RECURSIVE);
+    fs_copy(CROSSPLATFORM_APP_FOLDER"/backend/SDL2/lib/x86/libSDL2.a", "build/", NON_RECURSIVE);
     #endif
 
     //copy assets

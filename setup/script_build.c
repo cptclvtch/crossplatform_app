@@ -1,6 +1,11 @@
 #include <stdlib.h>
+#ifndef CROSSPLATFORM_APP_FOLDER 
+#define CROSSPLATFORM_APP_FOLDER "./crossplatform_app/"
+#endif
+
 #include "app_configuration.c"
-#include "crossplatform_app/script_helper.c"
+// #include CROSSPLATFORM_APP_FOLDER"/script_helper.c"
+#include "./crossplatform_app/script_helper.c"
 
 //-------------------------
 //Build debug by default, unless release is specified (-D RELEASE)
@@ -32,7 +37,7 @@
 //-------------------------
 #define FLAGS DEBUG_FLAGS " -w" WINDOWS_FLAGS " " RELEASE_FLAG
 
-#define LIBRARY_PATHS " -L./crossplatform_app/backend/SDL2/lib/x86"
+#define LIBRARY_PATHS " -L"CROSSPLATFORM_APP_FOLDER"/backend/SDL2/lib/x86"
 #define LIBRARY_NAMES " -lSDL2"
 #define LIBRARIES LIBRARY_PATHS LIBRARY_NAMES
 
@@ -94,21 +99,17 @@ int main()
     printf("\nCopying libraries... \n");
     printf("-----------------\n");
     #ifdef _WIN32
-    fs_copy("crossplatform_app/backend/SDL2/lib/x86/SDL2.dll", "build/", NON_RECURSIVE);
+    fs_copy(CROSSPLATFORM_APP_FOLDER"/backend/SDL2/lib/x86/SDL2.dll", "build/", NON_RECURSIVE);
     #endif
 
     #if defined __APPLE__ || __linux__
-    fs_copy("crossplatform_app/backend/SDL2/lib/x86/libSDL2.a", "build/", NON_RECURSIVE);
+    fs_copy(CROSSPLATFORM_APP_FOLDER"/backend/SDL2/lib/x86/libSDL2.a", "build/", NON_RECURSIVE);
     #endif
 
     //copy assets
     printf("\nCopying assets... \n");
     printf("-----------------\n");
-    #ifdef _WIN32
-    #endif
-
-    #if defined __APPLE__ || __linux__
-    #endif
+    
 
     printf("Done.\n");
 }

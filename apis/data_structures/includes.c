@@ -1,5 +1,3 @@
 // #include "arena_allocator/api.c"
-// #include "linked_list/api.c"
-// #include "bit_vector/api.c"
+#include "bit_vector/api.c"
 // #include "chunked_array/api.c"
-// #include "binary_tree/api.c"

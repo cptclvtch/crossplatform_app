@@ -23,6 +23,8 @@ typedef struct bt_node
     struct bt_node* child[2];
 }bt_node;
 
+//TODO consider storing as array
+
 // typedef struct
 // {
 //     bt_node* root;
@@ -242,8 +244,7 @@ void free_bt_node(bt_node* root)
 {
     if(root == NULL) return;
 
-    if(root->parent)
-        root->parent->child[root->parent->child[1] == root] = NULL;
+    if(root->parent) root->parent->child[root->parent->child[1] == root] = NULL;
 
     free_bt_node(root->child[0]);
     free_bt_node(root->child[1]);

@@ -48,11 +48,12 @@ typedef enum
 };
 
 #define MAX_SHADER_UNIFORMS 16
+#define MAX_SHADER_SOURCES 64
 typedef struct
 {
     uint32_t id;
 
-    char** strings;
+    char* strings[MAX_SHADER_SOURCES];
     uint16_t no_of_strings;
 
     uniform uniforms[MAX_SHADER_UNIFORMS];
@@ -75,6 +76,7 @@ uint32_t retrieve_uniform_id(shader* s, char* name);
 //MACRO: void set_uniform(id, type, ...);
 char* cache_uniform_string(shader_stage* stage);
 void load_shader(shader* s);
+void add_source_to_stage(shader_stage* stage, char* source);
 shader* load_shader_from_file(shader* s, char* vertex_source, char* fragment_source);
 // void print_out_shader(shader* s);
 void use_shader(shader* s);
@@ -170,11 +172,10 @@ void print_stage_log(uint32_t stage)
     
     //Get info log
     int log_length = 0;
-    char* info_log = calloc(1, max_length);
+    char info_log[1000];
     glGetShaderInfoLog(stage, max_length, &log_length, info_log);
     if(log_length) PRINT_FN("%s\n", info_log);
 
-    free(info_log);
     return;
 }
 #else
@@ -393,25 +394,21 @@ void load_shader(shader* s)
     }
 }
 
+void add_source_to_stage(shader_stage* stage, char* source)
+{
+    if(!source || !stage) return;
+
+    stage->strings[stage->no_of_strings++] = source;
+}
+
 //TODO switch this to source array
 shader* load_shader_from_file(shader* s, char* vertex_source, char* fragment_source)
 {
     if(s == NULL)
         s = (shader*)calloc(1,sizeof(shader));
 
-    shader_stage* current_stage = &s->stages[0];
-
-    current_stage->strings = (char**)calloc(1, sizeof(char*));
-    current_stage->strings[0] = read_shader_source(vertex_source);
-    if(current_stage->strings[0] == NULL) return;
-    current_stage->no_of_strings = 1;
-
-    current_stage = &s->stages[1];
-
-    current_stage->strings = (char**)calloc(1, sizeof(char*));
-    current_stage->strings[0] = read_shader_source(fragment_source);
-    if(current_stage->strings[0] == NULL) return;
-    current_stage->no_of_strings = 1;
+    add_source_to_stage(&s->stages[VERT], read_shader_source(vertex_source));
+    add_source_to_stage(&s->stages[FRAG], read_shader_source(fragment_source));
 
     load_shader(s);
     
@@ -452,6 +449,15 @@ void use_shader_and_sync(shader* s)
 void unload_shader(shader* s)
 {
     if(s == NULL) return;
+
+    uint8_t stage = 0;
+    for(; stage < MAX_SHADER_STAGES; stage++)
+    {
+        char* cached_string = s->stages[stage].cached_uniform_string;
+        if(cached_string) free(cached_string);
+    }
+
+    //TODO free sources? need to know which are domestic and which are foreign though
 
     glDeleteProgram(s->id);
 }

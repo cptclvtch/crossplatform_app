@@ -4,10 +4,6 @@
 
 #ifndef _BIT_VECTOR_H
     #define _BIT_VECTOR_H
-    
-#ifndef FORCE_INLINE
-#define FORCE_INLINE __attribute((always_inline)) inline
-#endif
 
 // #define EMPTY_BIT_VECTOR (-1)
 
@@ -152,7 +148,7 @@ uint8_t _get_bit_chunk(bit_vector* vector, uint32_t index)
     return vector->chunks[BIT_TO_CHUNK(index)] & mask;
 }
 
-FORCE_INLINE uint8_t _get_bit(uint8_t f, uint8_t bit_pos)
+inline uint8_t _get_bit(uint8_t f, uint8_t bit_pos)
 {
     return (f & (1<<bit_pos)) >> bit_pos;
 }
@@ -164,7 +160,7 @@ uint8_t bit_vector_get(bit_vector* vector, uint32_t index)
     return _get_bit(_get_bit_chunk(vector, index), index%8);
 }
 
-FORCE_INLINE uint8_t _set_bit(uint8_t c, uint8_t bit_pos, uint8_t value)
+inline uint8_t _set_bit(uint8_t c, uint8_t bit_pos, uint8_t value)
 {
     value = value<<bit_pos;
     return (c & ~(1<<bit_pos)) + value;

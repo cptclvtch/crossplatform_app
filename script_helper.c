@@ -10,7 +10,9 @@
 #include "apis/data_structures/linked_list/api.c"
 
 #define INTERPRETER "tcc"
-#define COMPILER "tcc"
+#ifndef COMPILER
+    #define COMPILER "tcc"
+#endif
 #define DEBUGGER "gdb"
 
 #ifdef _WIN32

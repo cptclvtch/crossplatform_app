@@ -1,5 +1,5 @@
 Blender exporter:
--
+- implement collision mesh export for blender script
 
 Asset manager:
 - 
@@ -14,3 +14,19 @@ Graphics pipeline:
 
 GOAP:
 - write tests
+
+Debugging:
+- compile SDL example with gcc
+    - compile api with gcc
+    - compile on linux
+    - try valgrind
+- try Erik's GFLAGS on windows
+- try NASA's IKOS
+- keep expanding on the physics example.c (API end)
+- rewrite racing game (user end)
+
+- narrow phase stuff
+    - investigate closest point to triangle
+    - collision debugger mesh support
+    - implement collision mesh export for blender script
+    - 

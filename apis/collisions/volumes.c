@@ -14,7 +14,7 @@ enum
 
     NO_OF_VOLUME_TYPES,
 
-    GROUP
+    GROUPED
 };
 
 //mesh triangle format
@@ -137,7 +137,7 @@ void group_collision_volumes(collision_volume* a, collision_volume* b)
 {
     if(a == NULL || b == NULL) return;
 
-    if(a->type != GROUP)
+    if(a->type != GROUPED)
     {
         collision_volume* volume_copy = (collision_volume*)calloc(1, sizeof(collision_volume));
         *volume_copy = *a; //TODO check that this works
@@ -145,7 +145,7 @@ void group_collision_volumes(collision_volume* a, collision_volume* b)
         _apply_domestic_pointer(volume_copy, POSITION_POINTER, (vec3){0}, IDENTITY_ROTOR);
         _apply_domestic_pointer(volume_copy, ORIENTATION_POINTER, (vec3){0}, IDENTITY_ROTOR);
         
-        a->type = GROUP;
+        a->type = GROUPED;
         a->group_count = 1;
         a->volumes = (collision_volume**)calloc(1, sizeof(collision_volume*));
         a->volumes[0] = volume_copy;
@@ -202,7 +202,7 @@ aabb calculate_aabb_from_volume(collision_volume* v, uint8_t mode)
             break;
         }
 
-        case GROUP:
+        case GROUPED:
         {
             uint8_t i = 0;
             for(; i < v->group_count; i++)
@@ -225,7 +225,7 @@ void free_collision_volume(collision_volume* v)
 {
     if(v == NULL) return;
 
-    if(v->type == GROUP)
+    if(v->type == GROUPED)
     {
         uint8_t i = 0;
         for(; i < v->group_count; i++)

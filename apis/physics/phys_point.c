@@ -22,8 +22,9 @@ void linear_integration(phys_point* p, float dT /*seconds*/)
     if(p->inverse_mass <= 0.0) return;
 
     //update position
-    *(p->p) = vec_add(*(p->p), vec_scalar_multiply(p->v, dT));
-    // p->p = vec_add(p->p, vec_scalar_multiply(p->a, dT*dT)); //if acceleration component needed
+    vec3* pos = p->p;
+    *pos = vec_add(*pos, vec_scalar_multiply(p->v, dT));
+    // *(p->p) = vec_add(*(p->p), vec_scalar_multiply(p->a, dT*dT)); //if acceleration component needed
 
     //determine acceleration
     p->a = vec_add(p->a, vec_scalar_multiply(p->force_accumulator, p->inverse_mass));

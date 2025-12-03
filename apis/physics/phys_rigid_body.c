@@ -44,6 +44,7 @@ void calculate_center_of_mass(phys_rigid_body* b)
 //TODO proper angular acceleration formula
 void angular_integration(phys_rigid_body* b, float dT/*seconds*/)
 {
+    //FIXME zero length rotor?
     real angular_damping = fl2real(0.99);
 
     vec3 angular_acceleration; //scaled axis representation

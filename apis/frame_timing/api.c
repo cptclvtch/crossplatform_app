@@ -20,7 +20,7 @@ milli_s frame_accumulator; //TODO research type for this variable
 
 nano_s vsync_maxerror = 200;
 #define MAX_VSYNC_MULTIPLES 5
-nano_s vsync_frametime_snaps[MAX_VSYNC_MULTIPLES] = {};
+nano_s vsync_frametime_snaps[MAX_VSYNC_MULTIPLES];
 // uint32_t ticks_per_second;
 
 uint8_t update_multiplicity = 1;

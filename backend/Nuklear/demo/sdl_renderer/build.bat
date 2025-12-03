@@ -1,1 +1,0 @@
-tcc main.c -I./ -L./SDL2/lib/x86 -lSDL2 -w -W1,-subsystem,windows -o main.exe

@@ -22,14 +22,14 @@ typedef struct
 }mesh;
 
 //Helper functions
-mesh load_mesh_from_path(char* path);
+mesh load_mesh_from_file(char* path);
 void load_mesh_to_gpu(mesh* m);
 
 //----------------------------------
 #else
 //----------------------------------
 
-mesh load_mesh_from_path(char* path)
+mesh load_mesh_from_file(char* path)
 {
     mesh loaded_mesh = (mesh){0};
 

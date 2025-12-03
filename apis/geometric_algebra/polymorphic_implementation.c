@@ -28,7 +28,7 @@ vec3 switch_shape(vec3 a)
 }
 
 //Component-wise operations
-FORCE_INLINE vec3 vec_add(vec3 a, vec3 b)
+inline vec3 vec_add(vec3 a, vec3 b)
 {
     if(IS_SCALED(a)) a = switch_shape(a);
 
@@ -37,7 +37,7 @@ FORCE_INLINE vec3 vec_add(vec3 a, vec3 b)
     return (vec3){a.x + b.x, a.y + b.y, a.z + b.z};
 }
 
-FORCE_INLINE vec3 vec_subtract(vec3 a, vec3 b)
+inline vec3 vec_subtract(vec3 a, vec3 b)
 {
     if(IS_SCALED(a)) a = switch_shape(a);
 
@@ -46,7 +46,7 @@ FORCE_INLINE vec3 vec_subtract(vec3 a, vec3 b)
     return (vec3){a.x - b.x, a.y - b.y, a.z - b.z};
 }
 
-FORCE_INLINE vec3 vec_multiply(vec3 a, vec3 b)
+inline vec3 vec_multiply(vec3 a, vec3 b)
 {
     if(IS_SCALED(a)) a = switch_shape(a);
 
@@ -73,12 +73,12 @@ inline vec3 vec_divide(vec3 a, vec3 b)
     return result;
 }
 
-FORCE_INLINE vec3 vec_scalar_multiply(vec3 a, real amount)
+inline vec3 vec_scalar_multiply(vec3 a, real amount)
 {
     return (vec3){m_mul(a.x,amount), m_mul(a.y,amount), m_mul(a.z,amount)};
 }
 
-FORCE_INLINE vec3 vec_scalar_divide(vec3 a, real amount)
+inline vec3 vec_scalar_divide(vec3 a, real amount)
 {
     return (vec3){m_div(a.x,amount), m_div(a.y,amount), m_div(a.z,amount)};
 }
@@ -100,14 +100,14 @@ inline vec3 vec_max(vec3 a, vec3 b)
 }
 
 //Unary operations
-FORCE_INLINE real vec_length_squared(vec3 a)
+inline real vec_length_squared(vec3 a)
 {
     //3 multiplications
     //2 additions
     return m_mul(a.x,a.x) + m_mul(a.y,a.y) + m_mul(a.z,a.z);
 }
 
-FORCE_INLINE real vec_length(vec3 a)
+inline real vec_length(vec3 a)
 {
     //3 multiplications
     //2 additions
@@ -140,26 +140,26 @@ vec3 vec_unit_cube_fit(vec3 a)
     return vec_scalar_divide(a, max);
 }
 
-FORCE_INLINE vec3 vec_reverse(vec3 a)
+inline vec3 vec_reverse(vec3 a)
 {
     return (vec3){-a.x, -a.y, -a.z};
 }
 #define bivec_reverse(a) (bivec3)vec_reverse(a)
 
-FORCE_INLINE vec3 vec_abs(vec3 a)
+inline vec3 vec_abs(vec3 a)
 {
     return (vec3){m_abs(a.x), m_abs(a.y), m_abs(a.z)};
 }
 
 //Products
-FORCE_INLINE real vec_dot_product(vec3 a, vec3 b)
+inline real vec_dot_product(vec3 a, vec3 b)
 {
     //3 multiplications
     //2 additions
     return m_mul(a.x,b.x) + m_mul(a.y,b.y) + m_mul(a.z,b.z);
 }
 
-FORCE_INLINE bivec3 vec_cross_product(vec3 a, vec3 b)
+inline bivec3 vec_cross_product(vec3 a, vec3 b)
 {
     //6 multiplications
     //3 additions
@@ -219,7 +219,7 @@ rotor3 rotor_from_scaled_axis_angle(vec3 a)
             };
 }
 
-FORCE_INLINE rotor3 rotor_reverse(rotor3 r)
+inline rotor3 rotor_reverse(rotor3 r)
 {
     return (rotor3){r.II, bivec_reverse(r.T)};
 }

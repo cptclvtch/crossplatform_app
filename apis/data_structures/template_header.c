@@ -9,6 +9,8 @@
     - complicates the build process (requires more compilation & correct order of type definitions)
 */
 
+//TODO test deffered implementations on multiple data structures of the same type
+
 #ifndef CONCATENATE
     #define CPP_IS_STUPID(a,b) a##b
     #define CONCATENATE(a,b) CPP_IS_STUPID(a,b)

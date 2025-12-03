@@ -60,120 +60,67 @@ void dev_window_setup()
     initialize_gizmos();
 }
 
-void bvh_print(binary_tree* node, uint8_t tab_level);
-void bvh_print(binary_tree* node, uint8_t tab_level)
-{
-    if(node == NULL) return;
-
-    PRINT_FN("\n");
-    uint8_t i = 0;
-    for(; i < tab_level; i++)
-        PRINT_FN("\t");
-
-    aabb box = ((bvh_data*)node->data)->box;
-    PRINT_FN("[%f,%f,%f] [%f,%f,%f]", box.center.x, box.center.y, box.center.z, box.half_size.x, box.half_size.y, box.half_size.z);
-
-    bvh_print(node->child[0], tab_level + 1);
-    bvh_print(node->child[1], tab_level + 1);
-}
-
-enum{Broad, Narrow, NO_OF_DEV_TABS};
-uint8_t current_tab = Narrow;
 void dev_window_loop()
 {
-    char text[255];
-    #ifdef NK_SDL_RENDERER_IMPLEMENTATION
+    char text[256];
     SDL_RenderClear(dev_renderer);
-    #endif
-    #ifdef NK_SDL_GL3_IMPLEMENTATION
-    glClear(GL_COLOR_BUFFER_BIT);
-    #endif
 
-    if (nk_begin(dev_ctx, "Dev", nk_rect(0, 0, dev_width, dev_height), 0))
-    {
-        char* tab_strings[NO_OF_DEV_TABS] = {"Broad Phase","Narrow Phase"};
-        uint8_t tab_height = 30;
-        
-        nk_layout_row_static(dev_ctx, tab_height, dev_width/NO_OF_DEV_TABS-9, NO_OF_DEV_TABS);
+    if(nk_begin(dev_ctx, "Dev", nk_rect(0, 0, dev_width, dev_height), 0))
+    {        
         uint8_t i;
-        for(i = 0; i < NO_OF_DEV_TABS; i++)
-            if(nk_button_label(dev_ctx, tab_strings[i])) current_tab = i;
 
-        nk_label(dev_ctx, "", NK_TEXT_CENTERED);
-        
-        switch(current_tab)
+        nk_layout_row_dynamic(dev_ctx, 30, 2);
+        nk_property_float(dev_ctx, "Animation speed:", 0.0, &anim_speed, 1.0, .05, .01);
+        if(nk_button_label(dev_ctx, debug_paused == 0 ? "|>":"||")) debug_paused = 1 - debug_paused;
+
+        nk_layout_row_dynamic(dev_ctx, 20, 2);
+        char* volume_strings[NO_OF_VOLUME_TYPES] = {"Sphere", "Box", "Mesh"};
+        for(i = 0; i < 2; i++)
         {
-            case Broad:
-            {
-                nk_layout_row_dynamic(dev_ctx, 20, 1);
-            }
-            break;
+            nk_layout_row_dynamic(dev_ctx, 20, 2);
+            nk_label(dev_ctx, "", 0); nk_label(dev_ctx, "", 0);
+            sprintf(text, "Volume %c", 'A' + i);
+            nk_label(dev_ctx, text, NK_TEXT_LEFT);
+            collision_volume* v = p.members[i];
+            v->type = nk_combo(dev_ctx, volume_strings, NO_OF_VOLUME_TYPES-1, v->type, 30, nk_vec2(200,200));
 
-            case Narrow:
-            {
-                uint8_t i;
+            nk_layout_row_dynamic(dev_ctx, 20, 4);
+            nk_label(dev_ctx, "Position:", NK_TEXT_LEFT);
+            nk_property_float(dev_ctx, "X:", -10.0, &v->position->x, 10.0, .05, .01);
+            nk_property_float(dev_ctx, "Y:", -10.0, &v->position->y, 10.0, .05, .01);
+            nk_property_float(dev_ctx, "Z:", -10.0, &v->position->z, 10.0, .05, .01);
 
-                nk_layout_row_dynamic(dev_ctx, 20, 2);
-                nk_property_float(dev_ctx, "Animation speed:", 0.0, &anim_speed, 1.0, .05, .01);
-                if(nk_button_label(dev_ctx, debug_paused == 0 ? "|>":"||")) debug_paused = 1 - debug_paused;
+            nk_layout_row_dynamic(dev_ctx, 20, 5);
+            nk_label(dev_ctx, "Orientation:", NK_TEXT_LEFT);
+            nk_property_float(dev_ctx, "T.X:", 0.0, &v->orientation->T.x, 1.0, .05, .01);
+            nk_property_float(dev_ctx, "T.Y:", 0.0, &v->orientation->T.y, 1.0, .05, .01);
+            nk_property_float(dev_ctx, "T.Z:", 0.0, &v->orientation->T.z, 1.0, .05, .01);
+            nk_property_float(dev_ctx, "II: ", 0.0, &v->orientation->II , 1.0, .05, .01);
+            *v->orientation = rotor_normalize(*v->orientation);
+            
+            nk_layout_row_dynamic(dev_ctx, 20, 4);                    
+            nk_label(dev_ctx, "Size:", NK_TEXT_LEFT);
+            nk_property_float(dev_ctx, "X:", 0.0, &v->dimensions.x, 10.0, .05, .01);
+            nk_property_float(dev_ctx, "Y:", 0.0, &v->dimensions.y, 10.0, .05, .01);
+            nk_property_float(dev_ctx, "Z:", 0.0, &v->dimensions.z, 10.0, .05, .01);
+        }
 
-                char* volume_strings[NO_OF_VOLUME_TYPES] = {"Sphere", "Box", "Mesh"};
-                
-                for(i = 0; i < 2; i++)
-                {
-                    nk_layout_row_dynamic(dev_ctx, 20, 2);
-                    nk_label(dev_ctx, "", 0); nk_label(dev_ctx, "", 0);
-                    sprintf(text, "Volume %c", 'A' + i);
-                    nk_label(dev_ctx, text, NK_TEXT_LEFT);
-                    collision_volume* v = p.members[i];
-                    v->type = nk_combo(dev_ctx, volume_strings, NO_OF_VOLUME_TYPES-1, v->type, 30, nk_vec2(200,200));
+        nk_layout_row_dynamic(dev_ctx, 20, 1);
+        nk_label(dev_ctx, "", 0);
+        if(p.type == NO_COLLISION)
+            sprintf(text, "No collisions");
+        else
+            sprintf(text, "Interpenetrations (%u)", p.contact_count);
 
-                    nk_layout_row_dynamic(dev_ctx, 20, 4);
-                    nk_label(dev_ctx, "Position:", NK_TEXT_LEFT);
-                    nk_property_float(dev_ctx, "X:", -10.0, &v->position->x, 10.0, .05, .01);
-                    nk_property_float(dev_ctx, "Y:", -10.0, &v->position->y, 10.0, .05, .01);
-                    nk_property_float(dev_ctx, "Z:", -10.0, &v->position->z, 10.0, .05, .01);
-
-                    nk_layout_row_dynamic(dev_ctx, 20, 5);
-                    nk_label(dev_ctx, "Orientation:", NK_TEXT_LEFT);
-                    nk_property_float(dev_ctx, "T.X:", 0.0, &v->orientation->T.x, 1.0, .05, .01);
-                    nk_property_float(dev_ctx, "T.Y:", 0.0, &v->orientation->T.y, 1.0, .05, .01);
-                    nk_property_float(dev_ctx, "T.Z:", 0.0, &v->orientation->T.z, 1.0, .05, .01);
-                    nk_property_float(dev_ctx, "II: ", 0.0, &v->orientation->II , 1.0, .05, .01);
-                    *v->orientation = rotor_normalize(*v->orientation);
-                    
-                    nk_layout_row_dynamic(dev_ctx, 20, 4);                    
-                    nk_label(dev_ctx, "Size:", NK_TEXT_LEFT);
-                    nk_property_float(dev_ctx, "X:", 0.0, &v->dimensions.x, 10.0, .05, .01);
-                    nk_property_float(dev_ctx, "Y:", 0.0, &v->dimensions.y, 10.0, .05, .01);
-                    nk_property_float(dev_ctx, "Z:", 0.0, &v->dimensions.z, 10.0, .05, .01);
-                }
-
-                nk_layout_row_dynamic(dev_ctx, 20, 1);
-                nk_label(dev_ctx, "", 0);
-                if(p.type == NO_COLLISION)
-                    sprintf(text, "No collisions");
-                else
-                    sprintf(text, "Interpenetrations (%u)", p.contact_count);
-
-                nk_label(dev_ctx, text, NK_TEXT_LEFT);
-                for(i = 0; i < p.contact_count; i++)
-                {
-                    sprintf(text, "  %f", p.points[i].penetration);
-                    nk_label(dev_ctx, text, NK_TEXT_LEFT);
-                }
-            }
-            break;
+        nk_label(dev_ctx, text, NK_TEXT_LEFT);
+        for(i = 0; i < p.contact_count; i++)
+        {
+            sprintf(text, "  %f", p.points[i].penetration);
+            nk_label(dev_ctx, text, NK_TEXT_LEFT);
         }
     }
     nk_end(dev_ctx);
 
-    #ifdef NK_SDL_RENDERER_IMPLEMENTATION
     nk_sdl_render(NK_ANTI_ALIASING_ON);
     SDL_RenderPresent(dev_renderer);
-    #endif
-    #ifdef NK_SDL_GL3_IMPLEMENTATION
-    nk_sdl_render(NK_ANTI_ALIASING_ON, NK_MAX_VERTEX_MEMORY, NK_MAX_ELEMENT_MEMORY);
-    SDL_GL_SwapWindow(dev_window);
-    #endif
 }

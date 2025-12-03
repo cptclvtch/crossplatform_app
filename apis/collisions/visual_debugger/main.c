@@ -24,11 +24,6 @@ enum
 shader gizmo_shader = (shader){0};
 #include "vector_debug.c"
 
-// phys_world physics_sim;
-
-// vec3 debug_center = (vec3){0};
-// vec3 debug_half_size = (vec3){1,1,1};
-
 real debug_paused = fl2real(1);
 real anim_speed = fl2real(1.0);
 collision_pair p = (collision_pair){0};
@@ -52,20 +47,15 @@ void point_camera_at(vec3 point)
 
 void load_scene()
 {
+    declare_uniform(&gizmo_shader.stages[VERT], O_POS, "offset", G_VEC3);
+    declare_uniform(&gizmo_shader.stages[VERT], O_ROT, "rotor", G_VEC4);
+    declare_uniform(&gizmo_shader.stages[VERT], O_SCALE, "scale", G_VEC3);
+    declare_uniform(&gizmo_shader.stages[VERT], CAM_POS, "cam_pos", G_VEC3);
+    declare_uniform(&gizmo_shader.stages[VERT], CAM_ROT, "cam_rot", G_VEC4);
+    declare_uniform(&gizmo_shader.stages[VERT], VIEW_SIZE, "view_size", G_VEC3);
+    declare_uniform(&gizmo_shader.stages[FRAG], COLOR, "color", G_VEC3);
     load_shader_from_file(&gizmo_shader, "gizmo.vs", "gizmo.fs");
 
-    shader_stage* stages[MAX_SHADER_STAGES];
-    stages[VERT] = &gizmo_shader.stages[VERT];
-    stages[FRAG] = &gizmo_shader.stages[FRAG];
-    declare_uniform(stages[VERT], O_POS, "offset", G_VEC3);
-    declare_uniform(stages[VERT], O_ROT, "rotor", G_VEC4);
-    declare_uniform(stages[VERT], O_SCALE, "scale", G_VEC3);
-    declare_uniform(stages[VERT], CAM_POS, "cam_pos", G_VEC3);
-    declare_uniform(stages[VERT], CAM_ROT, "cam_rot", G_VEC4);
-    declare_uniform(stages[VERT], VIEW_SIZE, "view_size", G_VEC3);
-    declare_uniform(stages[FRAG], COLOR, "color", G_VEC3);
-
-    // physics_sim.broad_phase_root = &scene_bvh;
     cv_a.position = &v_a;
     cv_a.orientation = &r_a;
     cv_a.half_size = (vec3){1,1,1};
@@ -79,7 +69,7 @@ void load_scene()
 
 #include "developer_window.c"
 
-static inline void process_input()
+void process_input()
 {
     SDL_Event event;
     
@@ -116,7 +106,7 @@ static inline void process_input()
     nk_input_end(dev_ctx);
 }
 
-void update()
+void update_app()
 {
     point_camera_at((vec3){0});
 
@@ -127,41 +117,6 @@ void update()
 
     collision_detect(&p);
 }
-
-// vec3 bvh_color = (vec3){0};
-// void draw_bvh(binary_tree* node)
-// {
-//     if(node == NULL) return;
-//     if(node->data == NULL) return;
-//     aabb a = ((bvh_data*)node->data)->box;
-    
-//     set_uniform(shaders[GIZMO].stages[VERT].uniforms[O_POS].id, 3f, a.center.x, a.center.y, a.center.z);
-//     set_uniform(shaders[GIZMO].stages[VERT].uniforms[O_ROT].id, 4f, 0,0,0,1);
-//     set_uniform(shaders[GIZMO].stages[VERT].uniforms[O_SCALE].id, 3f, m_mul(fl2real(2),a.half_size.x), m_mul(fl2real(2),a.half_size.y), m_mul(fl2real(2),a.half_size.z));
-//     set_uniform(shaders[GIZMO].stages[FRAG].uniforms[COLOR].id, 3f, bvh_color.x, bvh_color.y, bvh_color.z);
-//     glDrawArrays(GL_TRIANGLES, 0, g_mesh[GIZMO_CENTERED_CUBE].vertex_count);
-// }
-
-// void render_bvh()
-// {
-//     //TODO clearer BVH presentation
-//     //TODO helper AABB rendering for mesh-mesh collisions
-//     //bvh rendering
-//     glBindVertexArray(g_mesh[GIZMO_CENTERED_CUBE].vertex_array);
-
-//     //bvh insert preview
-//     binary_tree preview = {0};
-//     bvh_data insert_preview = {(aabb){debug_center, debug_half_size}};
-//     bvh_color = (vec3){1,1,0};
-//     preview.data = &insert_preview;
-//     draw_bvh(&preview);
-
-//     glEnable(GL_BLEND);
-//     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//         bvh_color = (vec3){1,0,0};
-//         // binary_tree_width_traversal(physics_sim.broad_phase_root, draw_bvh, draw_bvh);
-//     glDisable(GL_BLEND);
-// }
 
 void render_collision_test()
 {
@@ -192,7 +147,7 @@ void render_collision_test()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     for(i = 0; i < 2; i++)
     {
-        collision_volume v = *p.members[i];
+        collision_volume v = *(p.members[i]);
         uint16_t vertex_array = g_mesh[GIZMO_SPHERE].vertex_array;
         uint16_t vertex_count = g_mesh[GIZMO_SPHERE].vertex_count;
         switch(v.type)
@@ -215,7 +170,9 @@ void render_collision_test()
         if(v.type == SPHERE)    scale = (vec3){v.radius, v.radius, v.radius};
         if(v.type == BOX)       scale = vec_scalar_multiply(v.half_size, 2);
         set_uniform(gizmo_shader.stages[VERT].uniforms[O_SCALE].id, 3f, scale.x, scale.y, scale.z);
-        set_uniform(gizmo_shader.stages[FRAG].uniforms[COLOR].id, 3f, 0.1, 0.1, 1.0);
+        
+        vec3 color = i == 0? (vec3){1.0,0.1,0.1} : (vec3){0.1,1.0,0.1};
+        set_uniform(gizmo_shader.stages[FRAG].uniforms[COLOR].id, 3f, color.x, color.y, color.z);
         glDrawArrays(GL_TRIANGLES, 0, vertex_count);
     }
     glDisable(GL_BLEND);
@@ -232,13 +189,10 @@ void render_output()
     //Clear
     clear_screen(COLOR_BIT | DEPTH_BIT);
 
-    // render_collision_test();
+    render_collision_test();
 
     //UI
-    // clear_screen(DEPTH_BIT);
-    // render_bvh();
-    
-    // clear_screen(DEPTH_BIT);
+    clear_screen(DEPTH_BIT);
     draw_vector(x, (vec3){0}, (vec3){1,0,0});
     draw_vector(y, (vec3){0}, (vec3){0,1,0});
     draw_vector(z, (vec3){0}, (vec3){0,0,1});
@@ -257,20 +211,5 @@ int main()
 
     dev_window_setup();
     
-    while(running)
-    {
-        update_accumulator(SDL_GetTicks());
-
-        uint32_t loop_dt = SDL_GetTicks();
-        {
-            process_input();
-
-            fixed_update(update);
-
-            render_output();
-        }
-        loop_dt = SDL_GetTicks() - loop_dt;
-
-        SDL_Delay((desired_ft - loop_dt)*(loop_dt < desired_ft));
-    }
+    app_loop();
 }

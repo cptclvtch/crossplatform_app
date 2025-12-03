@@ -14,10 +14,7 @@ void collision_detect(collision_pair* p);
 
 void sphere_to_sphere(collision_pair* p)
 {
-    printf("p->members[0]: %p\n", p->members[0]);
-    printf("p->members[1]: %p\n", p->members[1]);
-    collision_volume* a;
-    a = p->members[0];
+    collision_volume* a = p->members[0];
     collision_volume* b = p->members[1];
 
     vec3 dir = vec_subtract(*b->position, *a->position); //a to b
@@ -248,6 +245,7 @@ void box_to_box(collision_pair* p)
     else
     {
         //edge-edge
+        //TODO implement box-box edge-edge
         contact_normal = best_axis;
     }
     
@@ -439,7 +437,7 @@ void collision_detect(collision_pair* p)
 
     reset_contact_data(p);
 
-    if(a->type != GROUP && b->type != GROUP)
+    if(a->type != GROUPED && b->type != GROUPED)
         CALL_NARROW_FUNC(p)
 
     //handle groups

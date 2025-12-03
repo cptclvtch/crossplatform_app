@@ -47,7 +47,7 @@ vec3 halfsize_separating_axis_test(real center_a, real half_a, real center_b, re
 //     return axes;
 // }
 
-FORCE_INLINE real vertex_face_overlap(vec3 point, vec3 face_normal, vec3 face_offset)
+inline real vertex_face_overlap(vec3 point, vec3 face_normal, vec3 face_offset)
 {
     return vec_dot_product(vec_subtract(point, face_offset), vec_reverse(face_normal));
 }
@@ -127,7 +127,7 @@ rotor3 edge_edge_overlap(vec3 center_diff, vec3 a_origin, vec3 a_edge, vec3 b_or
 if((p->points[p->contact_count]).penetration >= 0)\
 {p->contact_count++; p->type = CONFIRMED_COLLISION;}
 
-FORCE_INLINE void update_potential_contact(collision_pair* p, vec3 contact_point, vec3 contact_normal, real overlap)
+inline void update_potential_contact(collision_pair* p, vec3 contact_point, vec3 contact_normal, real overlap)
 {
     contact* potential_contact = &p->points[p->contact_count];
 

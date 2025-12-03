@@ -10,10 +10,6 @@
 #define chunked_array_remove    CONCATENATE(chunked_array, _remove)         //TYPE_chunked_array_remove
 #define free_chunked_array      CONCATENATE(free_, chunked_array)           //free_TYPE_chunked_array
 
-#ifndef FORCE_INLINE
-#define FORCE_INLINE __attribute((always_inline)) inline
-#endif
-
 typedef struct
 {
     TYPE** chunks;

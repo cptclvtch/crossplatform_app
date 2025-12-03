@@ -1,3 +1,4 @@
+//TODO switch to include guard style inclusion
 #include <stdint.h>
 #include <math.h>
 #include <stdlib.h>

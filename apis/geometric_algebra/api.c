@@ -3,10 +3,6 @@
 #ifndef _GEOMETRIC_ALGEBRA_H
     #define _GEOMETRIC_ALGEBRA_H
 
-#ifndef FORCE_INLINE
-#define FORCE_INLINE __attribute((always_inline)) inline
-#endif
-
 #ifdef _CUSTOM_MATH_
     #warning Using custom math library. Nothing inherently wrong with that.
 #else
@@ -79,7 +75,7 @@ rotor3 vec_geometric_product(vec3 a, vec3 b);
 vec3 vec_geometric_inverse(vec3 a);
 
 //Rotors
-#define IDENTITY_ROTOR (rotor3){fl2real(1.0), (bivec3){0}}
+#define IDENTITY_ROTOR (rotor3){1, {0,0,0}}
 rotor3 rotor_from_vectors(vec3 a, vec3 b);
 rotor3 rotor_from_scaled_axis_angle(vec3 a);
 rotor3 rotor_reverse(rotor3 r);

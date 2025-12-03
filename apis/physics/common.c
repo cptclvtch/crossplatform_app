@@ -1,7 +1,7 @@
 #ifndef INCLUDE_IMPLEMENTATION
 
 // f = G*m1*m2/(r*r);
-#define GRAVITY 10.0
+// #define GRAVITY 10.0
 
 float get_inverse_mass(float mass);
 
@@ -13,6 +13,10 @@ float energy_conserved_speed_scaling(float e, float dm);
 //----------------------------------
 #else
 //----------------------------------
+
+#ifndef GRAVITY
+#define GRAVITY 10.0
+#endif
 
 float get_inverse_mass(float mass)
 {

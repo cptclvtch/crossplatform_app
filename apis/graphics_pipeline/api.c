@@ -62,10 +62,10 @@ uint32_t load_texture_from_path(char* path)
 
     // glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
-    printf("\nglTexImage(mode:%u, width:%u, height:%u), MAX_TEX_SIZE:%u\n",mode, surface->w, surface->h, GL_MAX_TEXTURE_SIZE);
+    PRINT_FN("\nglTexImage(mode:%u, width:%u, height:%u), MAX_TEX_SIZE:%u\n",mode, surface->w, surface->h, GL_MAX_TEXTURE_SIZE);
     glTexImage2D(GL_TEXTURE_2D, 0, mode, surface->w, surface->h, 0, mode, GL_UNSIGNED_BYTE, surface->pixels);
     gl_error = glGetError();
-    if(gl_error != GL_NO_ERROR) printf("\nError %u loading texture\n", gl_error);
+    if(gl_error != GL_NO_ERROR) PRINT_FN("\nError %u loading texture\n", gl_error);
 
     glGenerateMipmap(GL_TEXTURE_2D);
     SDL_FreeSurface(surface);

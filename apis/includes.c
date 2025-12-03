@@ -14,8 +14,4 @@
 #include "physics/api.c"
 #endif
 
-#include "input_system/api.c"
-
-#ifdef INCLUDE_GAME_ENGINE_API
-#include "game_engine/api.c"
-#endif
+// #include "input_system/api.c"

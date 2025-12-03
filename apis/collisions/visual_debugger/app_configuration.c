@@ -1,4 +1,5 @@
 #define APP_NAME "Collision Debugger"
+#define CROSSPLATFORM_APP_FOLDER "../../.."
 
 #define SDL_IMPLEMENTATION
 
