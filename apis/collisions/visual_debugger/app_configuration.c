@@ -1,0 +1,8 @@
+#define APP_NAME "Collision Debugger"
+#define CROSSPLATFORM_APP_FOLDER "../../.."
+
+#define SDL_IMPLEMENTATION
+
+#define NK_IMPLEMENTATION
+    // #define NK_SDL_GL3_IMPLEMENTATION
+    #define NK_SDL_RENDERER_IMPLEMENTATION

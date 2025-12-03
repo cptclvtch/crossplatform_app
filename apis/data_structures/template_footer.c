@@ -1,0 +1,9 @@
+#undef TYPE
+#undef DESIRED_TYPE
+
+#undef PREFIX
+#undef DESIRED_PREFIX
+
+#undef ASSISTING_TYPE
+
+#undef USING_VOIDP_DEFAULT
