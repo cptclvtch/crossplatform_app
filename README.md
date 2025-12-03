@@ -26,6 +26,14 @@ NOTE: If you are on Linux, make sure you install ```tools/tcc/linux/tcc_0.9.27-5
 - Set up the project by running the following command:
 ```tcc crossplatform_app/script_setup.c -run```
 
+## Alternative project setup
+- You can also setup a project without copying this repository!
+
+- Simply go to your crossplatform_app folder and run the following command while specifying your project folder path:
+```tcc script_setup.c -run -DPROJECT_FOLDER=../your/project/folder```
+
+- Don't forget to update CROSSPLATFORM_APP_FOLDER in app_configuration.c to the path of crossplatform_app relative to your project!
+
 This completes the setup process!
 
 For compilation instructions, please read the following section.
@@ -37,15 +45,24 @@ For compilation instructions, please read the following section.
     The example ```main.c``` code:
     ```
     #include "app_configuration.c"
-    #include "crossplatform_app/api.c"
+    #include STRINGIFY(CROSSPLATFORM_APP_FOLDER/api.c)
+
+    void process_input()
+    {}
+
+    void update_app()
+    {}
+
+    void render_output()
+    {}
 
     int main()
     {
-        setup();
+        setup_app();
 
-        game_loop();
+        app_loop();
 
-        close();
+        close_app();
     }
     ```
 - Build and run your app using the provided scripts: ```script_build.c``` and ```script_run.c```.
