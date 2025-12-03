@@ -12,7 +12,6 @@
 #endif
 
 #ifdef _FPTC_H_
-#warning Using fixed point math. Nothing inherently wrong with that.
     typedef fpt real;
     #define REAL_MIN FPT_MIN
     #define REAL_MAX FPT_MAX
@@ -35,7 +34,6 @@
     #define m_log(a,b)  fpt_log(a,b)
     #define m_pow(a,e)  fpt_pow(a,e)
 #else
-#warning Using floating point math. Nothing inherently wrong with that.
     typedef float real;
     #define REAL_MIN -FLT_MAX
     #define REAL_MAX  FLT_MAX

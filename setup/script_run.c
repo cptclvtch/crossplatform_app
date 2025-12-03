@@ -1,6 +1,7 @@
-#include <stdlib.h>
 #include "app_configuration.c"
-#include "crossplatform_app/script_helper.c"
+
+#include <stdlib.h>
+#include STRINGIFY(CROSSPLATFORM_APP_FOLDER/script_helper.c)
 
 int main()
 {
